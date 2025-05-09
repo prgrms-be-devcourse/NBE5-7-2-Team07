@@ -1,10 +1,14 @@
 package com.luckyseven.backend.domain.team.entity;
 
 import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,4 +34,7 @@ public class Team extends BaseEntity {
 
   @Column(name = "budget_id")
   private Long budgetId;
+
+  @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<TeamMember> teamMembers = new ArrayList<>();
 }
