@@ -51,4 +51,10 @@ public class Expense extends BaseEntity {
 
     @Column(name = "team_id", nullable = false)
     private Long teamId;
+
+    public void update(String description, BigDecimal amount, ExpenseCategory category) {
+        this.description = description;
+        this.amount = amount;
+        this.category = category;
+    }
 }
