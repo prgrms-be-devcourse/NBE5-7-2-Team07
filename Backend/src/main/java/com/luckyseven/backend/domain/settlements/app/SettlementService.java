@@ -6,6 +6,7 @@ import com.luckyseven.backend.domain.settlements.dao.SettlementRepository;
 import com.luckyseven.backend.domain.settlements.dao.SettlementSpecification;
 import com.luckyseven.backend.domain.settlements.dto.SettlementCreateRequest;
 import com.luckyseven.backend.domain.settlements.dto.SettlementResponse;
+import com.luckyseven.backend.domain.settlements.dto.SettlementSearchCondition;
 import com.luckyseven.backend.domain.settlements.dto.SettlementUpdateRequest;
 import com.luckyseven.backend.domain.settlements.entity.Settlement;
 import com.luckyseven.backend.domain.settlements.util.SettlementMapper;
@@ -44,18 +45,18 @@ public class SettlementService {
   }
 
   @Transactional(readOnly = true)
-  public Page<SettlementResponse> readSettlementPage(Long teamId, Long payerId, Long settlerId,
-      Long expenseId, Boolean isSettled, Pageable pageable) {
+  public Page<SettlementResponse> readSettlementPage(Long teamId,
+      SettlementSearchCondition condition, Pageable pageable) {
     if (teamId == null) {
       throw new CustomLogicException(ExceptionCode.BAD_REQUEST);
     }
 
     Specification<Settlement> specification = Specification
         .where(SettlementSpecification.hasTeamId(teamId))
-        .and(SettlementSpecification.hasPayerId(payerId))
-        .and(SettlementSpecification.hasSettlerId(settlerId))
-        .and(SettlementSpecification.hasExpenseId(expenseId))
-        .and(SettlementSpecification.hasIsSettled(isSettled));
+        .and(SettlementSpecification.hasPayerId(condition.getPayerId()))
+        .and(SettlementSpecification.hasSettlerId(condition.getSettlerId()))
+        .and(SettlementSpecification.hasExpenseId(condition.getExpenseId()))
+        .and(SettlementSpecification.hasIsSettled(condition.getIsSettled()));
     Page<Settlement> settlementPage = settlementRepository.findAll(specification, pageable);
 
     return settlementPage.map(SettlementMapper::toSettlementResponse);

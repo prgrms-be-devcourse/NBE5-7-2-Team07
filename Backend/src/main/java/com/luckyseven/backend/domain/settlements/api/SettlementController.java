@@ -2,16 +2,20 @@ package com.luckyseven.backend.domain.settlements.api;
 
 import com.luckyseven.backend.domain.settlements.app.SettlementService;
 import com.luckyseven.backend.domain.settlements.dto.SettlementResponse;
+import com.luckyseven.backend.domain.settlements.dto.SettlementSearchCondition;
 import com.luckyseven.backend.domain.settlements.dto.SettlementUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,14 +45,11 @@ public class SettlementController {
   @GetMapping("/teams/{teamId}/settlements")
   public ResponseEntity<Page<SettlementResponse>> readSettlements(
       @PathVariable Long teamId,
-      @RequestParam(required = false) Long expenseId,
-      @RequestParam(required = false) Long payerId,
-      @RequestParam(required = false) Long settlerId,
-      @RequestParam(required = false) Boolean isSettled,
-      @RequestParam(defaultValue = "0") Integer page,
-      @RequestParam(defaultValue = "10") Integer size) {
-    Page<SettlementResponse> settlementPage = settlementService.readSettlementPage(teamId, payerId,
-        settlerId, expenseId, isSettled, PageRequest.of(page, size));
+      @ModelAttribute SettlementSearchCondition condition,
+      @PageableDefault(page = 0, size = 10) Pageable pageable
+  ) {
+    Page<SettlementResponse> settlementPage = settlementService.readSettlementPage(teamId,
+        condition, pageable);
     return ResponseEntity.ok(settlementPage);
   }
 
@@ -59,7 +60,7 @@ public class SettlementController {
   public ResponseEntity<SettlementResponse> updateSettlement(
       @PathVariable Long settlementId,
       @Parameter(description = "true면 body를 무시하고 정산처리만 진행") @RequestParam(defaultValue = "false") Boolean settledOnly
-      , @RequestBody SettlementUpdateRequest request) {
+      , @Valid @RequestBody SettlementUpdateRequest request) {
     if (settledOnly) {
       return ResponseEntity.ok(settlementService.settleSettlement(settlementId));
     } else {
