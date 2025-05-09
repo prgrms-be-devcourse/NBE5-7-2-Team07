@@ -30,9 +30,6 @@ public class ExpenseRequest {
     @NotNull(message = "카테고리는 필수 선택 항목입니다.")
     private ExpenseCategory category;
 
-    @NotNull(message = "결제자 ID는 필수 입력 항목입니다.")
-    private Long payerId;
-
     @NotEmpty(message = "정산 대상자가 최소 1명 이상 필요합니다.")
     private List<@NotNull(message = "정산 대상자 ID는 null일 수 없습니다.") Long> settlerId;
 
