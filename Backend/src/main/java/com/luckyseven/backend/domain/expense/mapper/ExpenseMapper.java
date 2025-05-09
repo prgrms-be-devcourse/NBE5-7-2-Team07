@@ -14,7 +14,8 @@ public class ExpenseMapper {
             .description(request.getDescription())
             .amount(request.getAmount())
             .category(request.getCategory())
-            .payerId(request.getPayerId())
+            // TODO: SecurityContextHolder 에서 payerId 꺼내오도록 구현
+            .payerId(null)
             .teamId(teamId)
             .build();
     }
