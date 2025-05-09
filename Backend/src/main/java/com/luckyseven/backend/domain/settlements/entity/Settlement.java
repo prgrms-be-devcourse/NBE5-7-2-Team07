@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -33,6 +34,7 @@ public class Settlement extends BaseEntity {
   @Column(nullable = false)
   private Boolean isSettled = false;
 
+  // TODO: TEMP 엔티티 제거
   @ManyToOne
   @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), nullable = false)
   private TempMember settler;
@@ -44,4 +46,35 @@ public class Settlement extends BaseEntity {
   @ManyToOne
   @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), nullable = false)
   private TempExpense expense;
+
+  @Builder
+  public Settlement(BigDecimal amount, TempMember settler, TempMember payer, TempExpense expense) {
+    this.amount = amount;
+    this.settler = settler;
+    this.payer = payer;
+    this.expense = expense;
+  }
+
+  public void update(BigDecimal amount, TempMember settler, TempMember payer, TempExpense expense,
+      Boolean isSettled) {
+    if (amount != null) {
+      this.amount = amount;
+    }
+    if (settler != null) {
+      this.settler = settler;
+    }
+    if (payer != null) {
+      this.payer = payer;
+    }
+    if (expense != null) {
+      this.expense = expense;
+    }
+    if (isSettled != null) {
+      this.isSettled = isSettled;
+    }
+  }
+
+  public void setSettled() {
+    this.isSettled = true;
+  }
 }
