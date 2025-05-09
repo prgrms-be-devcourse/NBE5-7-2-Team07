@@ -1,11 +1,10 @@
 package com.luckyseven.backend.domain.team.entity;
 
+import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,10 +17,7 @@ import lombok.Setter;
     @Index(name = "idx_team_leader_id", columnList = "leader_id"),
     @Index(name = "idx_team_budget_id", columnList = "budget_id")
 })
-public class Team {
-
-  @Id
-  private Long id;
+public class Team extends BaseEntity {
 
   @Column(nullable = false)
   private String name;
@@ -34,11 +30,4 @@ public class Team {
 
   @Column(name = "budget_id")
   private Long budgetId;
-
-  @Column(name = "created_at")
-  private LocalDateTime createdAt;
-
-  @Column(name = "updated_at")
-  private LocalDateTime updatedAt;
 }
-
