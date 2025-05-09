@@ -2,12 +2,14 @@ package com.luckyseven.backend.domain.expense.controller;
 
 import com.luckyseven.backend.domain.expense.dto.ExpenseRequest;
 import com.luckyseven.backend.domain.expense.dto.ExpenseResponse;
+import com.luckyseven.backend.domain.expense.dto.ExpenseUpdateRequest;
 import com.luckyseven.backend.domain.expense.service.ExpenseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,4 +35,13 @@ public class ExpenseController {
         return expenseService.saveExpense(teamId, request);
     }
 
+    @Operation(summary = "지출 내역 수정")
+    @PatchMapping("/expense/{expenseId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ExpenseResponse updateExpense(
+        @PathVariable Long expenseId,
+        @RequestBody @Valid ExpenseUpdateRequest request
+    ) {
+        return expenseService.updateExpense(expenseId, request);
+    }
 }
