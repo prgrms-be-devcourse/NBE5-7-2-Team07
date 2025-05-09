@@ -24,7 +24,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Table(
-    indexes = @Index(name = "idx_expense_payer", columnList = "payer_id")
+    indexes = {
+        @Index(name = "idx_expense_payer", columnList = "payer_id"),
+        @Index(name = "idx_expense_team", columnList = "team_id")
+    }
 )
 public class Expense extends BaseEntity {
 
@@ -45,4 +48,7 @@ public class Expense extends BaseEntity {
 
     @Column(name = "payer_id", nullable = false)
     private Long payerId;
+
+    @Column(name = "team_id", nullable = false)
+    private Long teamId;
 }
