@@ -12,6 +12,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(
@@ -21,6 +25,10 @@ import jakarta.persistence.Table;
         @Index(name = "idx_tm_team", columnList = "team_id")
     }
 )
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @AttributeOverride(name = "id", column = @Column(name = "team_member_id"))
 public class TeamMember extends BaseEntity {
 
