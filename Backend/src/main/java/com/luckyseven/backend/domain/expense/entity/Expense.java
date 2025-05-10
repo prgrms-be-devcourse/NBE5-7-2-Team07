@@ -2,6 +2,7 @@ package com.luckyseven.backend.domain.expense.entity;
 
 import com.luckyseven.backend.domain.expense.enums.ExpenseCategory;
 import com.luckyseven.backend.domain.expense.util.TempMember;
+import com.luckyseven.backend.domain.expense.util.TempTeam;
 import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -64,7 +65,7 @@ public class Expense extends BaseEntity {
       foreignKey = @ForeignKey(ConstraintMode.CONSTRAINT),
       nullable = false
   )
-  private TempMember team;
+  private TempTeam team;
 
   public void update(String description, BigDecimal amount, ExpenseCategory category) {
     if (description != null) {
