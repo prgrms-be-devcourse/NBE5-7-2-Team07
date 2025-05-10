@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.luckyseven.backend.domain.expense.dto.CreateExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseBalanceResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseRequest;
+import com.luckyseven.backend.domain.expense.dto.ExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseUpdateRequest;
 import com.luckyseven.backend.domain.expense.entity.Expense;
 import com.luckyseven.backend.domain.expense.enums.ExpenseCategory;
@@ -16,12 +17,15 @@ import com.luckyseven.backend.domain.expense.enums.PaymentMethod;
 import com.luckyseven.backend.domain.expense.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.expense.util.TempBudget;
 import com.luckyseven.backend.domain.expense.util.TempMember;
+import com.luckyseven.backend.domain.expense.util.TempSettlement;
+import com.luckyseven.backend.domain.expense.util.TempSettlementRepository;
 import com.luckyseven.backend.domain.expense.util.TempTeam;
 import com.luckyseven.backend.domain.expense.util.TempTeamRepository;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,6 +44,9 @@ class ExpenseServiceTest {
   // TODO: 너무 코드양이 많아서 리팩토링 예정
   @Mock
   private TempTeamRepository teamRepository;
+
+  @Mock
+  private TempSettlementRepository settlementRepository;
 
   @Mock
   private ExpenseRepository expenseRepository;
@@ -137,6 +144,74 @@ class ExpenseServiceTest {
       }
     }
   }
+
+  @Nested
+  @DisplayName("지출 조회 테스트")
+  class GetExpenseTests {
+
+    @Test
+    @DisplayName("지출 조회 성공")
+    void success() {
+
+      // given
+      TempMember payer = new TempMember();
+
+      Expense expense = Expense.builder()
+          .id(1L)
+          .description("럭키비키즈 점심 식사")
+          .amount(new BigDecimal("50000.00"))
+          .category(ExpenseCategory.MEAL)
+          .paymentMethod(PaymentMethod.CARD)
+          .payer(payer)
+          .team(team)
+          .build();
+
+      TempSettlement s1 = TempSettlement.builder()
+          .id(100L)
+          .expense(expense)
+          .settler(new TempMember(10L, "박유한1"))
+          .build();
+
+      TempSettlement s2 = TempSettlement.builder()
+          .id(200L)
+          .expense(expense)
+          .settler(new TempMember(20L, "박유한2"))
+          .build();
+
+      when(expenseRepository.findById(expense.getId())).thenReturn(Optional.of(expense));
+      when(settlementRepository.findByExpenseId(expense.getId()))
+          .thenReturn(List.of(s1, s2));
+
+      // when
+      ExpenseResponse response = expenseService.getExpense(expense.getId());
+
+      // then
+      assertThat(response.getDescription()).isEqualTo("럭키비키즈 점심 식사");
+      assertThat(response.getAmount()).isEqualByComparingTo(new BigDecimal("50000"));
+      assertThat(response.getCategory()).isEqualTo(ExpenseCategory.MEAL);
+      assertThat(response.getPaymentMethod()).isEqualTo(PaymentMethod.CARD);
+      assertThat(response.getSettlers().get(0).getId()).isEqualTo(10L);
+      assertThat(response.getSettlers().get(1).getId()).isEqualTo(20L);
+
+      verify(expenseRepository).findById(expense.getId());
+      verify(settlementRepository).findByExpenseId(expense.getId());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 지출 조회 시 예외 발생")
+    void notFound_throwsException() {
+      // given
+      Long expenseId = 999L;
+      when(expenseRepository.findById(expenseId)).thenReturn(Optional.empty());
+
+      // when & then
+      assertThatThrownBy(() -> expenseService.getExpense(expenseId))
+          .isInstanceOf(CustomLogicException.class)
+          .extracting("exceptionCode")
+          .isEqualTo(ExceptionCode.EXPENSE_NOT_FOUND);
+    }
+  }
+
 
   @Nested
   @DisplayName("지출 수정 테스트")
