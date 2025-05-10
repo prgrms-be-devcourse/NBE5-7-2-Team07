@@ -1,14 +1,19 @@
 package com.luckyseven.backend.domain.expense.util;
 
-import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
-public class TempMember extends BaseEntity {
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+public class TempMember {
 
   @Id
-  private String email;
-  
+  private Long id;
+  private String nickname;
 
 }
