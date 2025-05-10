@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class ExpenseResponse {
+public class CreateExpenseResponse {
 
-    private Long expenseId;
-    private BigDecimal amount;
-    private BigDecimal foreignBalance;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private BigDecimal balance;
+  private Long expenseId;
+  private BigDecimal amount;
+  private BigDecimal foreignBalance;
+  private BigDecimal balance;
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
 }
