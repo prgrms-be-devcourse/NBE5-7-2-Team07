@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class ExpenseBalanceResponse {
-    
-    private BigDecimal foreignBalance;
 
-    private BigDecimal balance;
+  private BigDecimal foreignBalance;
+
+  private BigDecimal balance;
 }
