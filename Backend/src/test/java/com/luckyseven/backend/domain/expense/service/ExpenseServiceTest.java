@@ -157,7 +157,6 @@ class ExpenseServiceTest {
       TempMember payer = new TempMember();
 
       Expense expense = Expense.builder()
-          .id(1L)
           .description("럭키비키즈 점심 식사")
           .amount(new BigDecimal("50000.00"))
           .category(ExpenseCategory.MEAL)
@@ -232,7 +231,6 @@ class ExpenseServiceTest {
       TempMember payer = new TempMember();
 
       Expense original = Expense.builder()
-          .id(1L)
           .description("원래 럭키비키즈 점심 식사")
           .amount(new BigDecimal("50000.00"))
           .category(ExpenseCategory.MEAL)
@@ -267,7 +265,6 @@ class ExpenseServiceTest {
       TempMember payer = new TempMember();
 
       Expense original = Expense.builder()
-          .id(1L)
           .description("원본 점심 식사")
           .amount(new BigDecimal("50000.00"))
           .category(ExpenseCategory.MEAL)
@@ -315,7 +312,6 @@ class ExpenseServiceTest {
       TempMember payer = new TempMember();
 
       Expense original = Expense.builder()
-          .id(1L)
           .description("럭키비키즈 원래 점심 식사")
           .amount(new BigDecimal("50000.00"))
           .category(ExpenseCategory.MEAL)
@@ -341,7 +337,6 @@ class ExpenseServiceTest {
     void success() {
       // given: 기존 지출 금액 10만원, 삭제할 지출 3만원
       Expense expense = Expense.builder()
-          .id(1L)
           .amount(new BigDecimal("30000.00"))
           .team(team)
           .build();

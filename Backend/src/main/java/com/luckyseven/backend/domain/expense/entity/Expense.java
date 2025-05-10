@@ -20,15 +20,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
 @Entity
 @Table(
     indexes = {
@@ -71,6 +68,21 @@ public class Expense extends BaseEntity {
       nullable = false
   )
   private TempTeam team;
+
+  @Builder
+  private Expense(String description,
+      BigDecimal amount,
+      ExpenseCategory category,
+      PaymentMethod paymentMethod,
+      TempMember payer,
+      TempTeam team) {
+    this.description = description;
+    this.amount = amount;
+    this.category = category;
+    this.paymentMethod = paymentMethod;
+    this.payer = payer;
+    this.team = team;
+  }
 
   public void update(String description, BigDecimal amount, ExpenseCategory category) {
     if (description != null) {
