@@ -3,17 +3,21 @@ package com.luckyseven.backend.domain.expense.service;
 import com.luckyseven.backend.domain.expense.dto.CreateExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseBalanceResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseRequest;
+import com.luckyseven.backend.domain.expense.dto.ExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseUpdateRequest;
 import com.luckyseven.backend.domain.expense.entity.Expense;
 import com.luckyseven.backend.domain.expense.mapper.ExpenseMapper;
 import com.luckyseven.backend.domain.expense.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.expense.util.TempBudget;
 import com.luckyseven.backend.domain.expense.util.TempMember;
+import com.luckyseven.backend.domain.expense.util.TempSettlement;
+import com.luckyseven.backend.domain.expense.util.TempSettlementRepository;
 import com.luckyseven.backend.domain.expense.util.TempTeam;
 import com.luckyseven.backend.domain.expense.util.TempTeamRepository;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import java.math.BigDecimal;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +30,7 @@ public class ExpenseService {
 
   // TODO: TEMP 엔티티 수정
   private final TempTeamRepository teamRepository;
+  private final TempSettlementRepository settlementRepository;
 
   @Transactional
   public CreateExpenseResponse saveExpense(Long teamId, ExpenseRequest request) {
@@ -40,7 +45,17 @@ public class ExpenseService {
 
     budget.updateBalance(budget.getBalance().subtract(request.getAmount()));
 
-    return ExpenseMapper.toExpenseResponse(saved, budget);
+    return ExpenseMapper.toCreateExpenseResponse(saved, budget);
+  }
+
+  @Transactional(readOnly = true)
+  public ExpenseResponse getExpense(Long expenseId) {
+    Expense expense = findExpenseOrThrow(expenseId);
+
+    // TODO: Temp 수정
+    List<TempSettlement> settlements = settlementRepository.findByExpenseId(expenseId);
+
+    return ExpenseMapper.toExpenseResponse(expense, settlements);
   }
 
   @Transactional
@@ -58,7 +73,7 @@ public class ExpenseService {
     expense.update(request.getDescription(), updated, request.getCategory());
     budget.updateBalance(budget.getBalance().subtract(delta));
 
-    return ExpenseMapper.toExpenseResponse(expense, budget);
+    return ExpenseMapper.toCreateExpenseResponse(expense, budget);
   }
 
   @Transactional
