@@ -1,6 +1,7 @@
 package com.luckyseven.backend.domain.expense.entity;
 
 import com.luckyseven.backend.domain.expense.enums.ExpenseCategory;
+import com.luckyseven.backend.domain.expense.enums.PaymentMethod;
 import com.luckyseven.backend.domain.expense.util.TempMember;
 import com.luckyseven.backend.domain.expense.util.TempTeam;
 import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
@@ -51,6 +52,10 @@ public class Expense extends BaseEntity {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private ExpenseCategory category;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private PaymentMethod paymentMethod;
 
   // TODO: 임시로 설정한 TEMP 엔티티 삭제 및 수정
   @ManyToOne
