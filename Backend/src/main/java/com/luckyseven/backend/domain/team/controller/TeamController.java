@@ -1,6 +1,7 @@
 package com.luckyseven.backend.domain.team.controller;
 
 import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
+import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
 import com.luckyseven.backend.domain.team.dto.TeamJoinRequest;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
 import com.luckyseven.backend.domain.team.entity.Member;
@@ -23,10 +24,11 @@ public class TeamController {
   private final TempMemberService tempMemberService;
 
   @PostMapping("/api/team/create")
-  public ResponseEntity<Team> createTeam(@AuthenticationPrincipal Member member, @Valid @RequestBody
+  public ResponseEntity<TeamCreateResponse> createTeam(@AuthenticationPrincipal Member member, @Valid @RequestBody
   TeamCreateRequest request) {
     Team createdteam = teamService.createTeam(member, request);
-    return ResponseEntity.ok(createdteam);
+    TeamCreateResponse response = TeamCreateResponse.from(createdteam);
+    return ResponseEntity.ok(response);
   }
 
 
