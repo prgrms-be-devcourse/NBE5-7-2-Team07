@@ -11,13 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TeamJoinResponse {
-  private Long teamId;
+  private Long id;
   private String teamName;
   private String teamCode;
 
   public static TeamJoinResponse from(Team team) {
     return TeamJoinResponse.builder()
-        .teamId(team.getId())
+        .id(team.getId())
         .teamName(team.getName())
         .teamCode(team.getTeamCode())
         .build();
