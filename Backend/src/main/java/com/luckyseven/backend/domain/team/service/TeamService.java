@@ -8,6 +8,7 @@ import com.luckyseven.backend.domain.team.repository.TeamMemberRepository;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TeamService {
@@ -22,6 +23,7 @@ public class TeamService {
    * @param request 팀 생성 요청
    * @return 생성된 팀 정보
    */
+  @Transactional
   public Team createTeam(Member creator, TeamCreateRequest request) {
     String teamCode = generateTeamCode();
     Team team = Team.builder()
@@ -54,6 +56,7 @@ public class TeamService {
    * @return 가입된 팀의 정보
    * @throws IllegalArgumentException
    */
+  @Transactional
   public Team joinTeam(Member member, String teamCode, String teamPassword) {
     Team team = teamRepository.findByTeamCode(teamCode)
         .orElseThrow(() -> new IllegalArgumentException("에러"));
