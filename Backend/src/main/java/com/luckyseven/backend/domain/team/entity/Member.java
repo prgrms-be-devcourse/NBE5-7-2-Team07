@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "member")
@@ -21,7 +22,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @AttributeOverride(name = "id", column = @Column(name = "member_id"))
 public class Member extends BaseEntity {
 
@@ -35,6 +36,7 @@ public class Member extends BaseEntity {
 
 
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
   private List<TeamMember> teamMembers = new ArrayList<>();
 
 

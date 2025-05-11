@@ -6,6 +6,7 @@ import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
 import com.luckyseven.backend.domain.team.repository.TeamMemberRepository;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
+import java.util.UUID;
 
 public class TeamService {
 
@@ -17,10 +18,9 @@ public class TeamService {
    *
    * @param creator 팀 생성하는 회원
    * @param request 팀 생성 요청
-   * @return
+   * @return 생성된 팀 정보
    */
   public Team createTeam(Member creator, TeamCreateRequest request) {
-    request.getName();
     String teamCode = generateTeamCode();
     Team team = Team.builder()
         .name(request.getName())
@@ -48,7 +48,7 @@ public class TeamService {
    * @return 생성된 팀 코드
    */
   private String generateTeamCode() {
-    return null;
+    return UUID.randomUUID().toString().substring(0, 8);
   }
 
 }

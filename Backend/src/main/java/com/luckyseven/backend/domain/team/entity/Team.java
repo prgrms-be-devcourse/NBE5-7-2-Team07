@@ -14,13 +14,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Table(name = "team", indexes = {
     @Index(name = "idx_team_leader_id", columnList = "leader_id"),
     @Index(name = "idx_team_budget_id", columnList = "budget_id")
@@ -43,6 +44,7 @@ public class Team extends BaseEntity {
   private Long budgetId;
 
   @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
   private List<TeamMember> teamMembers = new ArrayList<>();
 
   public void addTeamMember(TeamMember teamMember) {

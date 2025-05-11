@@ -14,17 +14,19 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(
-    name = "TeamMember",
+    name = "team_member",
     indexes = {
         @Index(name = "idx_tm_member", columnList = "member_id"),
         @Index(name = "idx_tm_team", columnList = "team_id")
     }
 )
+@Getter
 @Setter
 @Builder
 @NoArgsConstructor
