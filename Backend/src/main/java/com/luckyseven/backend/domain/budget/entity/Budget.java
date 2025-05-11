@@ -11,11 +11,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-class Budget extends BaseEntity {
+public class Budget extends BaseEntity {
 
   @Id
   @Column(name = "budget_id")
@@ -25,21 +26,27 @@ class Budget extends BaseEntity {
   @Column(nullable = false)
   private Long teamId;
 
+  @Setter
   @Column(nullable = false)
   private BigDecimal totalAmount;
+  @Setter
   private BigDecimal exchangeRate;
 
+  @Setter
   @Column(nullable = false)
   private Long setBy;
 
+  @Setter
   @Column(nullable = false)
   private BigDecimal balance;
-  @Column(nullable = false)
+  @Setter
   private BigDecimal foreignBalance;
 
+  @Setter
   @Column(nullable = false)
   private String foreignCurrency;
 
+  @Setter
   @Column(nullable = false)
   private BigDecimal avgExchangeRate;
 
