@@ -51,7 +51,7 @@ public class Expense extends BaseEntity {
   private ExpenseCategory category;
 
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
+  @Column(name = "payment_method", nullable = false)
   private PaymentMethod paymentMethod;
 
   // TODO: 임시로 설정한 TEMP 엔티티 삭제 및 수정
@@ -70,7 +70,7 @@ public class Expense extends BaseEntity {
   private TempTeam team;
 
   @Builder
-  private Expense(String description,
+  public Expense(String description,
       BigDecimal amount,
       ExpenseCategory category,
       PaymentMethod paymentMethod,
