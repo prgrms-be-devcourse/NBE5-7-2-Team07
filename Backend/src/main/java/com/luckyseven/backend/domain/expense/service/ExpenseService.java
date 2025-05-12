@@ -52,25 +52,19 @@ public class ExpenseService {
 
     budget.updateBalance(budget.getBalance().subtract(request.getAmount()));
 
-    return ExpenseMapper.toCreateExpenseResponse(saved, budget);
-  }
+    // TODO: 정산 저장 로직 추가
 
-  private TempTeam findTeamWithBudgetOrThrow(Long teamId) {
-    return teamRepository.findTeamWithBudget(teamId)
-        .orElseThrow(() -> new CustomLogicException(TEAM_NOT_FOUND));
+    return ExpenseMapper.toCreateExpenseResponse(saved, budget);
   }
 
 
   @Transactional(readOnly = true)
   public ExpenseResponse getExpense(Long expenseId) {
 
-    Expense expense = expenseRepository.findExpenseWithAll(expenseId).stream()
-        .findFirst()
-        .orElseThrow(() -> new CustomLogicException(EXPENSE_NOT_FOUND));
+    Expense expense = findExpenseOrThrow(expenseId);
 
     return ExpenseMapper.toExpenseResponse(expense);
   }
-
 
   @Transactional(readOnly = true)
   public ExpenseListResponse getListExpense(Long teamId, Pageable pageable) {
@@ -133,5 +127,10 @@ public class ExpenseService {
     if (balance.compareTo(amount) < 0) {
       throw new CustomLogicException(INSUFFICIENT_BALANCE);
     }
+  }
+
+  private TempTeam findTeamWithBudgetOrThrow(Long teamId) {
+    return teamRepository.findTeamWithBudget(teamId)
+        .orElseThrow(() -> new CustomLogicException(TEAM_NOT_FOUND));
   }
 }
