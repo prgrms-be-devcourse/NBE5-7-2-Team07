@@ -2,6 +2,7 @@ package com.luckyseven.backend.domain.team.controller;
 
 import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
 import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
+import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
 import com.luckyseven.backend.domain.team.dto.TeamJoinRequest;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
 import com.luckyseven.backend.domain.team.dto.TeamMemberDto;
@@ -107,4 +108,10 @@ public class TeamController {
     return ResponseEntity.noContent().build();
   }
 
+  @GetMapping("/{teamId}/dashboard")
+  public ResponseEntity<TeamDashboardResponse> getTeamDashboard(@PathVariable Long teamId) {
+    TeamDashboardResponse dashboardResponse = teamService.getTeamDashboard(teamId);
+    return ResponseEntity.ok(dashboardResponse);
+  }
 }
+

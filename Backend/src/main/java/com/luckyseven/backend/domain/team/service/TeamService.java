@@ -2,14 +2,21 @@ package com.luckyseven.backend.domain.team.service;
 
 import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
 import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
+import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
+import com.luckyseven.backend.domain.team.entity.Budget;
+import com.luckyseven.backend.domain.team.entity.Expense;
 import com.luckyseven.backend.domain.team.entity.Member;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
+import com.luckyseven.backend.domain.team.repository.BudgetRepository;
+import com.luckyseven.backend.domain.team.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.team.repository.TeamMemberRepository;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
 import com.luckyseven.backend.domain.team.util.TeamMapper;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +25,9 @@ public class TeamService {
 
   TeamRepository teamRepository;
   TeamMemberRepository teamMemberRepository;
+  BudgetRepository budgetRepository;
+  ExpenseRepository expenseRepository;
+
   TeamMapper teamMapper;
   /**
    * 팀을 생성한다. 생성한 회원을 팀 리더로 등록한다
@@ -89,6 +99,43 @@ public class TeamService {
    */
   private String generateTeamCode() {
     return UUID.randomUUID().toString().substring(0, 8);
+  }
+
+
+  /**
+   * 대시보드를 가져온다.
+   * @param teamId
+   * @return
+   */
+  @Transactional(readOnly = true)
+  public TeamDashboardResponse getTeamDashboard(Long teamId) {
+    Team team = teamRepository.findById(teamId)
+        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
+
+    Budget budget = budgetRepository.findByTeamId(teamId)
+        .orElseThrow(() -> new IllegalArgumentException("팀의 예산 정보가 없습니다."));
+
+    List<Expense> expenses = expenseRepository.findAllByTeamId(teamId);
+
+    List<TeamDashboardResponse.ExpenseDto> expenseDtos = expenses.stream()
+        .map(expense -> TeamDashboardResponse.ExpenseDto.builder()
+            .category(expense.getCategory())
+            .amount(expense.getAmount())
+            .payer(expense.getPayerId())
+            .date(expense.getUpdatedAt())
+            .build())
+        .collect(Collectors.toList());
+
+    return TeamDashboardResponse.builder()
+        .team_id(teamId)
+        .currency(budget.getCurrency())
+        .balance(budget.getBalance())
+        .foreignBalance(budget.getForeignBalance())
+        .totalAmount(budget.getTotalAmount())
+        .exchangeRate(budget.getExchangeRate())
+        .avgExchangeRate(budget.getAvgExchangeRate())
+        .expenseList(expenseDtos)
+        .build();
   }
 
 }
