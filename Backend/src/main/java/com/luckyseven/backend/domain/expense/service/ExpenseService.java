@@ -1,7 +1,13 @@
 package com.luckyseven.backend.domain.expense.service;
 
+import static com.luckyseven.backend.sharedkernel.exception.ExceptionCode.EXPENSE_NOT_FOUND;
+import static com.luckyseven.backend.sharedkernel.exception.ExceptionCode.EXPENSE_PAYER_NOT_FOUND;
+import static com.luckyseven.backend.sharedkernel.exception.ExceptionCode.INSUFFICIENT_BALANCE;
+import static com.luckyseven.backend.sharedkernel.exception.ExceptionCode.TEAM_NOT_FOUND;
+
 import com.luckyseven.backend.domain.expense.dto.CreateExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseBalanceResponse;
+import com.luckyseven.backend.domain.expense.dto.ExpenseListResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseRequest;
 import com.luckyseven.backend.domain.expense.dto.ExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseUpdateRequest;
@@ -10,36 +16,37 @@ import com.luckyseven.backend.domain.expense.mapper.ExpenseMapper;
 import com.luckyseven.backend.domain.expense.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.expense.util.TempBudget;
 import com.luckyseven.backend.domain.expense.util.TempMember;
-import com.luckyseven.backend.domain.expense.util.TempSettlement;
-import com.luckyseven.backend.domain.expense.util.TempSettlementRepository;
+import com.luckyseven.backend.domain.expense.util.TempMemberRepository;
 import com.luckyseven.backend.domain.expense.util.TempTeam;
 import com.luckyseven.backend.domain.expense.util.TempTeamRepository;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
-import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+// TODO: TempMember, TempTeam 등 임시 구조 제거 후 실제 엔티티로 교체
 @Service
 @RequiredArgsConstructor
 public class ExpenseService {
 
   private final ExpenseRepository expenseRepository;
-
-  // TODO: TEMP 엔티티 수정
   private final TempTeamRepository teamRepository;
-  private final TempSettlementRepository settlementRepository;
+  private final TempMemberRepository memberRepository;
 
   @Transactional
   public CreateExpenseResponse saveExpense(Long teamId, ExpenseRequest request) {
-    TempTeam team = findTeamOrThrow(teamId);
-    TempBudget budget = team.getBudget();
 
+    TempTeam team = teamRepository.findTeamWithBudget(teamId);
+
+    TempMember payer = findPayerOrThrow(request.getPayerId());
+
+    TempBudget budget = team.getBudget();
     validateSufficientBudget(request.getAmount(), budget.getBalance());
 
-    TempMember payer = new TempMember();  // TODO: 시큐리티 설정 보고 수정
     Expense expense = ExpenseMapper.toExpense(request, team, payer);
     Expense saved = expenseRepository.save(expense);
 
@@ -48,29 +55,44 @@ public class ExpenseService {
     return ExpenseMapper.toCreateExpenseResponse(saved, budget);
   }
 
+
   @Transactional(readOnly = true)
   public ExpenseResponse getExpense(Long expenseId) {
-    Expense expense = findExpenseOrThrow(expenseId);
 
-    // TODO: Temp 수정
-    List<TempSettlement> settlements = settlementRepository.findByExpenseId(expenseId);
+    Expense expense = expenseRepository.findExpenseWithAll(expenseId).stream()
+        .findFirst()
+        .orElseThrow(() -> new CustomLogicException(EXPENSE_NOT_FOUND));
 
-    return ExpenseMapper.toExpenseResponse(expense, settlements);
+    return ExpenseMapper.toExpenseResponse(expense);
   }
+
+
+  @Transactional(readOnly = true)
+  public ExpenseListResponse getListExpense(Long teamId, Pageable pageable) {
+    TempTeam team = findTeamOrThrow(teamId);
+    Page<Expense> page = expenseRepository.findByTeamId(team.getId(), pageable);
+
+    List<ExpenseResponse> content = page.getContent().stream()
+        .map(ExpenseMapper::toExpenseResponse)
+        .toList();
+    
+    return ExpenseMapper.toExpenseListResponse(content, page);
+  }
+
 
   @Transactional
   public CreateExpenseResponse updateExpense(Long expenseId, ExpenseUpdateRequest request) {
     Expense expense = findExpenseOrThrow(expenseId);
-    BigDecimal previous = expense.getAmount();
-    BigDecimal updated = request.getAmount();
+    BigDecimal originalAmount = expense.getAmount();
+    BigDecimal newAmount = request.getAmount();
 
     TempBudget budget = expense.getTeam().getBudget();
-    BigDecimal delta = updated.subtract(previous);
+    BigDecimal delta = newAmount.subtract(originalAmount);
     if (delta.compareTo(BigDecimal.ZERO) > 0) {
       validateSufficientBudget(delta, budget.getBalance());
     }
 
-    expense.update(request.getDescription(), updated, request.getCategory());
+    expense.update(request.getDescription(), newAmount, request.getCategory());
     budget.updateBalance(budget.getBalance().subtract(delta));
 
     return ExpenseMapper.toCreateExpenseResponse(expense, budget);
@@ -84,23 +106,27 @@ public class ExpenseService {
     budget.updateBalance(budget.getBalance().add(expense.getAmount()));
     expenseRepository.delete(expense);
 
-    return ExpenseMapper.toExpenseBalanceResponce(budget);
+    return ExpenseMapper.toExpenseBalanceResponse(budget);
   }
-
 
   private TempTeam findTeamOrThrow(Long teamId) {
     return teamRepository.findById(teamId)
-        .orElseThrow(() -> new CustomLogicException(ExceptionCode.TEAM_NOT_FOUND));
+        .orElseThrow(() -> new CustomLogicException(TEAM_NOT_FOUND));
   }
 
-  private Expense findExpenseOrThrow(Long id) {
-    return expenseRepository.findById(id)
-        .orElseThrow(() -> new CustomLogicException(ExceptionCode.EXPENSE_NOT_FOUND));
+  private TempMember findPayerOrThrow(Long memberId) {
+    return memberRepository.findById(memberId)
+        .orElseThrow(() -> new CustomLogicException(EXPENSE_PAYER_NOT_FOUND));
+  }
+
+  private Expense findExpenseOrThrow(Long expenseId) {
+    return expenseRepository.findById(expenseId)
+        .orElseThrow(() -> new CustomLogicException(EXPENSE_NOT_FOUND));
   }
 
   private void validateSufficientBudget(BigDecimal amount, BigDecimal balance) {
     if (balance.compareTo(amount) < 0) {
-      throw new CustomLogicException(ExceptionCode.INSUFFICIENT_BALANCE);
+      throw new CustomLogicException(INSUFFICIENT_BALANCE);
     }
   }
 }
