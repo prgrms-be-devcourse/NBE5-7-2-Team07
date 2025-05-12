@@ -8,6 +8,7 @@ import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
 import com.luckyseven.backend.domain.team.repository.TeamMemberRepository;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
+import com.luckyseven.backend.domain.team.util.TeamMapper;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +18,7 @@ public class TeamService {
 
   TeamRepository teamRepository;
   TeamMemberRepository teamMemberRepository;
-
+  TeamMapper teamMapper;
   /**
    * 팀을 생성한다. 생성한 회원을 팀 리더로 등록한다
    *
@@ -46,7 +47,7 @@ public class TeamService {
     teamMemberRepository.save(teamMember);
 
     savedTeam.addTeamMember(teamMember);
-    return TeamCreateResponse.from(savedTeam);
+    return teamMapper.toCreateResponse(savedTeam);
   }
 
   /**
@@ -78,7 +79,7 @@ public class TeamService {
 
     teamMemberRepository.save(teamMember);
     team.addTeamMember(teamMember);
-    return TeamJoinResponse.from(team);
+    return teamMapper.toJoinResponse(team);
   }
 
   /**

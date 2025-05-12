@@ -6,7 +6,6 @@ import com.luckyseven.backend.domain.team.dto.TeamJoinRequest;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
 import com.luckyseven.backend.domain.team.dto.TeamMemberDto;
 import com.luckyseven.backend.domain.team.entity.Member;
-import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.repository.TeamMemberRepository;
 import com.luckyseven.backend.domain.team.service.TeamMemberService;
 import com.luckyseven.backend.domain.team.service.TeamService;
@@ -19,16 +18,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,7 +38,6 @@ public class TeamController {
   private final TeamService teamService;
   private final TempMemberService tempMemberService;
   private final TeamMemberService teamMemberService;
-  private final TeamMemberRepository teamMemberRepository;
 
   @Operation(
       summary = "팀 생성",
@@ -106,7 +101,7 @@ public class TeamController {
   public ResponseEntity<Void> removeTeamMember(
       @PathVariable Long teamMemberId,
       @PathVariable Long teamId
-  ){
+  ) {
 
     teamMemberService.removeTeamMember(teamId, teamMemberId);
     return ResponseEntity.noContent().build();

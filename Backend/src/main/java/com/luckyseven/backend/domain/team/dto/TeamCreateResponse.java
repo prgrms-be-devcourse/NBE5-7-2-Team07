@@ -11,19 +11,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class TeamCreateResponse {
+
   private Long id;
   private String name;
   private String teamCode;
   private Long leaderId;
   private String teamPassword;
-
-  public static TeamCreateResponse from(Team team) {
-    return TeamCreateResponse.builder()
-        .id(team.getId())
-        .name(team.getName())
-        .teamCode(team.getTeamCode())
-        .leaderId(team.getLeaderId())
-        .teamPassword(team.getTeamPassword())
-        .build();
-  }
 }

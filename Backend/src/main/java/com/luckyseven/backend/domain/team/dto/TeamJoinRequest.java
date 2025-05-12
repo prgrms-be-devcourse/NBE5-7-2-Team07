@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TeamJoinRequest {
+
   private String teamCode;
   private String teamPassword;
 }

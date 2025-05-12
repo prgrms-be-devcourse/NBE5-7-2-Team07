@@ -11,17 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TeamJoinResponse {
+
   private Long id;
   private String teamName;
   private String teamCode;
   private Long leaderId;
-
-  public static TeamJoinResponse from(Team team) {
-    return TeamJoinResponse.builder()
-        .id(team.getId())
-        .teamName(team.getName())
-        .teamCode(team.getTeamCode())
-        .leaderId(team.getLeaderId())
-        .build();
-  }
 }
