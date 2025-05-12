@@ -28,20 +28,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-// TODO: TempMember, TempTeam 등 임시 구조 제거 후 실제 엔티티로 교체
 @Service
 @RequiredArgsConstructor
 public class ExpenseService {
 
   private final ExpenseRepository expenseRepository;
+
+  // TODO: TEMP 엔티티 수정
   private final TempTeamRepository teamRepository;
   private final TempMemberRepository memberRepository;
 
   @Transactional
   public CreateExpenseResponse saveExpense(Long teamId, ExpenseRequest request) {
-
     TempTeam team = findTeamWithBudgetOrThrow(teamId);
-
     TempMember payer = findPayerOrThrow(request.getPayerId());
 
     TempBudget budget = team.getBudget();
@@ -53,16 +52,12 @@ public class ExpenseService {
     budget.updateBalance(budget.getBalance().subtract(request.getAmount()));
 
     // TODO: 정산 저장 로직 추가
-
     return ExpenseMapper.toCreateExpenseResponse(saved, budget);
   }
 
-
   @Transactional(readOnly = true)
   public ExpenseResponse getExpense(Long expenseId) {
-
     Expense expense = findExpenseOrThrow(expenseId);
-
     return ExpenseMapper.toExpenseResponse(expense);
   }
 
@@ -77,7 +72,6 @@ public class ExpenseService {
 
     return ExpenseMapper.toExpenseListResponse(content, page);
   }
-
 
   @Transactional
   public CreateExpenseResponse updateExpense(Long expenseId, ExpenseUpdateRequest request) {
@@ -113,6 +107,11 @@ public class ExpenseService {
         .orElseThrow(() -> new CustomLogicException(TEAM_NOT_FOUND));
   }
 
+  private TempTeam findTeamWithBudgetOrThrow(Long teamId) {
+    return teamRepository.findTeamWithBudget(teamId)
+        .orElseThrow(() -> new CustomLogicException(TEAM_NOT_FOUND));
+  }
+
   private TempMember findPayerOrThrow(Long memberId) {
     return memberRepository.findById(memberId)
         .orElseThrow(() -> new CustomLogicException(EXPENSE_PAYER_NOT_FOUND));
@@ -127,10 +126,5 @@ public class ExpenseService {
     if (balance.compareTo(amount) < 0) {
       throw new CustomLogicException(INSUFFICIENT_BALANCE);
     }
-  }
-
-  private TempTeam findTeamWithBudgetOrThrow(Long teamId) {
-    return teamRepository.findTeamWithBudget(teamId)
-        .orElseThrow(() -> new CustomLogicException(TEAM_NOT_FOUND));
   }
 }

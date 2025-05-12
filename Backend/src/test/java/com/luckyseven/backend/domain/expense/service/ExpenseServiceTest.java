@@ -19,7 +19,6 @@ import com.luckyseven.backend.domain.expense.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.expense.util.TempBudget;
 import com.luckyseven.backend.domain.expense.util.TempMember;
 import com.luckyseven.backend.domain.expense.util.TempMemberRepository;
-import com.luckyseven.backend.domain.expense.util.TempSettlementRepository;
 import com.luckyseven.backend.domain.expense.util.TempTeam;
 import com.luckyseven.backend.domain.expense.util.TempTeamRepository;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
@@ -51,9 +50,6 @@ class ExpenseServiceTest {
 
   @Mock
   private TempMemberRepository memberRepository;
-
-  @Mock
-  private TempSettlementRepository settlementRepository;
 
   @Mock
   private ExpenseRepository expenseRepository;

@@ -21,6 +21,7 @@ public class TempBudget {
   private BigDecimal balance;
   private BigDecimal foreignBalance;
 
+  // Todo: 나중에 실제 엔티티로 옮기기
   public void updateBalance(BigDecimal balance) {
     if (balance != null) {
       this.balance = balance;
