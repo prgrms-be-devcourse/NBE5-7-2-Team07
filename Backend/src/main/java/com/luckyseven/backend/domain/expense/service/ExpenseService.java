@@ -40,7 +40,7 @@ public class ExpenseService {
   @Transactional
   public CreateExpenseResponse saveExpense(Long teamId, ExpenseRequest request) {
 
-    TempTeam team = teamRepository.findTeamWithBudget(teamId);
+    TempTeam team = findTeamWithBudgetOrThrow(teamId);
 
     TempMember payer = findPayerOrThrow(request.getPayerId());
 
@@ -53,6 +53,11 @@ public class ExpenseService {
     budget.updateBalance(budget.getBalance().subtract(request.getAmount()));
 
     return ExpenseMapper.toCreateExpenseResponse(saved, budget);
+  }
+
+  private TempTeam findTeamWithBudgetOrThrow(Long teamId) {
+    return teamRepository.findTeamWithBudget(teamId)
+        .orElseThrow(() -> new CustomLogicException(TEAM_NOT_FOUND));
   }
 
 
@@ -75,7 +80,7 @@ public class ExpenseService {
     List<ExpenseResponse> content = page.getContent().stream()
         .map(ExpenseMapper::toExpenseResponse)
         .toList();
-    
+
     return ExpenseMapper.toExpenseListResponse(content, page);
   }
 

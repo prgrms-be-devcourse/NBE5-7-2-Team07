@@ -8,6 +8,8 @@ import com.luckyseven.backend.domain.expense.dto.ExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseUpdateRequest;
 import com.luckyseven.backend.domain.expense.service.ExpenseService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,12 @@ public class ExpenseController {
   private final ExpenseService expenseService;
 
   @Operation(summary = "지출 내역 등록")
+  @ApiResponses({
+      @ApiResponse(responseCode = "201", description = "지출 내역 등록 성공"),
+      @ApiResponse(responseCode = "400", description = "지불 금액이 예산을 초과합니다."),
+      @ApiResponse(responseCode = "404", description = "결제자를 찾을 수 없습니다."),
+      @ApiResponse(responseCode = "404", description = "팀을 찾을 수 없습니다.")
+  })
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping("/{teamId}/expense")
   public CreateExpenseResponse createExpense(
@@ -45,6 +53,11 @@ public class ExpenseController {
   }
 
   @Operation(summary = "지출 내역 수정")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "지출 내역 수정 성공"),
+      @ApiResponse(responseCode = "400", description = "지불 금액이 예산을 초과합니다."),
+      @ApiResponse(responseCode = "404", description = "지출 내역을 찾을 수 없음"),
+  })
   @ResponseStatus(HttpStatus.OK)
   @PatchMapping("/expense/{expenseId}")
   public CreateExpenseResponse updateExpense(
@@ -55,6 +68,10 @@ public class ExpenseController {
   }
 
   @Operation(summary = "지출 내역 삭제")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "지출 내역 삭제 성공"),
+      @ApiResponse(responseCode = "404", description = "지출 내역을 찾을 수 없음")
+  })
   @ResponseStatus(HttpStatus.OK)
   @DeleteMapping("/expense/{expenseId}")
   public ExpenseBalanceResponse deleteExpense(@PathVariable Long expenseId) {
@@ -62,6 +79,10 @@ public class ExpenseController {
   }
 
   @Operation(summary = "지출 내역 상세 조회")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "지출 내역 상세 조회 성공"),
+      @ApiResponse(responseCode = "404", description = "지출 내역을 찾을 수 없음")
+  })
   @ResponseStatus(HttpStatus.OK)
   @GetMapping("/expense/{expenseId}")
   public ExpenseResponse getExpense(@PathVariable Long expenseId) {
@@ -69,6 +90,10 @@ public class ExpenseController {
   }
 
   @Operation(summary = "지출 내역 목록 조회")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "지출 내역 상세 조회 성공"),
+      @ApiResponse(responseCode = "404", description = "지출 내역을 찾을 수 없음")
+  })
   @ResponseStatus(HttpStatus.OK)
   @GetMapping("/{teamId}/expenses")
   public ExpenseListResponse getListExpense(
