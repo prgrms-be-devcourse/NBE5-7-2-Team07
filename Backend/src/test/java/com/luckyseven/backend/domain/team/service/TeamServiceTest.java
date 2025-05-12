@@ -2,12 +2,14 @@ package com.luckyseven.backend.domain.team.service;
 
 import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
 import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
+import com.luckyseven.backend.domain.team.dto.TeamJoinRequest;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
 import com.luckyseven.backend.domain.team.entity.Member;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
 import com.luckyseven.backend.domain.team.repository.TeamMemberRepository;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
+import com.luckyseven.backend.domain.team.util.TeamMapper;
 import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +21,7 @@ import static org.mockito.BDDMockito.given;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,6 +36,10 @@ public class TeamServiceTest {
   @InjectMocks
   private TeamService teamService;
 
+  @Mock
+  private TeamMapper teamMapper;
+
+  private Team team;
   private Member creator;
   private TeamCreateRequest request;
 
@@ -47,29 +54,40 @@ public class TeamServiceTest {
 
     request = TeamCreateRequest.builder()
         .name("test_team")
-        .teamPassword("1234")
+        .teamPassword("password")
         .build();
+
+    team = Team.builder()
+        .id(1L)
+        .name("test_team")
+        .teamCode("ABCDEF")
+        .leaderId(creator.getId())
+        .teamPassword("password")
+        .build();
+
   }
 
   @Test
   void createTeam() {
     //given
+    given(teamRepository.save(any(Team.class))).willReturn(team);
 
-    Team savedTeam = Team.builder()
-        .id(1L)
-        .name(request.getName())
-        .teamPassword(request.getTeamPassword())
-        .teamCode("1234")
-        .leaderId(creator.getId())
+    TeamCreateResponse expectedResponse = TeamCreateResponse.builder()
+        .id(team.getId())
+        .name(team.getName())
+        .teamCode(team.getTeamCode())
+        .leaderId(team.getLeaderId())
+        .teamPassword(team.getTeamPassword())
         .build();
 
-    given(teamRepository.save(any(Team.class))).willReturn(savedTeam);
+    given(teamMapper.toCreateResponse(any(Team.class))).willReturn(expectedResponse);
 
     //when
     TeamCreateResponse result = teamService.createTeam(creator, request);
 
     //then
     assertThat(result).isNotNull();
+    assertThat(result.getId()).isEqualTo(team.getId());
     assertThat(result.getName()).isEqualTo(request.getName());
     assertThat(result.getTeamPassword()).isEqualTo(request.getTeamPassword());
     assertThat(result.getLeaderId()).isEqualTo(creator.getId());
@@ -86,48 +104,60 @@ public class TeamServiceTest {
     verify(teamMemberRepository).save(teamMemberCaptor.capture());
     TeamMember capturedTeamMember = teamMemberCaptor.getValue();
     assertThat(capturedTeamMember.getMember()).isEqualTo(creator);
-    assertThat(capturedTeamMember.getTeam()).isEqualTo(savedTeam);
+    assertThat(capturedTeamMember.getTeam()).isEqualTo(team);
   }
 
   @Test
   void joinTeam() {
     // given
+
+    String teamCode = "ABCDEF";
+    String teamPassword = "password";
+
+
+    given(teamRepository.findByTeamCode(teamCode)).willReturn(Optional.of(team));
+
     // 새로운 멤버
     Member newMember = Member.builder()
-        .id(1L)
+        .id(2L)
         .name("new")
-        .email("join@example.com")
         .nickname("newMem")
         .build();
-    // 생성된 팀
-    String teamCode = "1234";
-    String teamPassword = "<PASSWORD>";
-    Team existingTeam = Team.builder()
-        .id(1L)
-        .name("test_team")
-        .teamPassword("<PASSWORD>")
-        .teamCode("1234")
-        .leaderId(1L)
+
+    // 새로운 TeamMember 객체 생성
+    TeamMember teamMember = TeamMember.builder()
+        .team(team)
+        .member(newMember)
         .build();
 
-    given(teamRepository.findByTeamCode(teamCode)).willReturn(Optional.of(existingTeam));
-    given(teamMemberRepository.existsByTeamAndMember(existingTeam, newMember)).willReturn(false);
+
+    given(teamMemberRepository.save(any(TeamMember.class))).willReturn(teamMember);
+
+
+    TeamJoinResponse expectedResponse = TeamJoinResponse.builder()
+        .id(team.getId())
+        .teamName(team.getName())
+        .teamCode(team.getTeamCode())
+        .leaderId(team.getLeaderId())
+        .build();
+
+    given(teamMapper.toJoinResponse(team)).willReturn(expectedResponse);
 
     // when
-  TeamJoinResponse result = teamService.joinTeam(newMember, teamCode, teamPassword);
+    TeamJoinResponse result = teamService.joinTeam(newMember, teamCode, teamPassword);
 
     // then
     assertThat(result).isNotNull();
-    assertThat(result.getId()).isEqualTo(existingTeam.getId());
-    assertThat(result.getTeamName()).isEqualTo(existingTeam.getName());
-    assertThat(result.getLeaderId()).isEqualTo(existingTeam.getLeaderId());
-    assertThat(result.getTeamCode()).isEqualTo(existingTeam.getTeamCode());
+    assertThat(result.getId()).isEqualTo(team.getId());
+    assertThat(result.getTeamName()).isEqualTo(team.getName());
+    assertThat(result.getLeaderId()).isEqualTo(team.getLeaderId());
+    assertThat(result.getTeamCode()).isEqualTo(team.getTeamCode());
 
     // 팀 멤버 저장
     ArgumentCaptor<TeamMember> teamMemberCaptor = ArgumentCaptor.forClass(TeamMember.class);
     verify(teamMemberRepository).save(teamMemberCaptor.capture());
     TeamMember capturedTeamMember = teamMemberCaptor.getValue();
     assertThat(capturedTeamMember.getMember()).isEqualTo(newMember);
-    assertThat(capturedTeamMember.getTeam()).isEqualTo(existingTeam);
+    assertThat(capturedTeamMember.getTeam()).isEqualTo(team);
   }
 }
