@@ -4,8 +4,10 @@ import com.luckyseven.backend.domain.expense.enums.ExpenseCategory;
 import com.luckyseven.backend.domain.expense.enums.PaymentMethod;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,4 +35,7 @@ public class ExpenseRequest {
 
   @NotNull(message = "결제 수단은 필수 선택 항목입니다.")
   private PaymentMethod paymentMethod;
+
+  @NotEmpty(message = "정산 대상자가 최소 1명 이상 필요합니다.")
+  private List<@NotNull(message = "정산 대상자 ID는 null일 수 없습니다.") Long> settlerId;
 }
