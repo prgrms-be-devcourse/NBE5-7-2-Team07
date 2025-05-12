@@ -39,9 +39,8 @@ public class ExpenseController {
   @Operation(summary = "지출 내역 등록")
   @ApiResponses({
       @ApiResponse(responseCode = "201", description = "지출 내역 등록 성공"),
-      @ApiResponse(responseCode = "400", description = "지불 금액이 예산을 초과합니다."),
-      @ApiResponse(responseCode = "404", description = "결제자를 찾을 수 없습니다."),
-      @ApiResponse(responseCode = "404", description = "팀을 찾을 수 없습니다.")
+      @ApiResponse(responseCode = "400", description = "지출 금액이 예산을 초과합니다."),
+      @ApiResponse(responseCode = "404", description = "결제자 또는 팀을 찾을 수 없습니다."),
   })
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping("/{teamId}/expense")
@@ -55,7 +54,7 @@ public class ExpenseController {
   @Operation(summary = "지출 내역 수정")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "지출 내역 수정 성공"),
-      @ApiResponse(responseCode = "400", description = "지불 금액이 예산을 초과합니다."),
+      @ApiResponse(responseCode = "400", description = "지출 금액이 예산을 초과합니다."),
       @ApiResponse(responseCode = "404", description = "지출 내역을 찾을 수 없음"),
   })
   @ResponseStatus(HttpStatus.OK)
