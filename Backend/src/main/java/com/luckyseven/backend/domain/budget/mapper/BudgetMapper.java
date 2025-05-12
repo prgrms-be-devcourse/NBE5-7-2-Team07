@@ -6,13 +6,15 @@ import com.luckyseven.backend.domain.budget.dto.BudgetReadResponse;
 import com.luckyseven.backend.domain.budget.entity.Budget;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BudgetMapper {
-  public static Budget toEntity(Long teamId, BudgetCreateRequest request) {
-
+  public Budget toEntity(Long teamId, BudgetCreateRequest request) {
     BigDecimal exchangeRate;
     BigDecimal foreignBalance;
     BigDecimal avgExchangeRate;
+
     if (request.getExchangeRate() != null) {
       exchangeRate = request.getExchangeRate();
       foreignBalance = request.getTotalAmount()
@@ -36,7 +38,7 @@ public class BudgetMapper {
         .build();
   }
 
-  public static BudgetCreateResponse toCreateResponse(Budget budget) {
+  public BudgetCreateResponse toCreateResponse(Budget budget) {
 
     return BudgetCreateResponse.builder()
         .id(budget.getId())
@@ -47,7 +49,7 @@ public class BudgetMapper {
         .build();
   }
 
-  public static BudgetReadResponse toReadResponse(Budget budget) {
+  public BudgetReadResponse toReadResponse(Budget budget) {
     return BudgetReadResponse.builder()
         .id(budget.getId())
         .totalAmount(budget.getTotalAmount())
@@ -60,11 +62,11 @@ public class BudgetMapper {
         .build();
   }
 
-//  public static Budget toEntity(BudgetUpdateRequest request) {
+//  public Budget toEntity(BudgetUpdateRequest request) {
 //    return null;
 //  }
 //
-//  public static BudgetUpdateResponse toUpdateResponse(Budget budget) {
+//  public BudgetUpdateResponse toUpdateResponse(Budget budget) {
 //    return null;
 //  }
 

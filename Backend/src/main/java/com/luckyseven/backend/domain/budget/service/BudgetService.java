@@ -4,11 +4,13 @@ import com.luckyseven.backend.domain.budget.dao.BudgetRepository;
 import com.luckyseven.backend.domain.budget.dto.BudgetCreateRequest;
 import com.luckyseven.backend.domain.budget.dto.BudgetCreateResponse;
 import com.luckyseven.backend.domain.budget.dto.BudgetReadResponse;
+import com.luckyseven.backend.domain.budget.dto.BudgetUpdateRequest;
+import com.luckyseven.backend.domain.budget.dto.BudgetUpdateResponse;
 import com.luckyseven.backend.domain.budget.entity.Budget;
 import com.luckyseven.backend.domain.budget.mapper.BudgetMapper;
-import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
-import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
+import com.luckyseven.backend.domain.budget.validator.BudgetValidator;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,36 +21,34 @@ import org.springframework.stereotype.Service;
 public class BudgetService {
 
   private final BudgetRepository budgetRepository;
+  private final BudgetMapper budgetMapper;
+  private final BudgetValidator budgetValidator;
 
   public BudgetCreateResponse save(Long teamId, BudgetCreateRequest request) {
+    budgetValidator.validateBudgetNotExist(teamId);
 
-    validateBudgetNotExist(teamId);
-
-    Budget budget = BudgetMapper.toEntity(teamId, request);
+    Budget budget = budgetMapper.toEntity(teamId, request);
 
     budgetRepository.save(budget);
 
-    return BudgetMapper.toCreateResponse(budget);
+    return budgetMapper.toCreateResponse(budget);
   }
 
   public BudgetReadResponse getByTeamId(Long teamId) {
     Optional<Budget> budgetOptional = budgetRepository.findByTeamId(teamId);
-    if (budgetOptional.isEmpty()) {
-      // TODO: ExceptionCode에 TEAM_NOT_FOUND 추가
-      throw new CustomLogicException(ExceptionCode.TEAM_NOT_FOUND, "teamId: " + teamId);
-    }
 
-    return BudgetMapper.toReadResponse(budgetOptional.get());
+    Budget budget = budgetValidator.validateBudgetExist(teamId, budgetOptional);
+
+    return budgetMapper.toReadResponse(budget);
   }
 
 
-  private void validateBudgetNotExist(Long teamId) {
+  public BudgetUpdateResponse updateByTeamId(Long teamId, @Valid BudgetUpdateRequest request) {
     Optional<Budget> budgetOptional = budgetRepository.findByTeamId(teamId);
 
-    if (budgetOptional.isPresent()) {
-      // TODO: ExceptionCode에 BUDGET_CONFLICT 추가
-      throw new CustomLogicException(ExceptionCode.BUDGET_CONFLICT,
-          "budgetId: " + budgetOptional.get().getId());
-    }
+    Budget budget = budgetValidator.validateBudgetExist(teamId, budgetOptional);
+
+//    return budgetMapper.toUpdateResponse(budget);
+    return null;
   }
 }
