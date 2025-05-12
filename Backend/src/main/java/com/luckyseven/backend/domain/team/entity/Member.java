@@ -1,6 +1,8 @@
 package com.luckyseven.backend.domain.team.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -37,6 +39,8 @@ public class Member extends BaseEntity {
 
   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
+  @JsonIgnore
+  @Schema(hidden = true)
   private List<TeamMember> teamMembers = new ArrayList<>();
 
 

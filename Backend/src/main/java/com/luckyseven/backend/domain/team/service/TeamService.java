@@ -1,6 +1,8 @@
 package com.luckyseven.backend.domain.team.service;
 
 import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
+import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
+import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
 import com.luckyseven.backend.domain.team.entity.Member;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
@@ -24,7 +26,7 @@ public class TeamService {
    * @return 생성된 팀 정보
    */
   @Transactional
-  public Team createTeam(Member creator, TeamCreateRequest request) {
+  public TeamCreateResponse createTeam(Member creator, TeamCreateRequest request) {
     String teamCode = generateTeamCode();
     Team team = Team.builder()
         .name(request.getName())
@@ -44,7 +46,7 @@ public class TeamService {
     teamMemberRepository.save(teamMember);
 
     savedTeam.addTeamMember(teamMember);
-    return savedTeam;
+    return TeamCreateResponse.from(savedTeam);
   }
 
   /**
@@ -57,7 +59,7 @@ public class TeamService {
    * @throws IllegalArgumentException
    */
   @Transactional
-  public Team joinTeam(Member member, String teamCode, String teamPassword) {
+  public TeamJoinResponse joinTeam(Member member, String teamCode, String teamPassword) {
     Team team = teamRepository.findByTeamCode(teamCode)
         .orElseThrow(() -> new IllegalArgumentException("에러"));
     if (!team.getTeamPassword().equals(teamPassword)) {
@@ -76,7 +78,7 @@ public class TeamService {
 
     teamMemberRepository.save(teamMember);
     team.addTeamMember(teamMember);
-    return team;
+    return TeamJoinResponse.from(team);
   }
 
   /**
