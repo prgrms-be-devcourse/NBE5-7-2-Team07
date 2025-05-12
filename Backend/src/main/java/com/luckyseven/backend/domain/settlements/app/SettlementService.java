@@ -2,6 +2,7 @@ package com.luckyseven.backend.domain.settlements.app;
 
 import com.luckyseven.backend.domain.settlements.TempExpense;
 import com.luckyseven.backend.domain.settlements.TempMember;
+import com.luckyseven.backend.domain.settlements.TempTeam;
 import com.luckyseven.backend.domain.settlements.dao.SettlementRepository;
 import com.luckyseven.backend.domain.settlements.dao.SettlementSpecification;
 import com.luckyseven.backend.domain.settlements.dto.SettlementCreateRequest;
@@ -28,9 +29,10 @@ public class SettlementService {
   @Transactional
   public SettlementResponse createSettlement(SettlementCreateRequest request) {
     // TODO: TEMP 엔티티 제거
-    TempMember settler = new TempMember();
-    TempMember payer = new TempMember();
-    TempExpense expense = new TempExpense();
+    TempTeam team = new TempTeam();
+    TempMember settler = new TempMember(team);
+    TempMember payer = new TempMember(team);
+    TempExpense expense = new TempExpense(team);
     Settlement settlement = SettlementMapper.fromSettlementCreateRequest(request, settler, payer,
         expense);
     return SettlementMapper.toSettlementResponse(settlementRepository.save(settlement));
@@ -56,7 +58,7 @@ public class SettlementService {
         .and(SettlementSpecification.hasPayerId(condition.getPayerId()))
         .and(SettlementSpecification.hasSettlerId(condition.getSettlerId()))
         .and(SettlementSpecification.hasExpenseId(condition.getExpenseId()))
-        .and(SettlementSpecification.hasIsSettled(condition.getIsSettled()));
+        .and(SettlementSpecification.isSettled(condition.getIsSettled()));
     Page<Settlement> settlementPage = settlementRepository.findAll(specification, pageable);
 
     return settlementPage.map(SettlementMapper::toSettlementResponse);
@@ -67,7 +69,7 @@ public class SettlementService {
     Settlement settlement = settlementRepository.findById(id).orElseThrow(
         () -> new CustomLogicException(ExceptionCode.SETTLEMENT_NOT_FOUND)
     );
-    // TODO: null 실제 엔티티로 대체
+    // TODO: 실제 엔티티로 대체
     settlement.update(request.getAmount(), null, null, null, request.getIsSettled());
     return SettlementMapper.toSettlementResponse(settlementRepository.save(settlement));
   }

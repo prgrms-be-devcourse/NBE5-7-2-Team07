@@ -25,8 +25,8 @@ public class SettlementSpecification {
         : criteriaBuilder.equal(root.get("expense").get("id"), expenseId);
   }
 
-  public static Specification<Settlement> hasIsSettled(Boolean isSettled) {
+  public static Specification<Settlement> isSettled(Boolean isSettled) {
     return (root, query, criteriaBuilder) -> isSettled == null ? null
-        : criteriaBuilder.equal(root.get("expense").get("id"), isSettled);
+        : criteriaBuilder.equal(root.get("isSettled"), isSettled);
   }
 }
