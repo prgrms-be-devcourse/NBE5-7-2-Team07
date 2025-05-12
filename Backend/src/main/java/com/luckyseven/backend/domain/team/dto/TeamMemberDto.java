@@ -1,6 +1,5 @@
 package com.luckyseven.backend.domain.team.dto;
 
-import com.luckyseven.backend.domain.team.entity.TeamMember;
 import lombok.Builder;
 import lombok.Getter;
 

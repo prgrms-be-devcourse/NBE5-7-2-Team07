@@ -2,7 +2,6 @@ package com.luckyseven.backend.domain.team.service;
 
 import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
 import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
-import com.luckyseven.backend.domain.team.dto.TeamJoinRequest;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
 import com.luckyseven.backend.domain.team.entity.Member;
 import com.luckyseven.backend.domain.team.entity.Team;
@@ -21,7 +20,6 @@ import static org.mockito.BDDMockito.given;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -114,7 +112,6 @@ public class TeamServiceTest {
     String teamCode = "ABCDEF";
     String teamPassword = "password";
 
-
     given(teamRepository.findByTeamCode(teamCode)).willReturn(Optional.of(team));
 
     // 새로운 멤버
@@ -130,9 +127,7 @@ public class TeamServiceTest {
         .member(newMember)
         .build();
 
-
     given(teamMemberRepository.save(any(TeamMember.class))).willReturn(teamMember);
-
 
     TeamJoinResponse expectedResponse = TeamJoinResponse.builder()
         .id(team.getId())
