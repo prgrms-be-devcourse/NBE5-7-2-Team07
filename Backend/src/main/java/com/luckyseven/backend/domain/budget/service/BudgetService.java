@@ -21,6 +21,9 @@ public class BudgetService {
   private final BudgetRepository budgetRepository;
 
   public BudgetCreateResponse save(Long teamId, BudgetCreateRequest request) {
+
+    validateBudgetNotExist(teamId);
+
     Budget budget = BudgetMapper.toEntity(teamId, request);
 
     budgetRepository.save(budget);
@@ -36,5 +39,16 @@ public class BudgetService {
     }
 
     return BudgetMapper.toReadResponse(budgetOptional.get());
+  }
+
+
+  private void validateBudgetNotExist(Long teamId) {
+    Optional<Budget> budgetOptional = budgetRepository.findByTeamId(teamId);
+
+    if (budgetOptional.isPresent()) {
+      // TODO: ExceptionCode에 BUDGET_CONFLICT 추가
+      throw new CustomLogicException(ExceptionCode.BUDGET_CONFLICT,
+          "budgetId: " + budgetOptional.get().getId());
+    }
   }
 }
