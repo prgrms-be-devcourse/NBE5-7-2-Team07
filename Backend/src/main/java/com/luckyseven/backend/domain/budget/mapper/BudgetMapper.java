@@ -71,7 +71,6 @@ public class BudgetMapper {
     }
 
     // 1-1: isExchanged = false
-    // foreignBalance, avgExchangeRate = null
     if (request.getIsExchanged() != null && !request.getIsExchanged()) {
       budget.setForeignBalance(null);
       budget.setAvgExchangeRate(null);
@@ -79,8 +78,6 @@ public class BudgetMapper {
     }
 
     // 1-2: isExchanged = true
-    // avgExchangeRate = exchangeRate
-    // foreignBalance = totalAmount/exchangeRate
     if (request.getIsExchanged() != null) {
       budget.setAvgExchangeRate(request.getExchangeRate());
       budget.setForeignBalance(budget.getTotalAmount()
@@ -89,9 +86,6 @@ public class BudgetMapper {
     }
 
     // case 2: 총 예산(totalAmount)만 수정
-    // 2-1: avgExchangeRate = null
-    // 2-2: avgExchangeRate != null
-    // foreignBalance = totalAmount/avgExchangeRate
     if (budget.getAvgExchangeRate() != null) {
       budget.setForeignBalance(budget.getTotalAmount()
           .divide(budget.getAvgExchangeRate(), 2, RoundingMode.HALF_UP));
