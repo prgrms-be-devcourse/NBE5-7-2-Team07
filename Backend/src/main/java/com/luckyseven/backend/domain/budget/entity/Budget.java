@@ -47,7 +47,6 @@ public class Budget extends BaseEntity {
   private String foreignCurrency;
 
   @Setter
-  @Column(nullable = false)
   private BigDecimal avgExchangeRate;
 
   @Builder
