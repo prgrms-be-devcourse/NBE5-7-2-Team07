@@ -1,11 +1,14 @@
 package com.luckyseven.backend.domain.team.service;
 
 import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
+import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
+import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
 import com.luckyseven.backend.domain.team.entity.Member;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
 import com.luckyseven.backend.domain.team.repository.TeamMemberRepository;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
+import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,7 +66,7 @@ public class TeamServiceTest {
     given(teamRepository.save(any(Team.class))).willReturn(savedTeam);
 
     //when
-    Team result = teamService.createTeam(creator, request);
+    TeamCreateResponse result = teamService.createTeam(creator, request);
 
     //then
     assertThat(result).isNotNull();
@@ -84,5 +87,47 @@ public class TeamServiceTest {
     TeamMember capturedTeamMember = teamMemberCaptor.getValue();
     assertThat(capturedTeamMember.getMember()).isEqualTo(creator);
     assertThat(capturedTeamMember.getTeam()).isEqualTo(savedTeam);
+  }
+
+  @Test
+  void joinTeam() {
+    // given
+    // 새로운 멤버
+    Member newMember = Member.builder()
+        .id(1L)
+        .name("new")
+        .email("join@example.com")
+        .nickname("newMem")
+        .build();
+    // 생성된 팀
+    String teamCode = "1234";
+    String teamPassword = "<PASSWORD>";
+    Team existingTeam = Team.builder()
+        .id(1L)
+        .name("test_team")
+        .teamPassword("<PASSWORD>")
+        .teamCode("1234")
+        .leaderId(1L)
+        .build();
+
+    given(teamRepository.findByTeamCode(teamCode)).willReturn(Optional.of(existingTeam));
+    given(teamMemberRepository.existsByTeamAndMember(existingTeam, newMember)).willReturn(false);
+
+    // when
+  TeamJoinResponse result = teamService.joinTeam(newMember, teamCode, teamPassword);
+
+    // then
+    assertThat(result).isNotNull();
+    assertThat(result.getId()).isEqualTo(existingTeam.getId());
+    assertThat(result.getTeamName()).isEqualTo(existingTeam.getName());
+    assertThat(result.getLeaderId()).isEqualTo(existingTeam.getLeaderId());
+    assertThat(result.getTeamCode()).isEqualTo(existingTeam.getTeamCode());
+
+    // 팀 멤버 저장
+    ArgumentCaptor<TeamMember> teamMemberCaptor = ArgumentCaptor.forClass(TeamMember.class);
+    verify(teamMemberRepository).save(teamMemberCaptor.capture());
+    TeamMember capturedTeamMember = teamMemberCaptor.getValue();
+    assertThat(capturedTeamMember.getMember()).isEqualTo(newMember);
+    assertThat(capturedTeamMember.getTeam()).isEqualTo(existingTeam);
   }
 }

@@ -15,6 +15,7 @@ public class TeamCreateResponse {
   private String name;
   private String teamCode;
   private Long leaderId;
+  private String teamPassword;
 
   public static TeamCreateResponse from(Team team) {
     return TeamCreateResponse.builder()
@@ -22,6 +23,7 @@ public class TeamCreateResponse {
         .name(team.getName())
         .teamCode(team.getTeamCode())
         .leaderId(team.getLeaderId())
+        .teamPassword(team.getTeamPassword())
         .build();
   }
 }
