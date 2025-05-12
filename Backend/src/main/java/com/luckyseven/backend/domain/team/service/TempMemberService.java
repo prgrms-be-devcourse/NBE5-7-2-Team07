@@ -15,8 +15,16 @@ public class TempMemberService {
 
   public Member getCurrentMember() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String email = authentication.getName();
-    return tempMemberRepository.findByEmail(email)
+
+    Long memberId;
+
+    if(authentication.getPrincipal() instanceof Long){
+      memberId = (Long) authentication.getPrincipal();
+    }else {
+      memberId = Long.parseLong(authentication.getName());
+    }
+
+    return tempMemberRepository.findById(memberId)
         .orElseThrow(() -> new IllegalArgumentException(""));
   }
 }

@@ -3,6 +3,7 @@ package com.luckyseven.backend.domain.team.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,6 +29,7 @@ import lombok.experimental.SuperBuilder;
     @Index(name = "idx_team_leader_id", columnList = "leader_id"),
     @Index(name = "idx_team_budget_id", columnList = "budget_id")
 })
+@AttributeOverride(name = "id", column = @Column(name = "team_id"))
 public class Team extends BaseEntity {
 
   @Column(nullable = false)

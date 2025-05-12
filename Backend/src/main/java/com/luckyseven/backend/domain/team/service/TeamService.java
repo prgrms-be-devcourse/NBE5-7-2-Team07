@@ -16,7 +16,6 @@ import com.luckyseven.backend.domain.team.repository.TeamRepository;
 import com.luckyseven.backend.domain.team.util.TeamMapper;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +28,7 @@ public class TeamService {
   ExpenseRepository expenseRepository;
 
   TeamMapper teamMapper;
+
   /**
    * 팀을 생성한다. 생성한 회원을 팀 리더로 등록한다
    *
@@ -104,6 +104,7 @@ public class TeamService {
 
   /**
    * 대시보드를 가져온다.
+   *
    * @param teamId
    * @return
    */
@@ -117,25 +118,7 @@ public class TeamService {
 
     List<Expense> expenses = expenseRepository.findAllByTeamId(teamId);
 
-    List<TeamDashboardResponse.ExpenseDto> expenseDtos = expenses.stream()
-        .map(expense -> TeamDashboardResponse.ExpenseDto.builder()
-            .category(expense.getCategory())
-            .amount(expense.getAmount())
-            .payer(expense.getPayerId())
-            .date(expense.getUpdatedAt())
-            .build())
-        .collect(Collectors.toList());
-
-    return TeamDashboardResponse.builder()
-        .team_id(teamId)
-        .currency(budget.getCurrency())
-        .balance(budget.getBalance())
-        .foreignBalance(budget.getForeignBalance())
-        .totalAmount(budget.getTotalAmount())
-        .exchangeRate(budget.getExchangeRate())
-        .avgExchangeRate(budget.getAvgExchangeRate())
-        .expenseList(expenseDtos)
-        .build();
+    return teamMapper.toTeamDashboardResponse(team, budget, expenses);
   }
 
 }

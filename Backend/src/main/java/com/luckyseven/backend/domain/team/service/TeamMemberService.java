@@ -27,7 +27,7 @@ public class TeamMemberService {
   @Transactional(readOnly = true)
   public List<TeamMemberDto> getTeamMemberByTeamId(Long id) {
     if (!teamRepository.existsById(id)) {
-      new NoSuchElementException("팀 없음");
+      throw new NoSuchElementException("팀 없음");
   }
     List<TeamMember> teamMembers = teamMemberRepository.findByTeamId(id);
     return teamMemberMapper.toDtoList(teamMembers);

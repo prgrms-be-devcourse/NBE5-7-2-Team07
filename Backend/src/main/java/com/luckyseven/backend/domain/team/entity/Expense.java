@@ -23,6 +23,7 @@ public class Expense extends BaseEntity {
 
     private Long payerId;
 
+    private String description;
     private String category;
     private Integer amount;
 }

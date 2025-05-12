@@ -2,15 +2,24 @@ package com.luckyseven.backend.domain.team.service;
 
 import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
 import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
+import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
+import com.luckyseven.backend.domain.team.entity.Budget;
+import com.luckyseven.backend.domain.team.entity.Expense;
 import com.luckyseven.backend.domain.team.entity.Member;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
+import com.luckyseven.backend.domain.team.repository.BudgetRepository;
+import com.luckyseven.backend.domain.team.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.team.repository.TeamMemberRepository;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
 import com.luckyseven.backend.domain.team.util.TeamMapper;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +28,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,6 +41,12 @@ public class TeamServiceTest {
 
   @Mock
   private TeamMemberRepository teamMemberRepository;
+
+  @Mock
+  private BudgetRepository budgetRepository;
+
+  @Mock
+  private ExpenseRepository expenseRepository;
 
   @InjectMocks
   private TeamService teamService;
@@ -155,4 +172,44 @@ public class TeamServiceTest {
     assertThat(capturedTeamMember.getMember()).isEqualTo(newMember);
     assertThat(capturedTeamMember.getTeam()).isEqualTo(team);
   }
+
+  @Test
+  void 대시보드를get_대시보드Response_예상() {
+    // Given
+    Long teamId = 1L;
+    Team team = mock(Team.class);
+
+    Budget budget = mock(Budget.class);
+
+    List<Expense> expenses = new ArrayList<>();
+
+    TeamDashboardResponse expectedResponse = mock(TeamDashboardResponse.class);
+
+    when(teamRepository.findById(teamId)).thenReturn(Optional.of(team));
+    when(budgetRepository.findByTeamId(teamId)).thenReturn(Optional.of(budget));
+    when(expenseRepository.findAllByTeamId(teamId)).thenReturn(expenses);
+    when(teamMapper.toTeamDashboardResponse(team, budget, expenses)).thenReturn(expectedResponse);
+
+    // When
+    TeamDashboardResponse result = teamService.getTeamDashboard(teamId);
+
+    // Then
+    assertEquals(expectedResponse, result);
+    verify(teamRepository).findById(teamId);
+    verify(budgetRepository).findByTeamId(teamId);
+    verify(expenseRepository).findAllByTeamId(teamId);
+    verify(teamMapper).toTeamDashboardResponse(team, budget, expenses);
+  }
+
+  @Test
+  void getTeamDashboard_WhenTeamNotFound_ShouldThrowException() {
+    // Given
+    Long teamId = 1L;
+    when(teamRepository.findById(teamId)).thenReturn(Optional.empty());
+
+    // When & Then
+    assertThrows(IllegalArgumentException.class, () -> teamService.getTeamDashboard(teamId));
+    verify(teamRepository).findById(teamId);
+  }
+
 }
