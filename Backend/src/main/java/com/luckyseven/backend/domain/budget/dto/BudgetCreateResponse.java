@@ -15,16 +15,15 @@ public class BudgetCreateResponse {
   private BigDecimal foreignBalance;
   private BigDecimal avgExchangeRate;
   private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
 
   @Builder
   public BudgetCreateResponse(Long id, BigDecimal balance, BigDecimal foreignBalance,
-      BigDecimal avgExchangeRate, LocalDateTime createdAt, LocalDateTime updatedAt) {
+      BigDecimal avgExchangeRate, LocalDateTime createdAt) {
     this.id = id;
     this.balance = balance;
     this.foreignBalance = foreignBalance;
     this.avgExchangeRate = avgExchangeRate;
     this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
   }
+
 }

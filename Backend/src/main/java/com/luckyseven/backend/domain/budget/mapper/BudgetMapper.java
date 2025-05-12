@@ -43,7 +43,6 @@ public class BudgetMapper {
         .foreignBalance(budget.getForeignBalance())
         .avgExchangeRate(budget.getAvgExchangeRate())
         .createdAt(budget.getCreatedAt())
-        .updatedAt(budget.getUpdatedAt())
         .build();
   }
 
