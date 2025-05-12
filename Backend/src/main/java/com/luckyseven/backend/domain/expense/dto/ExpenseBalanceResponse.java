@@ -12,6 +12,5 @@ import lombok.Getter;
 public class ExpenseBalanceResponse {
 
   private BigDecimal foreignBalance;
-
   private BigDecimal balance;
 }
