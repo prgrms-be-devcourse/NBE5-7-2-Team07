@@ -1,6 +1,7 @@
 package com.luckyseven.backend.domain.settlements.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -18,6 +19,8 @@ import com.luckyseven.backend.domain.settlements.dto.SettlementResponse;
 import com.luckyseven.backend.domain.settlements.dto.SettlementSearchCondition;
 import com.luckyseven.backend.domain.settlements.dto.SettlementUpdateRequest;
 import com.luckyseven.backend.domain.settlements.entity.Settlement;
+import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
+import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -169,4 +172,60 @@ class SettlementServiceTest {
     verify(settlementRepository).findAll(any(Specification.class), any(Pageable.class));
   }
 
+
+  @Test
+  @DisplayName("존재하지 않는 정산 조회 시 예외 발생")
+  void readSettlement_WithNonExistingId_ShouldThrowException() {
+    // given
+    Long nonExistingId = 999L;
+    when(settlementRepository.findById(nonExistingId)).thenReturn(Optional.empty());
+
+    // when & then
+    assertThatThrownBy(() -> settlementService.readSettlement(nonExistingId))
+        .isInstanceOf(CustomLogicException.class)
+        .hasFieldOrPropertyWithValue("exceptionCode", ExceptionCode.SETTLEMENT_NOT_FOUND);
+  }
+
+  @Test
+  @DisplayName("존재하지 않는 정산 수정 시 예외 발생")
+  void updateSettlement_WithNonExistingId_ShouldThrowException() {
+    // given
+    Long nonExistingId = 999L;
+    when(settlementRepository.findById(nonExistingId)).thenReturn(Optional.empty());
+
+    SettlementUpdateRequest request = new SettlementUpdateRequest();
+    request.setAmount(BigDecimal.valueOf(2000));
+
+    // when & then
+    assertThatThrownBy(() -> settlementService.updateSettlement(nonExistingId, request))
+        .isInstanceOf(CustomLogicException.class)
+        .hasFieldOrPropertyWithValue("exceptionCode", ExceptionCode.SETTLEMENT_NOT_FOUND);
+  }
+
+  @Test
+  @DisplayName("존재하지 않는 정산 완료 처리 시 예외 발생")
+  void settleSettlement_WithNonExistingId_ShouldThrowException() {
+    // given
+    Long nonExistingId = 999L;
+    when(settlementRepository.findById(nonExistingId)).thenReturn(Optional.empty());
+
+    // when & then
+    assertThatThrownBy(() -> settlementService.settleSettlement(nonExistingId))
+        .isInstanceOf(CustomLogicException.class)
+        .hasFieldOrPropertyWithValue("exceptionCode", ExceptionCode.SETTLEMENT_NOT_FOUND);
+  }
+
+  @Test
+  @DisplayName("팀 ID가 null인 경우 정산 목록 조회 시 예외 발생")
+  void readSettlementPage_WithNullTeamId_ShouldThrowException() {
+    // given
+    Long nullTeamId = null;
+    SettlementSearchCondition condition = new SettlementSearchCondition();
+    Pageable pageable = PageRequest.of(0, 10);
+
+    // when & then
+    assertThatThrownBy(() -> settlementService.readSettlementPage(nullTeamId, condition, pageable))
+        .isInstanceOf(CustomLogicException.class)
+        .hasFieldOrPropertyWithValue("exceptionCode", ExceptionCode.BAD_REQUEST);
+  }
 }

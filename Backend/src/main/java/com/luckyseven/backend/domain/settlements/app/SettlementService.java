@@ -46,6 +46,16 @@ public class SettlementService {
     return SettlementMapper.toSettlementResponse(settlement);
   }
 
+
+  /**
+   * 검색 조건에 따른 정산 목록을 페이지네이션하여 조회합니다. teamId는 필수 condition 각 속성은 선택
+   *
+   * @param teamId    팀 ID (필터링 조건)
+   * @param condition 지불자 ID, 정산자 ID, 지출 ID, 정산 상태를 포함하는 검색 조건
+   * @param pageable  페이지네이션 정보
+   * @return 검색 조건에 맞는 정산 응답 객체들이 담긴 Page 객체
+   * @throws CustomLogicException teamId가 null인 경우 (BAD_REQUEST)
+   */
   @Transactional(readOnly = true)
   public Page<SettlementResponse> readSettlementPage(Long teamId,
       SettlementSearchCondition condition, Pageable pageable) {
