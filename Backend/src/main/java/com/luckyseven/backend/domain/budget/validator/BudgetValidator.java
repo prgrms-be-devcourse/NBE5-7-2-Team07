@@ -25,17 +25,17 @@ public class BudgetValidator {
     }
   }
 
-
-  public Budget validateBudgetExist(Long teamId, Optional<Budget> budgetOptional) {
-    if (budgetOptional.isEmpty()) {
-      // TODO: ExceptionCode에 TEAM_NOT_FOUND 추가
-      throw new CustomLogicException(ExceptionCode.TEAM_NOT_FOUND, "teamId: " + teamId);
-    }
-    return budgetOptional.get();
+  public Budget validateBudgetExist(Long teamId) {
+    // TODO: ExceptionCode에 TEAM_NOT_FOUND 추가
+    return budgetRepository.findByTeamId(teamId)
+        .orElseThrow(() ->
+            new CustomLogicException(ExceptionCode.TEAM_NOT_FOUND, "teamId: " + teamId)
+        );
   }
 
-  public void validateRequest(BudgetBaseRequest budgetBaseRequest) {
-    if (Boolean.TRUE.equals(budgetBaseRequest.getIsExchanged()) && budgetBaseRequest.getExchangeRate() == null) {
+  public void validateRequest(BudgetBaseRequest request) {
+    if (Boolean.TRUE.equals(request.getIsExchanged())
+        && request.getExchangeRate() == null) {
       throw new CustomLogicException(ExceptionCode.BAD_REQUEST, "환전 여부가 true인데 환율이 없습니다.");
     }
   }

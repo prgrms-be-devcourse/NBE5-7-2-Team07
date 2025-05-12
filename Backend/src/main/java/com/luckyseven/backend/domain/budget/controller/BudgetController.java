@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/teams")
+@RequestMapping("/api/teams")
 @RequiredArgsConstructor
 public class BudgetController {
 
@@ -50,5 +51,11 @@ public class BudgetController {
 
     return ResponseEntity.status(HttpStatus.OK)
         .body(budgetService.updateByTeamId(teamId, request));
+  }
+
+  @DeleteMapping("/{teamId}")
+  public ResponseEntity<Void> delete(@PathVariable Long teamId) {
+    budgetService.deleteByTeamId(teamId);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 }

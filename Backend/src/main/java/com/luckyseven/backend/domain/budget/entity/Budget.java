@@ -18,6 +18,7 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Budget extends BaseEntity {
 
+  // TODO: BaseEntity로 변경
   @Id
   @Column(name = "budget_id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,8 +30,6 @@ public class Budget extends BaseEntity {
   @Setter
   @Column(nullable = false)
   private BigDecimal totalAmount;
-  @Setter
-  private BigDecimal exchangeRate;
 
   @Setter
   @Column(nullable = false)
@@ -42,7 +41,6 @@ public class Budget extends BaseEntity {
   @Setter
   private BigDecimal foreignBalance;
 
-  @Setter
   @Column(nullable = false)
   private String foreignCurrency;
 
@@ -50,12 +48,11 @@ public class Budget extends BaseEntity {
   private BigDecimal avgExchangeRate;
 
   @Builder
-  public Budget(Long teamId, BigDecimal totalAmount, BigDecimal exchangeRate, Long setBy,
+  public Budget(Long teamId, BigDecimal totalAmount, Long setBy,
       BigDecimal balance, BigDecimal foreignBalance, String foreignCurrency,
       BigDecimal avgExchangeRate) {
     this.teamId = teamId;
     this.totalAmount = totalAmount;
-    this.exchangeRate = exchangeRate;
     this.setBy = setBy;
     this.balance = balance;
     this.foreignBalance = foreignBalance;

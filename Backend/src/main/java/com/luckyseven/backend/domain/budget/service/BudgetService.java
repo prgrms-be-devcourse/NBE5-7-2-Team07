@@ -11,12 +11,10 @@ import com.luckyseven.backend.domain.budget.mapper.BudgetMapper;
 import com.luckyseven.backend.domain.budget.validator.BudgetValidator;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class BudgetService {
 
@@ -24,6 +22,7 @@ public class BudgetService {
   private final BudgetMapper budgetMapper;
   private final BudgetValidator budgetValidator;
 
+  @Transactional
   public BudgetCreateResponse save(Long teamId, BudgetCreateRequest request) {
     budgetValidator.validateBudgetNotExist(teamId);
 
@@ -34,21 +33,25 @@ public class BudgetService {
     return budgetMapper.toCreateResponse(budget);
   }
 
+  @Transactional
   public BudgetReadResponse getByTeamId(Long teamId) {
-    Optional<Budget> budgetOptional = budgetRepository.findByTeamId(teamId);
-
-    Budget budget = budgetValidator.validateBudgetExist(teamId, budgetOptional);
+    Budget budget = budgetValidator.validateBudgetExist(teamId);
 
     return budgetMapper.toReadResponse(budget);
   }
 
-
+  @Transactional
   public BudgetUpdateResponse updateByTeamId(Long teamId, @Valid BudgetUpdateRequest request) {
-    Optional<Budget> budgetOptional = budgetRepository.findByTeamId(teamId);
+    Budget budget = budgetValidator.validateBudgetExist(teamId);
 
-    Budget budget = budgetValidator.validateBudgetExist(teamId, budgetOptional);
+    Budget updatedBudget = budgetMapper.toEntity(request, budget);
 
-//    return budgetMapper.toUpdateResponse(budget);
-    return null;
+    return budgetMapper.toUpdateResponse(updatedBudget);
+  }
+
+  @Transactional
+  public void deleteByTeamId(Long teamId) {
+    Budget budget = budgetValidator.validateBudgetExist(teamId);
+    budgetRepository.delete(budget);
   }
 }
