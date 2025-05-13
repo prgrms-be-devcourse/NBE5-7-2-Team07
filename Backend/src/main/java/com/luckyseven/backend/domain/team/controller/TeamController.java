@@ -50,7 +50,6 @@ public class TeamController {
           )
       }
   )
-
   @PostMapping
   public ResponseEntity<TeamCreateResponse> createTeam(
       @Parameter(hidden = true) @AuthenticationPrincipal Member member,
@@ -71,7 +70,7 @@ public class TeamController {
   )
   @PostMapping("/members")
   public ResponseEntity<TeamJoinResponse> joinTeam(
-      @Parameter(description = "팀 참가 요청 정보") @RequestBody TeamJoinRequest request) {
+      @Parameter(description = "팀 참가 요청 정보") @Valid @RequestBody TeamJoinRequest request) {
     // 현재 로그인한 회원 정보 get
     Member currentMember = tempMemberService.getCurrentMember();
 
@@ -97,6 +96,10 @@ public class TeamController {
     return ResponseEntity.ok(teamMembers);
   }
 
+  @Operation(
+      summary = "팀 삭제",
+      description = "팀의 멤버를 삭제합니다"
+  )
   @DeleteMapping("/{teamId}/members/{teamMemberId}")
   public ResponseEntity<Void> removeTeamMember(
       @PathVariable Long teamMemberId,
@@ -107,6 +110,10 @@ public class TeamController {
     return ResponseEntity.noContent().build();
   }
 
+  @Operation(
+      summary = "팀 대시보드를 조회",
+      description = "팀 대시보드를 조회합니다"
+  )
   @GetMapping("/{teamId}/dashboard")
   public ResponseEntity<TeamDashboardResponse> getTeamDashboard(@PathVariable Long teamId) {
     TeamDashboardResponse dashboardResponse = teamService.getTeamDashboard(teamId);
