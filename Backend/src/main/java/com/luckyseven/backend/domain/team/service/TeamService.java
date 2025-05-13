@@ -14,20 +14,24 @@ import com.luckyseven.backend.domain.team.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.team.repository.TeamMemberRepository;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
 import com.luckyseven.backend.domain.team.util.TeamMapper;
+import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
+import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class TeamService {
 
-  TeamRepository teamRepository;
-  TeamMemberRepository teamMemberRepository;
-  BudgetRepository budgetRepository;
-  ExpenseRepository expenseRepository;
+  private final TeamRepository teamRepository;
+  private final TeamMemberRepository teamMemberRepository;
+  private final BudgetRepository budgetRepository;
+  private final ExpenseRepository expenseRepository;
 
-  TeamMapper teamMapper;
+  private final TeamMapper teamMapper;
 
   /**
    * 팀을 생성한다. 생성한 회원을 팀 리더로 등록한다
@@ -72,14 +76,17 @@ public class TeamService {
   @Transactional
   public TeamJoinResponse joinTeam(Member member, String teamCode, String teamPassword) {
     Team team = teamRepository.findByTeamCode(teamCode)
-        .orElseThrow(() -> new IllegalArgumentException("에러"));
+        .orElseThrow(() -> new CustomLogicException(ExceptionCode.TEAM_NOT_FOUND,
+            "팀 코드가 [%s]인 팀을 찾을 수 없습니다", teamCode));
+
     if (!team.getTeamPassword().equals(teamPassword)) {
       throw new IllegalArgumentException("비밀번호 일치 실패.");
     }
 
     boolean isAlreadyJoined = teamMemberRepository.existsByTeamAndMember(team, member);
     if (isAlreadyJoined) {
-      throw new IllegalArgumentException("이미 팀에 가입되어 있다.");
+      throw new CustomLogicException(ExceptionCode.ALREADY_TEAM_MEMBER,
+          "회원 ID [%d]는 이미 팀 ID [%d]에 가입되어 있습니다", member.getId(), team.getId());
     }
 
     TeamMember teamMember = TeamMember.builder()
@@ -111,10 +118,12 @@ public class TeamService {
   @Transactional(readOnly = true)
   public TeamDashboardResponse getTeamDashboard(Long teamId) {
     Team team = teamRepository.findById(teamId)
-        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
+        .orElseThrow(() -> new CustomLogicException(ExceptionCode.TEAM_NOT_FOUND,
+            "ID가 [%d]인 팀을 찾을 수 없습니다", teamId));
 
     Budget budget = budgetRepository.findByTeamId(teamId)
-        .orElseThrow(() -> new IllegalArgumentException("팀의 예산 정보가 없습니다."));
+        .orElseThrow(() -> new CustomLogicException(ExceptionCode.BUDGET_NOT_FOUND,
+            "팀 ID [%d]의 예산 정보가 없습니다", teamId));
 
     List<Expense> expenses = expenseRepository.findAllByTeamId(teamId);
 

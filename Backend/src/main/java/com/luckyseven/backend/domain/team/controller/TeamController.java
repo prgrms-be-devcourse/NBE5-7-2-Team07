@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/teams")
 @RequiredArgsConstructor
 @Tag(name = "팀 관리", description = "팀 도메인 API")
 public class TeamController {
@@ -69,7 +69,7 @@ public class TeamController {
       description = "팀 참가 성공",
       content = @Content(schema = @Schema(implementation = TeamJoinResponse.class))
   )
-  @PostMapping("members")
+  @PostMapping("/members")
   public ResponseEntity<TeamJoinResponse> joinTeam(
       @Parameter(description = "팀 참가 요청 정보") @RequestBody TeamJoinRequest request) {
     // 현재 로그인한 회원 정보 get
@@ -97,7 +97,7 @@ public class TeamController {
     return ResponseEntity.ok(teamMembers);
   }
 
-  @DeleteMapping
+  @DeleteMapping("/{teamId}/members/{teamMemberId}")
   public ResponseEntity<Void> removeTeamMember(
       @PathVariable Long teamMemberId,
       @PathVariable Long teamId
