@@ -1,11 +1,10 @@
 package com.luckyseven.backend.sharedkernel.jwt.utill;
 
-import com.luckyseven.backend.domain.member.service.CustomMemberDetailsService;
 import com.luckyseven.backend.domain.member.service.utill.CustomUserDetails;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import com.luckyseven.backend.sharedkernel.jwt.entity.BlackListToken;
-import com.luckyseven.backend.sharedkernel.jwt.entity.RefreshTokenEntity;
+import com.luckyseven.backend.sharedkernel.jwt.entity.RefreshToken;
 
 import com.luckyseven.backend.sharedkernel.jwt.repository.BlackListTokenRepository;
 import com.luckyseven.backend.sharedkernel.jwt.repository.RefreshTokenRepository;
@@ -66,9 +65,9 @@ public class JwtTokenizer {
 
     );
 
-    RefreshTokenEntity refreshTokenEntity = refreshTokenRepository.findByUserId(customUserDetails.getId())
+    RefreshToken refreshTokenEntity = refreshTokenRepository.findByUserId(customUserDetails.getId())
         .orElseGet(() -> {
-          return RefreshTokenEntity.builder()
+          return RefreshToken.builder()
               .userId(customUserDetails.getId())
               .tokenValue(refreshToken)
               .build();
