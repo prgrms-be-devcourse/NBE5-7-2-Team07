@@ -3,6 +3,7 @@ package com.luckyseven.backend.domain.team.service;
 import com.luckyseven.backend.domain.team.entity.Member;
 import com.luckyseven.backend.domain.team.repository.TempMemberRepository;
 import com.luckyseven.backend.domain.team.util.TestEntityBuilder;
+import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,7 +71,7 @@ public class TempMemberServiceTest {
     when(tempMemberRepository.findById(memberId)).thenReturn(Optional.empty());
 
     // When & Then
-    assertThrows(IllegalArgumentException.class, () -> tempMemberService.getCurrentMember());
+    assertThrows(CustomLogicException.class, () -> tempMemberService.getCurrentMember());
     verify(tempMemberRepository).findById(memberId);
   }
 }

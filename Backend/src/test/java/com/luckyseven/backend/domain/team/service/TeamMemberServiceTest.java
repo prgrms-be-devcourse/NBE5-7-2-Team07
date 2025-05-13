@@ -8,6 +8,7 @@ import com.luckyseven.backend.domain.team.repository.TeamMemberRepository;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
 import com.luckyseven.backend.domain.team.util.TeamMemberMapper;
 import com.luckyseven.backend.domain.team.util.TestEntityBuilder;
+import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -91,7 +92,7 @@ public class TeamMemberServiceTest {
     when(teamRepository.existsById(teamId)).thenReturn(false);
 
     // 실행 및 검증
-    assertThrows(NoSuchElementException.class, () -> {
+    assertThrows(CustomLogicException.class, () -> {
       teamMemberService.getTeamMemberByTeamId(teamId);
     });
 
@@ -139,7 +140,7 @@ public class TeamMemberServiceTest {
     when(teamRepository.existsById(teamId)).thenReturn(false);
 
     // 실행 및 검증
-    assertThrows(NoSuchElementException.class, () -> {
+    assertThrows(CustomLogicException.class, () -> {
       teamMemberService.removeTeamMember(teamId, teamMemberId);
     });
 
@@ -160,7 +161,7 @@ public class TeamMemberServiceTest {
     when(teamMemberRepository.findById(teamMemberId)).thenReturn(Optional.empty());
 
     // 실행 및 검증
-    assertThrows(NoSuchElementException.class, () -> {
+    assertThrows(CustomLogicException.class, () -> {
       teamMemberService.removeTeamMember(teamId, teamMemberId);
     });
 
@@ -189,7 +190,7 @@ public class TeamMemberServiceTest {
     when(teamMemberRepository.findById(teamMemberId)).thenReturn(Optional.of(teamMember));
 
     // 실행 및 검증
-    assertThrows(IllegalArgumentException.class, () -> {
+    assertThrows(CustomLogicException.class, () -> {
       teamMemberService.removeTeamMember(teamId, teamMemberId);
     });
 

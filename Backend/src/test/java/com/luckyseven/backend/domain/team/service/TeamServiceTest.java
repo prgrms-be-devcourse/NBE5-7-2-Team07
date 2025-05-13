@@ -14,6 +14,7 @@ import com.luckyseven.backend.domain.team.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.team.repository.TeamMemberRepository;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
 import com.luckyseven.backend.domain.team.util.TeamMapper;
+import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -76,7 +77,7 @@ public class TeamServiceTest {
         .id(1L)
         .name("test_team")
         .teamCode("ABCDEF")
-        .leaderId(creator.getId())
+        .leader(creator)
         .teamPassword("password")
         .build();
 
@@ -91,7 +92,7 @@ public class TeamServiceTest {
         .id(team.getId())
         .name(team.getName())
         .teamCode(team.getTeamCode())
-        .leaderId(team.getLeaderId())
+        .leaderId(team.getLeader().getId())
         .teamPassword(team.getTeamPassword())
         .build();
 
@@ -111,7 +112,7 @@ public class TeamServiceTest {
     ArgumentCaptor<Team> teamCaptor = ArgumentCaptor.forClass(Team.class);
     verify(teamRepository).save(teamCaptor.capture());
     assertThat(teamCaptor.getValue().getName()).isEqualTo(request.getName());
-    assertThat(teamCaptor.getValue().getLeaderId()).isEqualTo(creator.getId());
+    assertThat(teamCaptor.getValue().getLeader().getId()).isEqualTo(creator.getId());
     assertThat(teamCaptor.getValue().getTeamPassword()).isEqualTo(request.getTeamPassword());
 
     //팀 멤버 저장
@@ -150,7 +151,7 @@ public class TeamServiceTest {
         .id(team.getId())
         .teamName(team.getName())
         .teamCode(team.getTeamCode())
-        .leaderId(team.getLeaderId())
+        .leaderId(team.getLeader().getId())
         .build();
 
     given(teamMapper.toJoinResponse(team)).willReturn(expectedResponse);
@@ -162,7 +163,7 @@ public class TeamServiceTest {
     assertThat(result).isNotNull();
     assertThat(result.getId()).isEqualTo(team.getId());
     assertThat(result.getTeamName()).isEqualTo(team.getName());
-    assertThat(result.getLeaderId()).isEqualTo(team.getLeaderId());
+    assertThat(result.getLeaderId()).isEqualTo(team.getLeader().getId());
     assertThat(result.getTeamCode()).isEqualTo(team.getTeamCode());
 
     // 팀 멤버 저장
@@ -208,7 +209,7 @@ public class TeamServiceTest {
     when(teamRepository.findById(teamId)).thenReturn(Optional.empty());
 
     // When & Then
-    assertThrows(IllegalArgumentException.class, () -> teamService.getTeamDashboard(teamId));
+    assertThrows(CustomLogicException.class, () -> teamService.getTeamDashboard(teamId));
     verify(teamRepository).findById(teamId);
   }
 
