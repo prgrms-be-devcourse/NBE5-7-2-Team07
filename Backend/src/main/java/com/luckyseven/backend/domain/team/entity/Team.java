@@ -7,8 +7,12 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +30,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @Table(name = "team", indexes = {
-    @Index(name = "idx_team_leader_id", columnList = "leader_id"),
-    @Index(name = "idx_team_budget_id", columnList = "budget_id")
+    @Index(name = "idx_team_leader_id", columnList = "leader_id")
 })
 @AttributeOverride(name = "id", column = @Column(name = "team_id"))
 public class Team extends BaseEntity {
@@ -41,11 +44,19 @@ public class Team extends BaseEntity {
   @Column(nullable = false)
   private String teamPassword;
 
-  @Column(name = "leader_id")
-  private Long leaderId;
+  /**
+   * 팀장 ID
+   */
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "leader_id", nullable = false)
+  private Member leader;
 
-  @Column(name = "budget_id")
-  private Long budgetId;
+  /**
+   * 팀의 예산 정보
+   */
+  @OneToOne(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+  private Budget budget;
+
 
   @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
@@ -57,4 +68,10 @@ public class Team extends BaseEntity {
     this.teamMembers.add(teamMember);
     teamMember.setTeam(this);
   }
+
+  public void removeTeamMember(TeamMember teamMember) {
+    this.teamMembers.remove(teamMember);
+    teamMember.setTeam(null);
+  }
+
 }

@@ -30,7 +30,7 @@ public class TeamMapper {
         .id(team.getId())
         .name(team.getName())
         .teamCode(team.getTeamCode())
-        .leaderId(team.getLeaderId())
+        .leaderId(team.getLeader().getId())
         .teamPassword(team.getTeamPassword())
         .build();
   }
@@ -49,7 +49,7 @@ public class TeamMapper {
         .id(team.getId())
         .teamName(team.getName())
         .teamCode(team.getTeamCode())
-        .leaderId(team.getLeaderId())
+        .leaderId(team.getLeader().getId())
         .build();
   }
 
@@ -74,7 +74,7 @@ public class TeamMapper {
             .amount(expense.getAmount())
             .category(expense.getCategory())
             .date(expense.getCreatedAt()) // BaseEntity에서 상속받은 createdAt을 사용
-            .payer(expense.getPayerId())
+            .payer(expense.getPayer().getId())
             .build());
       }
     }

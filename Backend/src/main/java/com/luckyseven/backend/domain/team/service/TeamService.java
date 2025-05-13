@@ -47,7 +47,7 @@ public class TeamService {
         .name(request.getName())
         .teamCode(teamCode)
         .teamPassword(request.getTeamPassword())
-        .leaderId(creator.getId())
+        .leader(creator)
         .build();
 
     Team savedTeam = teamRepository.save(team);
