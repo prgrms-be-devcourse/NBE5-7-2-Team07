@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.luckyseven.backend.domain.member.dto.RegisterMemberRequest;
 import com.luckyseven.backend.domain.member.repository.MemberRepository;
+import com.luckyseven.backend.domain.member.service.utill.MemberService;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import jakarta.transaction.Transactional;
@@ -19,7 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Slf4j
 class CustomMemberDetailsServiceTest {
   @Autowired
-  private CustomMemberDetailsService service;
+  private MemberService service;
   @Autowired
   private MemberRepository memberRepository;
   @Autowired

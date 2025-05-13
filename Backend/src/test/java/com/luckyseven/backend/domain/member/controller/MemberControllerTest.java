@@ -67,7 +67,7 @@ class MemberControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andExpect(status().isCreated())
-        .andExpect(content().string("success"));
+        .andExpect(content().string("test@test.com"));
 
 
     boolean exists = memberRepository.findByEmail("test@test.com").isPresent();
@@ -92,6 +92,8 @@ class MemberControllerTest {
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("MEMBER_NICKNAME_DUPLICATE"));
   }
+
+
 
   @Test
   @DisplayName("POST /api/user/checkEmail?email=… — 중복 있으면 409 Conflict")
