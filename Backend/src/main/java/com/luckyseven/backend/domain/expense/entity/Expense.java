@@ -57,14 +57,14 @@ public class Expense extends BaseEntity {
   // TODO: 임시로 설정한 TEMP 엔티티 삭제 및 수정
   @ManyToOne
   @JoinColumn(
-      foreignKey = @ForeignKey(ConstraintMode.CONSTRAINT),
+      foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT),
       nullable = false
   )
   private TempMember payer;
 
   @ManyToOne
   @JoinColumn(
-      foreignKey = @ForeignKey(ConstraintMode.CONSTRAINT),
+      foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT),
       nullable = false
   )
   private TempTeam team;
