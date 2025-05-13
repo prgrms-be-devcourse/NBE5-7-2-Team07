@@ -20,6 +20,7 @@ public enum ExceptionCode {
    * 404 NOT_FOUND: 리소스를 찾을 수 없음
    */
   USER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다."),
+  TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다."),
 
   /*
    * 405 METHOD_NOT_ALLOWED: 허용되지 않은 Request Method 호출
@@ -30,6 +31,7 @@ public enum ExceptionCode {
    * 409 CONFLICT
    */
   USERNAME_CONFLICT(HttpStatus.CONFLICT, "존재하는 회원 이름입니다."),
+  BUDGET_CONFLICT(HttpStatus.CONFLICT, "팀에 이미 존재하는 예산이 있습니다."),
 
   /*
    * 500 INTERNAL_SERVER_ERROR: 내부 서버 오류
