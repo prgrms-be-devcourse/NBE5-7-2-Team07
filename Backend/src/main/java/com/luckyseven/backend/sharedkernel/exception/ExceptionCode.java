@@ -20,7 +20,6 @@ public enum ExceptionCode {
    * 404 NOT_FOUND: 리소스를 찾을 수 없음
    */
   USER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다."),
-  SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "정산내역을 찾을 수 없습니다."),
 
   /*
    * 405 METHOD_NOT_ALLOWED: 허용되지 않은 Request Method 호출
