@@ -2,7 +2,7 @@ package com.luckyseven.backend.domain.member.service;
 
 import com.luckyseven.backend.domain.member.service.utill.CustomUserDetails;
 import com.luckyseven.backend.domain.member.dto.RegisterMemberRequest;
-import com.luckyseven.backend.domain.member.entity.MemberEntity;
+import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.member.repository.MemberRepository;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
@@ -59,12 +59,12 @@ public class CustomMemberDetailsService implements UserDetailsService {
 
     String encodePassword = passwordEncoder.encode(req.password());
     //TODO : {Mapper} : 설정
-    MemberEntity newMemberEntity = MemberEntity.builder()
+    Member newMember = Member.builder()
         .email(req.email())
         .password(encodePassword)
         .nickname(req.nickname())
         .build();
-    memberRepository.save(newMemberEntity);
+    memberRepository.save(newMember);
   }
 
   public void logout(
@@ -91,14 +91,14 @@ public class CustomMemberDetailsService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-    MemberEntity memberEntity = memberRepository.findByEmail(email)
+    Member member = memberRepository.findByEmail(email)
         .orElseThrow(() -> new CustomLogicException(ExceptionCode.MEMBER_EMAIL_NOTFOUND,email));
-    return new CustomUserDetails(memberEntity);
+    return new CustomUserDetails(member);
   }
   public CustomUserDetails loadUserById(Long id){
-    MemberEntity memberEntity = memberRepository.findById(id)
+    Member member = memberRepository.findById(id)
         .orElseThrow(() -> new CustomLogicException(ExceptionCode.MEMBER_ID_NOTFOUND,id));
-    return new CustomUserDetails(memberEntity);
+    return new CustomUserDetails(member);
   }
 
 }

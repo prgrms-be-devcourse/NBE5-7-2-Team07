@@ -1,6 +1,6 @@
 package com.luckyseven.backend.domain.member.service.utill;
 
-import com.luckyseven.backend.domain.member.entity.MemberEntity;
+import com.luckyseven.backend.domain.member.entity.Member;
 import java.util.Collection;
 import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,11 +14,11 @@ public class CustomUserDetails implements UserDetails {
   private final String nickname;
   private final Collection<? extends GrantedAuthority> authorities;
 
-  public CustomUserDetails(MemberEntity memberEntity) {
-    this.id          = memberEntity.getId();
-    this.email       = memberEntity.getEmail();
-    this.nickname     = memberEntity.getNickname();
-    this.password = memberEntity.getPassword();
+  public CustomUserDetails(Member member) {
+    this.id          = member.getId();
+    this.email       = member.getEmail();
+    this.nickname     = member.getNickname();
+    this.password = member.getPassword();
     this.authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
   }
 
