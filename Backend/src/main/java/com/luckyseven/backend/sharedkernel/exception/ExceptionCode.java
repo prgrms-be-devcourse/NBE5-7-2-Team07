@@ -25,7 +25,7 @@ public enum ExceptionCode {
   EXPENSE_SETTLER_NOT_FOUND(HttpStatus.NOT_FOUND, "정산 대상자를 찾을 수 없습니다."),
   TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다."),
   EXPENSE_NOT_FOUND(HttpStatus.NOT_FOUND, "지출 내역을 조회할 수 없습니다."),
-
+  SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "정산내역을 찾을 수 없습니다."),
 
   /*
    * 405 METHOD_NOT_ALLOWED: 허용되지 않은 Request Method 호출
@@ -50,5 +50,4 @@ public enum ExceptionCode {
     this.httpStatus = httpStatus;
     this.message = message;
   }
-
 }
