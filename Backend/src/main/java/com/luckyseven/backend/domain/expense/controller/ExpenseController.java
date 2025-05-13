@@ -2,11 +2,11 @@ package com.luckyseven.backend.domain.expense.controller;
 
 import com.luckyseven.backend.domain.expense.dto.CreateExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseBalanceResponse;
-import com.luckyseven.backend.domain.expense.dto.ExpenseListResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseRequest;
 import com.luckyseven.backend.domain.expense.dto.ExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseUpdateRequest;
 import com.luckyseven.backend.domain.expense.service.ExpenseService;
+import com.luckyseven.backend.sharedkernel.dto.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -90,12 +90,12 @@ public class ExpenseController {
 
   @Operation(summary = "지출 내역 목록 조회")
   @ApiResponses({
-      @ApiResponse(responseCode = "200", description = "지출 내역 상세 조회 성공"),
+      @ApiResponse(responseCode = "200", description = "지출 내역 목록 조회 성공"),
       @ApiResponse(responseCode = "404", description = "팀을 찾을 수 없음")
   })
   @ResponseStatus(HttpStatus.OK)
   @GetMapping("/{teamId}/expenses")
-  public ExpenseListResponse getListExpense(
+  public PageResponse<ExpenseResponse> getListExpense(
       @PathVariable Long teamId,
       @ParameterObject
       @PageableDefault(

@@ -7,7 +7,6 @@ import static com.luckyseven.backend.sharedkernel.exception.ExceptionCode.TEAM_N
 
 import com.luckyseven.backend.domain.expense.dto.CreateExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseBalanceResponse;
-import com.luckyseven.backend.domain.expense.dto.ExpenseListResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseRequest;
 import com.luckyseven.backend.domain.expense.dto.ExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseUpdateRequest;
@@ -19,9 +18,9 @@ import com.luckyseven.backend.domain.expense.util.TempMember;
 import com.luckyseven.backend.domain.expense.util.TempMemberRepository;
 import com.luckyseven.backend.domain.expense.util.TempTeam;
 import com.luckyseven.backend.domain.expense.util.TempTeamRepository;
+import com.luckyseven.backend.sharedkernel.dto.PageResponse;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import java.math.BigDecimal;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -62,16 +61,14 @@ public class ExpenseService {
   }
 
   @Transactional(readOnly = true)
-  public ExpenseListResponse getListExpense(Long teamId, Pageable pageable) {
-    TempTeam team = findTeamOrThrow(teamId);
-    Page<Expense> page = expenseRepository.findByTeamId(team.getId(), pageable);
+  public PageResponse<ExpenseResponse> getListExpense(Long teamId, Pageable pageable) {
+    findTeamOrThrow(teamId);
 
-    List<ExpenseResponse> content = page.getContent().stream()
-        .map(ExpenseMapper::toExpenseResponse)
-        .toList();
+    Page<Expense> expensePage = expenseRepository.findByTeamId(teamId, pageable);
 
-    return ExpenseMapper.toExpenseListResponse(content, page);
+    return ExpenseMapper.toPageResponse(expensePage);
   }
+
 
   @Transactional
   public CreateExpenseResponse updateExpense(Long expenseId, ExpenseUpdateRequest request) {

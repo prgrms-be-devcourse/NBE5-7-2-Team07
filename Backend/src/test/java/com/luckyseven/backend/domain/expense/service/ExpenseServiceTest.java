@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import com.luckyseven.backend.domain.expense.dto.CreateExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseBalanceResponse;
-import com.luckyseven.backend.domain.expense.dto.ExpenseListResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseRequest;
 import com.luckyseven.backend.domain.expense.dto.ExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseUpdateRequest;
@@ -21,6 +20,7 @@ import com.luckyseven.backend.domain.expense.util.TempMember;
 import com.luckyseven.backend.domain.expense.util.TempMemberRepository;
 import com.luckyseven.backend.domain.expense.util.TempTeam;
 import com.luckyseven.backend.domain.expense.util.TempTeamRepository;
+import com.luckyseven.backend.sharedkernel.dto.PageResponse;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import java.math.BigDecimal;
@@ -385,7 +385,7 @@ class ExpenseServiceTest {
       when(expenseRepository.findByTeamId(1L, pageable)).thenReturn(page);
 
       // when
-      ExpenseListResponse response = expenseService.getListExpense(1L, pageable);
+      PageResponse<ExpenseResponse> response = expenseService.getListExpense(1L, pageable);
 
       // then
       assertThat(response.getContent()).hasSize(2);
@@ -398,6 +398,7 @@ class ExpenseServiceTest {
       assertThat(first.getDescription()).isEqualTo("럭키비키즈 미국에서 점심 식사");
       assertThat(first.getAmount()).isEqualByComparingTo(new BigDecimal("10000.00"));
     }
+
 
     @Test
     @DisplayName("존재하지 않는 팀으로 조회 시 예외 발생")

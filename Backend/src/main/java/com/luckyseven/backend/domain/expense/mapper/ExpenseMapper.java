@@ -2,14 +2,13 @@ package com.luckyseven.backend.domain.expense.mapper;
 
 import com.luckyseven.backend.domain.expense.dto.CreateExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseBalanceResponse;
-import com.luckyseven.backend.domain.expense.dto.ExpenseListResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseRequest;
 import com.luckyseven.backend.domain.expense.dto.ExpenseResponse;
 import com.luckyseven.backend.domain.expense.entity.Expense;
 import com.luckyseven.backend.domain.expense.util.TempBudget;
 import com.luckyseven.backend.domain.expense.util.TempMember;
 import com.luckyseven.backend.domain.expense.util.TempTeam;
-import java.util.List;
+import com.luckyseven.backend.sharedkernel.dto.PageResponse;
 import org.springframework.data.domain.Page;
 
 public class ExpenseMapper {
@@ -62,16 +61,8 @@ public class ExpenseMapper {
         .build();
   }
 
-  public static ExpenseListResponse toExpenseListResponse(
-      List<ExpenseResponse> content,
-      Page<Expense> page
-  ) {
-    return ExpenseListResponse.builder()
-        .content(content)
-        .page(page.getNumber())
-        .size(page.getSize())
-        .totalPages(page.getTotalPages())
-        .totalElements(page.getTotalElements())
-        .build();
+  public static PageResponse<ExpenseResponse> toPageResponse(Page<Expense> expensePage) {
+    Page<ExpenseResponse> responsePage = expensePage.map(ExpenseMapper::toExpenseResponse);
+    return PageResponse.fromPage(responsePage);
   }
 }
