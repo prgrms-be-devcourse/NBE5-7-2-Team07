@@ -3,7 +3,7 @@ package com.luckyseven.backend.domain.member.controller;
 import com.luckyseven.backend.domain.member.service.utill.CustomUserDetails;
 import com.luckyseven.backend.domain.member.dto.LoginMemberRequest;
 import com.luckyseven.backend.domain.member.dto.RegisterMemberRequest;
-import com.luckyseven.backend.domain.member.service.CustomMemberDetailsService;
+import com.luckyseven.backend.domain.member.service.utill.MemberService;
 import com.luckyseven.backend.sharedkernel.jwt.utill.JwtTokenizer;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping({"/api/users"})
 public class MemberController implements MemberApi {
-  private final CustomMemberDetailsService  customMemberDetailsService;
+  private final MemberService service;
   private final AuthenticationManager authenticationManager;
   private final PasswordEncoder passwordEncoder;
   private final JwtTokenizer jwtTokenizer;
@@ -35,15 +35,20 @@ public class MemberController implements MemberApi {
   @Override
   @PostMapping("/register")
   public ResponseEntity<String> registerMember(@RequestBody RegisterMemberRequest req) {
-    customMemberDetailsService.registerMember(req,passwordEncoder);
-    return ResponseEntity.status(HttpStatus.CREATED).body("success");
+    log.info("==========");
+    log.info("req.email() == {}", req.email());
+    log.info("req.password() == {}", req.password());
+    log.info("req.checkPassword() == {}", req.checkPassword());
+    log.info("req.nickname() == {}", req.nickname());
+    String email = service.registerMember(req,passwordEncoder);
+    return ResponseEntity.status(HttpStatus.CREATED).body(email);
   }
 
   //TODO <추후 고려사항> : 사용자가 중간에 이메일을 바꿀경우 boolean형으로?
   @Override
   @PostMapping("/checkEmail")
   public ResponseEntity<Void> checkEmail(@RequestParam String email) {
-    customMemberDetailsService.checkDuplicateEmail(email);
+    service.checkDuplicateEmail(email);
     return ResponseEntity.noContent().build();
   }
 
@@ -51,7 +56,7 @@ public class MemberController implements MemberApi {
   @Override
   @PostMapping("/checkNickname")
   public ResponseEntity<Void> checkNickName(@RequestParam String nickname) {
-    customMemberDetailsService.checkDuplicateNickName(nickname);
+    service.checkDuplicateNickName(nickname);
     return ResponseEntity.noContent().build();
   }
 
@@ -59,17 +64,16 @@ public class MemberController implements MemberApi {
   @Override
   @PostMapping("/checkPassword")
   public ResponseEntity<Void> checkPassword(@RequestParam String password,@RequestParam String checkPassword) {
-    customMemberDetailsService.checkEqualsPassword(password,checkPassword);
+    service.checkEqualsPassword(password,checkPassword);
     return ResponseEntity.noContent().build();
   }
 
 
   @PostMapping("/logout")
   public ResponseEntity<Void> logout(@CookieValue("refreshToken") String refreshToken, HttpServletResponse resp) {
-    customMemberDetailsService.logout(refreshToken,resp);
+    service.logout(refreshToken,resp);
     return ResponseEntity.noContent().build();
   }
-
 
   @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody LoginMemberRequest req,
@@ -85,6 +89,11 @@ public class MemberController implements MemberApi {
 
       return ResponseEntity.ok().header("Authorization","Bearer "+accessToken).build();
     }
-
-
+/*
+  @PostMapping("/login")
+    public ResponseEntity<Void> login(@RequestBody LoginMemberRequest req,
+      HttpServletResponse resp){
+    String token = service.Login(req,resp);
+    return ResponseEntity.ok().header("Authorization","Bearer "+token).build();
+  }*/
 }

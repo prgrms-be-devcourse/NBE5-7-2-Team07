@@ -1,5 +1,6 @@
 package com.luckyseven.backend.sharedkernel.jwt.utill;
 
+import com.luckyseven.backend.domain.member.service.CustomMemberDetailsService;
 import com.luckyseven.backend.domain.member.service.utill.CustomUserDetails;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Component;
 public class JwtTokenizer {
   private final RefreshTokenRepository refreshTokenRepository;
   private final BlackListTokenRepository blackListTokenRepository;
+  private final CustomMemberDetailsService customMemberDetailsService;
   private final byte[] accessSecret;
   private final byte[] refreshSecret;
   public static final Long ACCESS_TOKEN_EXPIRE = 24*60*60*1000L; //1일
@@ -43,10 +45,12 @@ public class JwtTokenizer {
   public JwtTokenizer(
       RefreshTokenRepository refreshTokenRepository,
       BlackListTokenRepository blackListTokenRepository,
+      CustomMemberDetailsService customMemberDetailsService,
       @Value("213948109238490182309481asdkasdfkajsdlf19023840921")String accessSecret,
       @Value("213948109238490182309asdfasdfasdf4819023840921")String refreshSecret) {
     this.refreshTokenRepository = refreshTokenRepository;
     this.blackListTokenRepository = blackListTokenRepository;
+    this.customMemberDetailsService = customMemberDetailsService;
     this.accessSecret = Base64.getDecoder().decode(accessSecret);
     this.refreshSecret = Base64.getDecoder().decode(refreshSecret);
 
@@ -132,7 +136,6 @@ public class JwtTokenizer {
   }
 
 
-  /* 순환참조가 터진 이유? -> 방지하는 방법 물어보기
    public String validateRefreshToken(String refreshToken, HttpServletResponse response){
     if(blackListTokenRepository.existsByTokenValue(refreshToken)){
       throw new CustomLogicException(ExceptionCode.JWT_BLACKLISTED_TOKEN);
@@ -148,25 +151,5 @@ public class JwtTokenizer {
     );
     return reissueTokenPair(response, user);
   }
-
-}
-  * */
-
-
-  public Long Long_validateRefreshToken(String refreshToken, HttpServletResponse response){
-    if(blackListTokenRepository.existsByTokenValue(refreshToken)){
-      throw new CustomLogicException(ExceptionCode.JWT_BLACKLISTED_TOKEN);
-    }
-    Claims claims = parseRefreshToken(refreshToken);
-    Long memberId = Long.parseLong(claims.getSubject());
-    blackListTokenRepository.save(
-        BlackListToken.builder()
-            .tokenValue(refreshToken)
-            .expirationTime(claims.getExpiration().toInstant())
-            .build()
-    );
-    return memberId;
-  }
-
 
 }

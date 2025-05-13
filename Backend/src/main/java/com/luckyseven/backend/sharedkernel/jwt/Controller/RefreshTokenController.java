@@ -18,9 +18,7 @@ public class RefreshTokenController {
   private final CustomMemberDetailsService customMemberDetailsService;
   @PostMapping("/refresh")
   public ResponseEntity<Void> refreshToken(@CookieValue(name = "refreshToken") String token,HttpServletResponse response) {
-    Long memberId = jwtTokenizer.Long_validateRefreshToken(token,response);
-    CustomUserDetails userDetails = customMemberDetailsService.loadUserById(memberId);
-    String accessToken = jwtTokenizer.reissueTokenPair(response,userDetails);
+    String accessToken = jwtTokenizer.validateRefreshToken(token,response);
     return ResponseEntity.ok().header("Authorization", "Bearer " + accessToken).build();
   }
 }
