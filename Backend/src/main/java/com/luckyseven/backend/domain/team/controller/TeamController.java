@@ -21,6 +21,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,14 +42,27 @@ public class TeamController {
 
   @Operation(
       summary = "팀 생성",
-      description = "새로운 팀을 생성합니다",
-      responses = {
-          @ApiResponse(
-              responseCode = "200",
-              description = "팀 생성 성공",
-              content = @Content(schema = @Schema(implementation = TeamCreateResponse.class))
-          )
-      }
+      description = "새로운 팀을 생성합니다"
+  )
+  @ApiResponse(
+      responseCode = "200",
+      description = "팀 생성 성공",
+      content = @Content(schema = @Schema(implementation = TeamCreateResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "400",
+      description = "잘못된 요청 데이터",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "401",
+      description = "인증되지 않은 사용자",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "409",
+      description = "이미 존재하는 팀 이름",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
   )
   @PostMapping
   public ResponseEntity<TeamCreateResponse> createTeam(
@@ -67,6 +81,26 @@ public class TeamController {
       responseCode = "200",
       description = "팀 참가 성공",
       content = @Content(schema = @Schema(implementation = TeamJoinResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "400",
+      description = "잘못된 요청 데이터 또는 비밀번호",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "401",
+      description = "인증되지 않은 사용자",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "404",
+      description = "존재하지 않는 팀",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "409",
+      description = "이미 팀에 가입된 사용자",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
   )
   @PostMapping("/members")
   public ResponseEntity<TeamJoinResponse> joinTeam(
@@ -90,6 +124,26 @@ public class TeamController {
       description = "조회 성공",
       content = @Content(schema = @Schema(implementation = TeamMemberDto.class))
   )
+  @ApiResponse(
+      responseCode = "400",
+      description = "잘못된 팀 ID",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "401",
+      description = "인증되지 않은 사용자",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "403",
+      description = "팀 멤버가 아닌 사용자의 접근",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "404",
+      description = "존재하지 않는 팀",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+  )
   @GetMapping("/{teamId}/members")
   public ResponseEntity<List<TeamMemberDto>> getTeamMembers(@PathVariable Long teamId) {
     List<TeamMemberDto> teamMembers = teamMemberService.getTeamMemberByTeamId(teamId);
@@ -99,6 +153,30 @@ public class TeamController {
   @Operation(
       summary = "팀 삭제",
       description = "팀의 멤버를 삭제합니다"
+  )
+  @ApiResponse(
+      responseCode = "204",
+      description = "멤버 삭제 성공"
+  )
+  @ApiResponse(
+      responseCode = "400",
+      description = "잘못된 요청 또는 팀 리더 삭제 시도",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "401",
+      description = "인증되지 않은 사용자",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "403",
+      description = "권한 없는 작업 시도 (팀 리더만 삭제 가능)",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "404",
+      description = "존재하지 않는 팀 또는 팀 멤버",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
   )
   @DeleteMapping("/{teamId}/members/{teamMemberId}")
   public ResponseEntity<Void> removeTeamMember(
@@ -113,6 +191,31 @@ public class TeamController {
   @Operation(
       summary = "팀 대시보드를 조회",
       description = "팀 대시보드를 조회합니다"
+  )
+  @ApiResponse(
+      responseCode = "200",
+      description = "대시보드 조회 성공",
+      content = @Content(schema = @Schema(implementation = TeamDashboardResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "400",
+      description = "잘못된 팀 ID",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "401",
+      description = "인증되지 않은 사용자",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "403",
+      description = "팀 멤버가 아닌 사용자의 접근",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "404",
+      description = "존재하지 않는 팀",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
   )
   @GetMapping("/{teamId}/dashboard")
   public ResponseEntity<TeamDashboardResponse> getTeamDashboard(@PathVariable Long teamId) {
