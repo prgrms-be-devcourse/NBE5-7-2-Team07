@@ -17,7 +17,8 @@ public class ExpenseMapper {
   private ExpenseMapper() {
   }
 
-  public static Expense toExpense(ExpenseRequest request, TempTeam team, TempMember payer) {
+  public static Expense fromExpenseRequest(ExpenseRequest request, TempTeam team,
+      TempMember payer) {
     return Expense.builder()
         .description(request.getDescription())
         .amount(request.getAmount())

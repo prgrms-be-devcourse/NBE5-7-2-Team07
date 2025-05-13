@@ -46,7 +46,7 @@ public class ExpenseService {
     TempBudget budget = team.getBudget();
     validateSufficientBudget(request.getAmount(), budget.getBalance());
 
-    Expense expense = ExpenseMapper.toExpense(request, team, payer);
+    Expense expense = ExpenseMapper.fromExpenseRequest(request, team, payer);
     Expense saved = expenseRepository.save(expense);
 
     budget.updateBalance(budget.getBalance().subtract(request.getAmount()));
