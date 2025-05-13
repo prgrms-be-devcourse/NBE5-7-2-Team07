@@ -13,6 +13,7 @@ import com.luckyseven.backend.domain.settlements.entity.Settlement;
 import com.luckyseven.backend.domain.settlements.util.SettlementMapper;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,12 +36,13 @@ public class SettlementService {
     TempExpense expense = new TempExpense(team);
     Settlement settlement = SettlementMapper.fromSettlementCreateRequest(request, settler, payer,
         expense);
+    BigDecimal amount = request.getAmount();
     return SettlementMapper.toSettlementResponse(settlementRepository.save(settlement));
   }
 
   @Transactional(readOnly = true)
   public SettlementResponse readSettlement(Long id) {
-    Settlement settlement = settlementRepository.findById(id).orElseThrow(
+    Settlement settlement = settlementRepository.findWithSettlerAndPayerById(id).orElseThrow(
         () -> new CustomLogicException(ExceptionCode.SETTLEMENT_NOT_FOUND)
     );
     return SettlementMapper.toSettlementResponse(settlement);
