@@ -16,6 +16,7 @@ import com.luckyseven.backend.domain.team.repository.TeamRepository;
 import com.luckyseven.backend.domain.team.util.TeamMapper;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -44,14 +45,29 @@ public class TeamService {
   public TeamCreateResponse createTeam(Member creator, TeamCreateRequest request) {
     String teamCode = generateTeamCode();
     Team team = teamMapper.toTeamEntity(request, creator, teamCode);
+    creator.addLeadingTeam(team);
     Team savedTeam = teamRepository.save(team);
     TeamMember teamMember = teamMapper.toTeamMemberEntity(creator, savedTeam);
 
     // 리더를 TeamMember 에 추가
     teamMemberRepository.save(teamMember);
 
+    // <TODO> 예산 생성(임시로 구현)
+    Budget budget = Budget.builder()
+        .currency(BigDecimal.ZERO)
+        .balance(BigDecimal.ZERO)
+        .foreignBalance(BigDecimal.ZERO)
+        .totalAmount(BigDecimal.ZERO)
+        .exchangeRate(BigDecimal.ONE)
+        .avgExchangeRate(BigDecimal.ONE)
+        .build();
+
+    // Team이 Budget의 주인이므로, Team 에서 Budget set
+    Budget savedBudget = budgetRepository.save(budget);
+    savedTeam.setBudget(savedBudget);
+
     savedTeam.addTeamMember(teamMember);
-    return teamMapper.toCreateResponse(savedTeam);
+    return teamMapper.toTeamCreateResponse(savedTeam);
   }
 
   /**
@@ -83,7 +99,7 @@ public class TeamService {
 
     teamMemberRepository.save(teamMember);
     team.addTeamMember(teamMember);
-    return teamMapper.toJoinResponse(team);
+    return teamMapper.toTeamJoinResponse(team);
   }
 
   /**

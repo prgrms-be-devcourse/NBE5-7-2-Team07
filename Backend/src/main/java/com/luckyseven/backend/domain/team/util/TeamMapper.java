@@ -55,7 +55,7 @@ public class TeamMapper {
    * @param team 변환할 팀 엔티티
    * @return 변환된 팀 생성 응답 DTO
    */
-  public TeamCreateResponse toCreateResponse(Team team) {
+  public TeamCreateResponse toTeamCreateResponse(Team team) {
     if (team == null) {
       return null;
     }
@@ -73,7 +73,7 @@ public class TeamMapper {
    * @param team 변환할 팀 엔티티
    * @return 변환된 팀 참가 응답 DTO
    */
-  public TeamJoinResponse toJoinResponse(Team team) {
+  public TeamJoinResponse toTeamJoinResponse(Team team) {
     if (team == null) {
       return null;
     }

@@ -54,7 +54,8 @@ public class Team extends BaseEntity {
   /**
    * 팀의 예산 정보
    */
-  @OneToOne(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+  @JoinColumn(name = "budget_id", unique = true)
   private Budget budget;
 
 

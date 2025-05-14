@@ -44,4 +44,24 @@ public class Member extends BaseEntity {
   private List<TeamMember> teamMembers = new ArrayList<>();
 
 
+  @OneToMany(mappedBy = "leader")
+  @Builder.Default
+  @JsonIgnore
+  @Schema(hidden = true)
+  private List<Team> leadingTeams = new ArrayList<>();
+
+  // 양방향 연관관계 유지를 위한 메서드 추가
+  public void addLeadingTeam(Team team) {
+    this.leadingTeams.add(team);
+    if (team.getLeader() != this) {
+      team.setLeader(this);
+    }
+  }
+
+  public void removeLeadingTeam(Team team) {
+    this.leadingTeams.remove(team);
+    if (team.getLeader() == this) {
+      team.setLeader(null);
+    }
+  }
 }
