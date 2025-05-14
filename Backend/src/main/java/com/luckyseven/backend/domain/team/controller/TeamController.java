@@ -45,7 +45,7 @@ public class TeamController {
       description = "새로운 팀을 생성합니다"
   )
   @ApiResponse(
-      responseCode = "200",
+      responseCode = "201",
       description = "팀 생성 성공",
       content = @Content(schema = @Schema(implementation = TeamCreateResponse.class))
   )
