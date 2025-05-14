@@ -16,6 +16,7 @@ import com.luckyseven.backend.domain.budget.dto.BudgetCreateResponse;
 import com.luckyseven.backend.domain.budget.dto.BudgetReadResponse;
 import com.luckyseven.backend.domain.budget.dto.BudgetUpdateRequest;
 import com.luckyseven.backend.domain.budget.dto.BudgetUpdateResponse;
+import com.luckyseven.backend.domain.budget.entity.CurrencyCode;
 import com.luckyseven.backend.domain.budget.service.BudgetService;
 import com.luckyseven.backend.domain.budget.validator.BudgetValidator;
 import java.math.BigDecimal;
@@ -45,15 +46,14 @@ class BudgetControllerTests {
   private BudgetValidator budgetValidator;
 
   @Test
-  @DisplayName("POST /api/teams/{teamId} - 예산 생성 성공 테스트")
+  @DisplayName("POST /api/teams/{teamId}/budget - 예산 생성 성공 테스트")
   void create_should_return_201() throws Exception {
 
     // given
     Long teamId = 1L;
     BudgetCreateRequest request = BudgetCreateRequest.builder()
         .totalAmount(BigDecimal.valueOf(100000))
-        .setBy(1L)
-        .foreignCurrency("USD")
+        .foreignCurrency(CurrencyCode.USD)
         .isExchanged(true)
         .exchangeRate(BigDecimal.valueOf(1393.7))
         .build();
@@ -64,11 +64,12 @@ class BudgetControllerTests {
         .avgExchangeRate(BigDecimal.valueOf(1393.7))
         .build();
 
-    when(budgetService.save(teamId, request)).thenReturn(response);
+    when(budgetService.save(teamId, 2L, request)).thenReturn(response);
 
     // when
-    mockMvc.perform(post("/api/teams/{teamId}", teamId)
+    mockMvc.perform(post("/api/teams/{teamId}/budget", teamId)
             .contentType(MediaType.APPLICATION_JSON)
+            .param("loginMemberId", "2")
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.id").value(1L))
@@ -80,7 +81,7 @@ class BudgetControllerTests {
   }
 
   @Test
-  @DisplayName("GET /api/teams/{teamId} - 예산 조회 성공 테스트")
+  @DisplayName("GET /api/teams/{teamId}/budget - 예산 조회 성공 테스트")
   void read_should_return_200() throws Exception {
 
     // given
@@ -90,7 +91,7 @@ class BudgetControllerTests {
         .totalAmount(BigDecimal.valueOf(100000))
         .setBy(1L)
         .balance(BigDecimal.valueOf(100000))
-        .foreignCurrency("USD")
+        .foreignCurrency(CurrencyCode.USD)
         .foreignBalance(BigDecimal.valueOf(71.75))
         .avgExchangeRate(BigDecimal.valueOf(1393.70))
         .build();
@@ -98,7 +99,7 @@ class BudgetControllerTests {
     when(budgetService.getByTeamId(teamId)).thenReturn(response);
 
     // when & then
-    mockMvc.perform(get("/api/teams/{teamId}", teamId))
+    mockMvc.perform(get("/api/teams/{teamId}/budget", teamId))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(1L))
             .andExpect(jsonPath("$.totalAmount").value(100000))
@@ -107,28 +108,28 @@ class BudgetControllerTests {
   }
 
   @Test
-  @DisplayName("PATCH /api/teams/{teamId} - 예산 수정 성공 테스트")
+  @DisplayName("PATCH /api/teams/{teamId}/budget - 예산 수정 성공 테스트")
   void patch_should_return_200() throws Exception {
 
     // given
     Long teamId = 1L;
     BudgetUpdateRequest request = BudgetUpdateRequest.builder()
         .totalAmount(BigDecimal.valueOf(150000))
-        .setBy(2L)
         .build();
     BudgetUpdateResponse response = BudgetUpdateResponse.builder()
         .id(1L)
         .balance(BigDecimal.valueOf(150000))
         .foreignBalance(BigDecimal.valueOf(107.63))
-        .foreignCurrency("USD")
+        .foreignCurrency(CurrencyCode.USD)
         .avgExchangeRate(BigDecimal.valueOf(1393.7))
         .build();
 
-    when(budgetService.updateByTeamId(teamId, request)).thenReturn(response);
+    when(budgetService.updateByTeamId(teamId, 2L, request)).thenReturn(response);
 
     // when & then
-    mockMvc.perform(patch("/api/teams/{teamId}", teamId)
+    mockMvc.perform(patch("/api/teams/{teamId}/budget", teamId)
           .contentType(MediaType.APPLICATION_JSON)
+            .param("loginMemberId", "2")
           .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(1L))
@@ -137,14 +138,14 @@ class BudgetControllerTests {
   }
 
   @Test
-  @DisplayName("DELETE /api/teams/{teamId} - 예산 삭제 성공 테스트")
+  @DisplayName("DELETE /api/teams/{teamId}/budget - 예산 삭제 성공 테스트")
   void delete_should_return_204() throws Exception {
 
     // given
     Long teamId = 1L;
 
     // when & then
-    mockMvc.perform(delete("/api/teams/{teamId}", teamId))
+    mockMvc.perform(delete("/api/teams/{teamId}/budget", teamId))
         .andExpect(status().isNoContent());
 
     verify(budgetService).deleteByTeamId(teamId);

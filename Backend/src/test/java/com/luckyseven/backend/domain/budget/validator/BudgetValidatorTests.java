@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.luckyseven.backend.domain.budget.dao.BudgetRepository;
 import com.luckyseven.backend.domain.budget.dto.BudgetBaseRequest;
 import com.luckyseven.backend.domain.budget.entity.Budget;
+import com.luckyseven.backend.domain.budget.entity.CurrencyCode;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -36,7 +37,7 @@ class BudgetValidatorTests {
         .totalAmount(BigDecimal.valueOf(100000))
         .setBy(1L)
         .balance(BigDecimal.valueOf(100000))
-        .foreignCurrency("USD")
+        .foreignCurrency(CurrencyCode.USD)
         .foreignBalance(BigDecimal.valueOf(71.75))
         .avgExchangeRate(BigDecimal.valueOf(1393.7))
         .build();
@@ -77,7 +78,6 @@ class BudgetValidatorTests {
     // given
     BudgetBaseRequest request = BudgetBaseRequest.builder()
         .totalAmount(BigDecimal.valueOf(100000))
-        .setBy(1L)
         .isExchanged(true)
         .build();
 

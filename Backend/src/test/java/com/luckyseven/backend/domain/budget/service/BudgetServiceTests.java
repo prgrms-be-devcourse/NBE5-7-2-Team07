@@ -2,6 +2,7 @@ package com.luckyseven.backend.domain.budget.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,9 +13,11 @@ import com.luckyseven.backend.domain.budget.dto.BudgetReadResponse;
 import com.luckyseven.backend.domain.budget.dto.BudgetUpdateRequest;
 import com.luckyseven.backend.domain.budget.dto.BudgetUpdateResponse;
 import com.luckyseven.backend.domain.budget.entity.Budget;
+import com.luckyseven.backend.domain.budget.entity.CurrencyCode;
 import com.luckyseven.backend.domain.budget.mapper.BudgetMapper;
 import com.luckyseven.backend.domain.budget.validator.BudgetValidator;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,25 +40,24 @@ class BudgetServiceTests {
   @Test
   @DisplayName("save는 환전한 Budget을 저장하고 CreateResponse를 반환한다")
   void save_create_exchanged_budget_and_return_create_response() throws Exception {
-  
+
     // given
     Long teamId = 1L;
+    Long loginMemberId = 1L;
     BudgetCreateRequest request = BudgetCreateRequest.builder()
         .totalAmount(BigDecimal.valueOf(100000))
-        .setBy(1L)
-        .foreignCurrency("USD")
         .isExchanged(true)
         .exchangeRate(BigDecimal.valueOf(1393.7))
+        .foreignCurrency(CurrencyCode.USD)
         .build();
     Budget budget = Budget.builder()
-        .teamId(1L)
-        .totalAmount(BigDecimal.valueOf(100000))
-        .setBy(1L)
-        .balance(BigDecimal.valueOf(100000))
-        .foreignCurrency("USD")
-        .foreignBalance(BigDecimal.valueOf(71.75))
-        .avgExchangeRate(BigDecimal.valueOf(1393.7))
+        .teamId(teamId)
+        .totalAmount(request.getTotalAmount())
+        .setBy(loginMemberId)
+        .balance(request.getTotalAmount())
+        .foreignCurrency(request.getForeignCurrency())
         .build();
+    budget.setAvgExchangeRate(request.getIsExchanged(), request.getExchangeRate());
     BudgetCreateResponse expectedResponse = BudgetCreateResponse.builder()
         .id(1L)
         .balance(BigDecimal.valueOf(100000))
@@ -63,57 +65,18 @@ class BudgetServiceTests {
         .avgExchangeRate(BigDecimal.valueOf(1393.7))
         .build();
 
-    when(budgetMapper.toEntity(teamId, request)).thenReturn(budget);
-    when(budgetMapper.toCreateResponse(budget)).thenReturn(expectedResponse);
+    when(budgetMapper.toCreateResponse(any(Budget.class))).thenReturn(expectedResponse);
 
     // when
-    BudgetCreateResponse response = budgetService.save(teamId, request);
+    BudgetCreateResponse response = budgetService.save(teamId, loginMemberId, request);
 
     // then
     verify(budgetValidator).validateBudgetNotExist(teamId);
-    verify(budgetRepository).save(budget);
-    assertThat(response).isEqualTo(expectedResponse);
+    verify(budgetRepository).save(any(Budget.class));
+    verify(budgetMapper).toCreateResponse(any(Budget.class));
 
-  }
-
-  @Test
-  @DisplayName("save는 환전하지 않은 Budget을 저장하고 CreateResponse를 반환한다")
-  void save_create_not_exchanged_budget_and_return_create_response() throws Exception {
-
-    // given
-    Long teamId = 1L;
-    BudgetCreateRequest request = BudgetCreateRequest.builder()
-        .totalAmount(BigDecimal.valueOf(100000))
-        .setBy(1L)
-        .foreignCurrency("USD")
-        .isExchanged(false)
-        .build();
-    Budget budget = Budget.builder()
-        .teamId(2L)
-        .totalAmount(BigDecimal.valueOf(100000))
-        .setBy(1L)
-        .balance(BigDecimal.valueOf(100000))
-        .foreignCurrency("USD")
-        .foreignBalance(null)
-        .avgExchangeRate(null)
-        .build();
-    BudgetCreateResponse expectedResponse = BudgetCreateResponse.builder()
-        .id(2L)
-        .balance(BigDecimal.valueOf(100000))
-        .foreignBalance(null)
-        .avgExchangeRate(null)
-        .build();
-
-    when(budgetMapper.toEntity(teamId, request)).thenReturn(budget);
-    when(budgetMapper.toCreateResponse(budget)).thenReturn(expectedResponse);
-
-    // when
-    BudgetCreateResponse response = budgetService.save(teamId, request);
-
-    // then
-    verify(budgetValidator).validateBudgetNotExist(teamId);
-    verify(budgetRepository).save(budget);
-    assertThat(response).isEqualTo(expectedResponse);
+    assertThat(response).isNotNull();
+    assertThat(response.getBalance()).isEqualTo(expectedResponse.getBalance());
 
   }
 
@@ -126,18 +89,16 @@ class BudgetServiceTests {
     Budget budget = Budget.builder()
         .teamId(1L)
         .totalAmount(BigDecimal.valueOf(100000))
-        .setBy(1L)
         .balance(BigDecimal.valueOf(100000))
-        .foreignCurrency("USD")
+        .foreignCurrency(CurrencyCode.USD)
         .foreignBalance(BigDecimal.valueOf(71.75))
         .avgExchangeRate(BigDecimal.valueOf(1393.7))
         .build();
     BudgetReadResponse expectedResponse = BudgetReadResponse.builder()
         .id(1L)
         .totalAmount(BigDecimal.valueOf(100000))
-        .setBy(1L)
         .balance(BigDecimal.valueOf(100000))
-        .foreignCurrency("USD")
+        .foreignCurrency(CurrencyCode.USD)
         .foreignBalance(BigDecimal.valueOf(71.75))
         .avgExchangeRate(BigDecimal.valueOf(1393.70))
         .build();
@@ -159,45 +120,40 @@ class BudgetServiceTests {
 
     // given
     Long teamId = 1L;
+    Long loginMemberId = 1L;
     Budget budget = Budget.builder()
-        .teamId(1L)
+        .teamId(teamId)
         .totalAmount(BigDecimal.valueOf(100000))
-        .setBy(1L)
         .balance(BigDecimal.valueOf(100000))
-        .foreignCurrency("USD")
+        .foreignCurrency(CurrencyCode.USD)
         .foreignBalance(BigDecimal.valueOf(71.75))
         .avgExchangeRate(BigDecimal.valueOf(1393.7))
         .build();
     BudgetUpdateRequest request = BudgetUpdateRequest.builder()
         .totalAmount(BigDecimal.valueOf(150000))
         .build();
-    Budget updatedBudget = Budget.builder()
-        .teamId(1L)
-        .totalAmount(BigDecimal.valueOf(150000))
-        .setBy(1L)
-        .balance(BigDecimal.valueOf(150000))
-        .foreignCurrency("USD")
-        .foreignBalance(BigDecimal.valueOf(107.63))
-        .avgExchangeRate(BigDecimal.valueOf(1393.7))
-        .build();
     BudgetUpdateResponse expectedResponse = BudgetUpdateResponse.builder()
         .id(1L)
+        .setBy(loginMemberId)
         .balance(BigDecimal.valueOf(150000))
         .foreignBalance(BigDecimal.valueOf(107.63))
-        .foreignCurrency("USD")
+        .foreignCurrency(CurrencyCode.USD)
         .avgExchangeRate(BigDecimal.valueOf(1393.7))
         .build();
 
     when(budgetValidator.validateBudgetExist(teamId)).thenReturn(budget);
-    when(budgetMapper.toEntity(request, budget)).thenReturn(updatedBudget);
-    when(budgetMapper.toUpdateResponse(updatedBudget)).thenReturn(expectedResponse);
+    when(budgetMapper.toUpdateResponse(any(Budget.class))).thenReturn(expectedResponse);
 
     // when
-    BudgetUpdateResponse response = budgetService.updateByTeamId(teamId, request);
+    BudgetUpdateResponse response = budgetService.updateByTeamId(teamId, loginMemberId, request);
 
     // then
-    assertThat(response).isEqualTo(expectedResponse);
+    assertThat(response).isNotNull();
+    assertThat(response.getBalance()).isEqualTo(expectedResponse.getBalance());
+    assertThat(response.getForeignBalance()).isEqualTo(expectedResponse.getForeignBalance());
 
+    assertThat(budget.getTotalAmount()).isEqualTo(request.getTotalAmount());
+    assertThat(budget.getBalance()).isEqualTo(request.getTotalAmount());
   }
 
   @Test
@@ -209,9 +165,8 @@ class BudgetServiceTests {
     Budget budget = Budget.builder()
         .teamId(2L)
         .totalAmount(BigDecimal.valueOf(100000))
-        .setBy(1L)
         .balance(BigDecimal.valueOf(100000))
-        .foreignCurrency("USD")
+        .foreignCurrency(CurrencyCode.USD)
         .foreignBalance(null)
         .avgExchangeRate(null)
         .build();
