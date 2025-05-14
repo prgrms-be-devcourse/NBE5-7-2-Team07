@@ -26,6 +26,7 @@ public enum ExceptionCode {
   TEAM_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "팀 멤버를 찾을 수 없습니다."),
   BUDGET_NOT_FOUND(HttpStatus.NOT_FOUND, "예산 정보를 찾을 수 없습니다."),
   USER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다."),
+  SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "정산내역을 찾을 수 없습니다."),
 
   /*
    * 405 METHOD_NOT_ALLOWED: 허용되지 않은 Request Method 호출
