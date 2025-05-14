@@ -11,6 +11,7 @@ import com.luckyseven.backend.domain.budget.mapper.BudgetMapper;
 import com.luckyseven.backend.domain.budget.validator.BudgetValidator;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +35,9 @@ public class BudgetService {
         .foreignCurrency(request.getForeignCurrency())
         .build();
 
-    budget.setAvgExchangeRate(request.getIsExchanged(), request.getExchangeRate());
+    budget.setExchangeInfo(request.getIsExchanged(),
+        budget.getTotalAmount(),
+        request.getExchangeRate());
 
     budgetRepository.save(budget);
 
@@ -54,18 +57,41 @@ public class BudgetService {
     Budget budget = budgetValidator.validateBudgetExist(teamId);
 
     budget.setSetBy(loginMemberId);
+
+    if (request.getAdditionalBudget() != null) {
+      addBudget(request, budget);
+      return budgetMapper.toUpdateResponse(budget);
+    }
+
+    updateTotalAmountOrExchangeRate(request, budget);
+
+    return budgetMapper.toUpdateResponse(budget);
+  }
+
+  private static void addBudget(BudgetUpdateRequest request, Budget budget) {
+    // totalAmount, Balance += additionalBudget
+    if (request.getAdditionalBudget() != null) {
+      budget.setTotalAmount(budget.getTotalAmount().add(request.getAdditionalBudget()));
+      budget.setExchangeInfo(request.getIsExchanged(),
+          request.getAdditionalBudget(),
+          request.getExchangeRate());
+    }
+  }
+
+  private static void updateTotalAmountOrExchangeRate(BudgetUpdateRequest request, Budget budget) {
     // totalAmount, Balance update
     if (request.getTotalAmount() != null) {
       budget.setTotalAmount(request.getTotalAmount());
     }
+
     // avgExchange, foreignBalance update
     if (request.getIsExchanged() != null) {
-      budget.setAvgExchangeRate(request.getIsExchanged(), request.getExchangeRate());
+      budget.setExchangeInfo(request.getIsExchanged(),
+          budget.getTotalAmount(),
+          request.getExchangeRate());
     }
     // totalAmount만 수정을 원할 경우, foreignBalance update
     budget.setForeignBalance();
-
-    return budgetMapper.toUpdateResponse(budget);
   }
 
   @Transactional

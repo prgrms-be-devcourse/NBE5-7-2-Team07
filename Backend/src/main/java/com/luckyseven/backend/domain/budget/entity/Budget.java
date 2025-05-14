@@ -59,14 +59,32 @@ public class Budget extends BaseEntity {
     this.balance = totalAmount;
   }
 
-  public void setAvgExchangeRate(boolean isExchanged, BigDecimal exchangeRate) {
+  public void setExchangeInfo(boolean isExchanged, BigDecimal amount, BigDecimal exchangeRate) {
     if (!isExchanged) {
-      this.avgExchangeRate = null;
-      this.foreignBalance = null;
-    } else {
-      this.avgExchangeRate = exchangeRate;
-      this.foreignBalance = totalAmount.divide(exchangeRate, 2, RoundingMode.HALF_UP);
+      return;
     }
+
+    updateForeignBalance(amount, exchangeRate);
+    updateExchangeRate(exchangeRate);
+
+  }
+
+  private void updateExchangeRate(BigDecimal exchangeRate) {
+    if (this.avgExchangeRate == null) {
+      avgExchangeRate = exchangeRate;
+      return;
+    }
+    this.avgExchangeRate = avgExchangeRate
+        .add(exchangeRate)
+        .divide(BigDecimal.valueOf(2), 2, RoundingMode.HALF_UP);
+  }
+
+  private void updateForeignBalance(BigDecimal amount, BigDecimal exchangeRate) {
+    BigDecimal additionalBudget = amount.divide(exchangeRate, 2, RoundingMode.HALF_UP);
+    if (this.foreignBalance == null) {
+      foreignBalance = BigDecimal.ZERO;
+    }
+    this.foreignBalance = this.foreignBalance.add(additionalBudget);
   }
 
   public void setForeignBalance() {

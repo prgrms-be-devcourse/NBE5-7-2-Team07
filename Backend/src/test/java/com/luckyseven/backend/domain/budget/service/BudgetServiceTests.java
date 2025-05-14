@@ -57,7 +57,9 @@ class BudgetServiceTests {
         .balance(request.getTotalAmount())
         .foreignCurrency(request.getForeignCurrency())
         .build();
-    budget.setAvgExchangeRate(request.getIsExchanged(), request.getExchangeRate());
+    budget.setExchangeInfo(request.getIsExchanged(),
+        budget.getTotalAmount(),
+        request.getExchangeRate());
     BudgetCreateResponse expectedResponse = BudgetCreateResponse.builder()
         .id(1L)
         .balance(BigDecimal.valueOf(100000))
