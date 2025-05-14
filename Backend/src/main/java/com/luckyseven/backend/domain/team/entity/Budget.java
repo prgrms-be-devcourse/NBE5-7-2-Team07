@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 public class Budget extends BaseEntity {
     
     @OneToOne
-    @JoinColumn(name = "team_id")
+    @JoinColumn(name = "team_id", unique = true)
     private Team team;
     
     private BigDecimal currency;
