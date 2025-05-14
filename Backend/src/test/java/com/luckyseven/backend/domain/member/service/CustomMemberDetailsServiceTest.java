@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.luckyseven.backend.domain.member.dto.RegisterMemberRequest;
 import com.luckyseven.backend.domain.member.repository.MemberRepository;
-import com.luckyseven.backend.domain.member.service.utill.MemberService;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import jakarta.transaction.Transactional;
@@ -31,8 +30,8 @@ class CustomMemberDetailsServiceTest {
   void register_member_Test() {
     RegisterMemberRequest request = RegisterMemberRequest.builder()
         .email("test@test.com")
-        .password("123456")
-        .checkPassword("123456")
+        .password("1234AA56")
+        .checkPassword("1234AA56")
         .nickname("test")
         .build();
 

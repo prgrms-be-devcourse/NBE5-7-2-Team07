@@ -57,8 +57,8 @@ class MemberControllerTest {
 
     RegisterMemberRequest req = RegisterMemberRequest.builder()
         .email("test@test.com")
-        .password("1234")
-        .checkPassword("1234")
+        .password("1234A1234")
+        .checkPassword("1234A1234")
         .nickname("testUser")
         .build();
 
@@ -76,6 +76,48 @@ class MemberControllerTest {
     assertThat(saved.getNickname()).isEqualTo("testUser");
   }
 
+  @Test
+  @DisplayName("POST /api/user/register — 잘못된 이메일 형식,400")
+  void registerMember_email_validate_error() throws Exception {
+    RegisterMemberRequest req = RegisterMemberRequest.builder()
+        .email("test")
+        .password("1234")
+        .checkPassword("1234")
+        .nickname("testUser")
+        .build();
+
+
+    MvcResult mvc = mockMvc.perform(post("/api/users/register")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andExpect(status().isBadRequest())
+        .andReturn();
+
+    String json = mvc.getResponse().getContentAsString();
+    System.out.println(">>>> 응답 JSON >>>> " + json);
+  }
+
+  @Test
+  @DisplayName("POST /api/user/register — 잘못된 이메일 형식,400")
+  void registerMember_password_validate_error() throws Exception {
+
+    RegisterMemberRequest req = RegisterMemberRequest.builder()
+        .email("test@test.com")
+        .password("1234")
+        .checkPassword("1234")
+        .nickname("testUser")
+        .build();
+
+
+    mockMvc.perform(post("/api/users/register")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andExpect(status().isBadRequest());
+  }
+
+
+
+
 
   @Test
   @DisplayName("POST /api/users/checkNickname - 중복 있으면 409 conflict")
@@ -87,10 +129,14 @@ class MemberControllerTest {
         .nickname(duplicateNickname)
         .build());
 
-    mockMvc.perform(post("/api/users/checkNickname")
+    MvcResult mvc = mockMvc.perform(post("/api/users/checkNickname")
             .param("nickname", duplicateNickname))
         .andExpect(status().isConflict())
-        .andExpect(jsonPath("$.code").value("MEMBER_NICKNAME_DUPLICATE"));
+        .andExpect(jsonPath("$.code").value("MEMBER_NICKNAME_DUPLICATE"))
+        .andReturn();
+
+    String json = mvc.getResponse().getContentAsString();
+    System.out.println(">>>> 응답 JSON >>>> " + json);
   }
 
 
@@ -217,7 +263,7 @@ class MemberControllerTest {
     MvcResult logoutResult = mockMvc.perform(post("/api/users/logout")
         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
         .cookie(refreshCookie))
-        .andExpect(status().isNoContent())
+        .andExpect(status().isOk())
             .andReturn();
 
     Optional<Cookie> logoutRefreshCookie = Arrays.stream(logoutResult.getResponse().getCookies())
@@ -225,18 +271,9 @@ class MemberControllerTest {
                 .findFirst();
 
     System.out.println("로그인이 된 RefreshToken == "  + refreshToken);
-    System.out.println("로그아웃이 된다면 값은 null이 되어야한다 == "+logoutRefreshCookie.get().getValue());
+    System.out.println("로그아웃이 된다면 값은 null이 되어야한다 == "+logoutRefreshCookie.isPresent());
 
-
-
-
-
-    System.out.println("로그아웃한 RefreshToken이 blackListEntity 존재해야함 True == ="+ blackListTokenRepository.existsByTokenValue(refreshToken));
+    System.out.println("로그아웃한 RefreshToken이 blackListEntity 존재해야함 True == "+ blackListTokenRepository.existsByTokenValue(refreshToken));
     System.out.println("로그아웃한 AccessToken이 blackListEntity 존재하지 않아야함 False == " + blackListTokenRepository.existsByTokenValue(accessToken));
-
-
-
-
-
   }
 }
