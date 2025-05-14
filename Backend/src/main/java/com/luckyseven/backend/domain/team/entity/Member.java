@@ -64,4 +64,9 @@ public class Member extends BaseEntity {
       team.setLeader(null);
     }
   }
+
+  public void addTeamMember(TeamMember teamMember) {
+    this.teamMembers.add(teamMember);
+    teamMember.setMember(this);
+  }
 }

@@ -65,6 +65,7 @@ public class TeamService {
     // Team이 Budget의 주인이므로, Team 에서 Budget set
     Budget savedBudget = budgetRepository.save(budget);
     savedTeam.setBudget(savedBudget);
+    savedBudget.setTeam(savedTeam);
 
     savedTeam.addTeamMember(teamMember);
     return teamMapper.toTeamCreateResponse(savedTeam);
@@ -96,9 +97,17 @@ public class TeamService {
     }
 
     TeamMember teamMember = teamMapper.toTeamMemberEntity(member, team);
+    TeamMember savedTeamMember = teamMemberRepository.save(teamMember);
 
-    teamMemberRepository.save(teamMember);
-    team.addTeamMember(teamMember);
+    team.addTeamMember(savedTeamMember);
+    member.addTeamMember(savedTeamMember);
+
+    if (!savedTeamMember.getTeam().getId().equals(team.getId()) ||
+        !savedTeamMember.getMember().getId().equals(member.getId())) {
+      throw new CustomLogicException(ExceptionCode.INTERNAL_SERVER_ERROR,
+          "팀 멤버 관계 설정에 실패했습니다");
+    }
+
     return teamMapper.toTeamJoinResponse(team);
   }
 

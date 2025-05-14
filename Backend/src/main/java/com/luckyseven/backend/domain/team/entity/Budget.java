@@ -9,9 +9,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -26,4 +28,5 @@ public class Budget extends BaseEntity {
     private BigDecimal totalAmount;
     private BigDecimal exchangeRate;
     private BigDecimal avgExchangeRate;
+
 }

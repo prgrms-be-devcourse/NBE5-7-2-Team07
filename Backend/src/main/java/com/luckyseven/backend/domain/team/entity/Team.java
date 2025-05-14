@@ -6,8 +6,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -30,7 +32,9 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @Table(name = "team", indexes = {
-    @Index(name = "idx_team_leader_id", columnList = "leader_id")
+    @Index(name = "idx_team_leader_id", columnList = "leader_id"),
+    @Index(name = "idx_team_budget_id", columnList = "budget_id")
+
 })
 @AttributeOverride(name = "id", column = @Column(name = "team_id"))
 public class Team extends BaseEntity {
@@ -48,14 +52,14 @@ public class Team extends BaseEntity {
    * 팀장 ID
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "leader_id", nullable = false)
+  @JoinColumn(name = "leader_id", nullable = false, foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
   private Member leader;
 
   /**
    * 팀의 예산 정보
    */
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-  @JoinColumn(name = "budget_id", unique = true)
+  @JoinColumn(name = "budget_id", unique = true, foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
   private Budget budget;
 
 
