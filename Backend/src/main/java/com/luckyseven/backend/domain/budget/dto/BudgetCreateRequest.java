@@ -1,5 +1,6 @@
 package com.luckyseven.backend.domain.budget.dto;
 
+import com.luckyseven.backend.domain.budget.entity.CurrencyCode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -19,7 +20,6 @@ public class BudgetCreateRequest extends BudgetBaseRequest {
   private Boolean isExchanged;
 
   @NotNull
-  @NotBlank
-  private String foreignCurrency;
+  private CurrencyCode foreignCurrency;
 
 }

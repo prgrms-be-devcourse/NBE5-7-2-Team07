@@ -1,5 +1,6 @@
 package com.luckyseven.backend.domain.budget.dto;
 
+import com.luckyseven.backend.domain.budget.entity.CurrencyCode;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,7 +16,7 @@ public class BudgetReadResponse {
   private BigDecimal totalAmount;
   private Long setBy;
   private BigDecimal balance;
-  private String foreignCurrency;
+  private CurrencyCode foreignCurrency;
   private BigDecimal foreignBalance;
   private BigDecimal avgExchangeRate;
   private LocalDateTime updatedAt;
