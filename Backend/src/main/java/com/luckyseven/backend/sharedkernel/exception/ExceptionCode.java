@@ -10,6 +10,7 @@ public enum ExceptionCode {
    */
   BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
   BAD_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "파일 형식이 올바르지 않습니다."),
+  INSUFFICIENT_BALANCE(HttpStatus.BAD_REQUEST, "예산이 부족합니다."),
 
   /*
    * 403 FORBIDDEN: 승인을 거부함
@@ -20,6 +21,10 @@ public enum ExceptionCode {
    * 404 NOT_FOUND: 리소스를 찾을 수 없음
    */
   USER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다."),
+  EXPENSE_PAYER_NOT_FOUND(HttpStatus.NOT_FOUND, "결제자를 찾을 수 없습니다."),
+  EXPENSE_SETTLER_NOT_FOUND(HttpStatus.NOT_FOUND, "정산 대상자를 찾을 수 없습니다."),
+  TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "팀을 찾을 수 없습니다."),
+  EXPENSE_NOT_FOUND(HttpStatus.NOT_FOUND, "지출 내역을 조회할 수 없습니다."),
   SETTLEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "정산내역을 찾을 수 없습니다."),
 
   /*
@@ -45,5 +50,4 @@ public enum ExceptionCode {
     this.httpStatus = httpStatus;
     this.message = message;
   }
-
 }
