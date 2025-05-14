@@ -1,13 +1,15 @@
 package com.luckyseven.backend.domain.team.util;
 
+import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
 import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
 import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
 import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse.ExpenseDto;
-import com.luckyseven.backend.domain.team.dto.TeamJoinRequest;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
 import com.luckyseven.backend.domain.team.entity.Budget;
 import com.luckyseven.backend.domain.team.entity.Expense;
+import com.luckyseven.backend.domain.team.entity.Member;
 import com.luckyseven.backend.domain.team.entity.Team;
+import com.luckyseven.backend.domain.team.entity.TeamMember;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +17,37 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TeamMapper {
+
+  /**
+   *
+   * TeamCreateRequest와 멤버 정보를 Team 엔티티로 변환한다.
+   * @param request 요청
+   * @param leader 리더가 될 멤버
+   * @param teamCode 팀 join 시 필요한 팀 코드
+   * @return Team 엔티티
+   */
+  public Team toTeamEntity(TeamCreateRequest request, Member leader, String teamCode) {
+    return Team.builder()
+        .name(request.getName())
+        .teamCode(teamCode)
+        .teamPassword(request.getTeamPassword())
+        .leader(leader)
+        .build();
+  }
+
+  /**
+   * Member 와 Team 정보를 TeamMember 엔티티로 변환환다
+   * @param member 연결할 멤버
+   * @param team 연결할 팀
+   * @return TeamMember 엔티티
+   */
+  public TeamMember toTeamMemberEntity(Member member, Team team) {
+    return TeamMember.builder()
+        .team(team)
+        .member(member)
+        .build();
+  }
+
 
   /**
    * Team 엔티티를 TeamCreateResponse로 변환합니다.

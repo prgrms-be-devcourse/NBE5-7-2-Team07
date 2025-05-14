@@ -43,19 +43,9 @@ public class TeamService {
   @Transactional
   public TeamCreateResponse createTeam(Member creator, TeamCreateRequest request) {
     String teamCode = generateTeamCode();
-    Team team = Team.builder()
-        .name(request.getName())
-        .teamCode(teamCode)
-        .teamPassword(request.getTeamPassword())
-        .leader(creator)
-        .build();
-
+    Team team = teamMapper.toTeamEntity(request, creator, teamCode);
     Team savedTeam = teamRepository.save(team);
-
-    TeamMember teamMember = TeamMember.builder()
-        .team(savedTeam)
-        .member(creator)
-        .build();
+    TeamMember teamMember = teamMapper.toTeamMemberEntity(creator, savedTeam);
 
     // 리더를 TeamMember 에 추가
     teamMemberRepository.save(teamMember);
@@ -71,7 +61,7 @@ public class TeamService {
    * @param teamCode     팀 코드
    * @param teamPassword 팀 pwd
    * @return 가입된 팀의 정보
-   * @throws IllegalArgumentException
+   * @throws IllegalArgumentException 비밀번호 일치 실패 에러.
    */
   @Transactional
   public TeamJoinResponse joinTeam(Member member, String teamCode, String teamPassword) {
@@ -89,10 +79,7 @@ public class TeamService {
           "회원 ID [%d]는 이미 팀 ID [%d]에 가입되어 있습니다", member.getId(), team.getId());
     }
 
-    TeamMember teamMember = TeamMember.builder()
-        .team(team)
-        .member(member)
-        .build();
+    TeamMember teamMember = teamMapper.toTeamMemberEntity(member, team);
 
     teamMemberRepository.save(teamMember);
     team.addTeamMember(teamMember);
@@ -112,8 +99,8 @@ public class TeamService {
   /**
    * 대시보드를 가져온다.
    *
-   * @param teamId
-   * @return
+   * @param teamId 팀의 ID
+   * @return 팀 대시보드
    */
   @Transactional(readOnly = true)
   public TeamDashboardResponse getTeamDashboard(Long teamId) {
