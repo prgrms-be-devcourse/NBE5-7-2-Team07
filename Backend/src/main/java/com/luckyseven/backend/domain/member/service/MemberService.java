@@ -5,6 +5,7 @@ import com.luckyseven.backend.domain.member.dto.RegisterMemberRequest;
 import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.member.repository.MemberRepository;
 import com.luckyseven.backend.domain.member.service.utill.MemberDetails;
+import com.luckyseven.backend.domain.member.validate.MemberValidator;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import com.luckyseven.backend.sharedkernel.jwt.entity.BlackListToken;
@@ -34,60 +35,33 @@ public class MemberService {
   private final JwtTokenizer jwtTokenizer;
   private final BlackListTokenRepository blackListTokenRepository;
   private final AuthenticationManager authenticationManager;
-  private final Validator validator;
+  private final MemberValidator memberValidator;
+
 
 
   public void checkDuplicateNickName(String nickname) {
-    if(memberRepository.findByNickname(nickname).isPresent()) {
-      throw new CustomLogicException(ExceptionCode.MEMBER_NICKNAME_DUPLICATE,(Object) nickname);
-    }
+    memberValidator.checkDuplicateNicName(nickname);
   }
 
   public void checkDuplicateEmail(String email){
-    if(memberRepository.findByEmail(email).isPresent()) {
-      throw new CustomLogicException(ExceptionCode.MEMBER_EMAIL_DUPLICATE,(Object) email);
-    }
+    memberValidator.checkDuplicateEmail(email);
   }
 
   public void checkEqualsPassword(String password,String checkPassword){
-    if(!password.equals(checkPassword)) {
-      throw new CustomLogicException(ExceptionCode.MEMBER_PASSWORD_MISMATCH);
-    }
+    memberValidator.checkEqualsPassword(password,checkPassword);
   }
 
   public String registerMember(RegisterMemberRequest req, PasswordEncoder passwordEncoder){
-    Set<ConstraintViolation<RegisterMemberRequest>> violations
-        = validator.validate(req);
-    if (!violations.isEmpty()) {
-      // 첫 번째 위반만 처리
-      ConstraintViolation<RegisterMemberRequest> v = violations.iterator().next();
-      String field      = v.getPropertyPath().toString();
-      String message    = v.getMessage();
-
-      switch (field) {
-        case "email":
-          throw new CustomLogicException(
-              ExceptionCode.INVALID_EMAIL_FORMAT, message);
-        case "password":
-          throw new CustomLogicException(
-              ExceptionCode.INVALID_PASSWORD_FORMAT, message);
-        case "checkPassword":
-          throw new CustomLogicException(
-              ExceptionCode.INVALID_CHECKPASSWORD_FORMAT, message);
-        default:
-          throw new CustomLogicException(
-              ExceptionCode.BAD_REQUEST, message);
-      }
-    }
+    memberValidator.registerRequestValidator(req);
     checkDuplicateEmail(req.email());
     checkDuplicateNickName(req.nickname());
     checkEqualsPassword(req.password(), req.checkPassword());
 
-    String encodePassword = passwordEncoder.encode(req.password());
+
     //TODO : {Mapper} : 설정
     Member newMember = Member.builder()
         .email(req.email())
-        .password(encodePassword)
+        .password(passwordEncoder.encode(req.password()))
         .nickname(req.nickname())
         .build();
     memberRepository.save(newMember);
