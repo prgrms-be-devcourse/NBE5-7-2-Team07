@@ -2,7 +2,6 @@ package com.luckyseven.backend.core;
 
 
 import com.luckyseven.backend.sharedkernel.jwt.utill.JwtTokenizer;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -47,23 +46,6 @@ public class SecurityConfig {
                 "/swagger-resources/**",
                 "/webjars/**","/refresh").permitAll()
             .anyRequest().authenticated())
-        .logout(logout -> logout
-            .logoutUrl("/api/users/logout")
-            .invalidateHttpSession(true)
-            .clearAuthentication(true)
-            .deleteCookies("JSESSIONID")
-            .addLogoutHandler((request, response, authentication) -> {
-              // Authorization 헤더를 빈 값으로 덮어쓰기
-              response.setHeader("Authorization", "");
-            })
-            // 2) 로그아웃 성공 응답 설정
-            .logoutSuccessHandler((request, response, authentication) -> {
-              response.setStatus(HttpServletResponse.SC_OK);
-              // 편의상 JSON 바디로 신호 주기
-              response.setContentType("application/json;charset=UTF-8");
-              response.getWriter().write("{\"message\":\"로그아웃 되었습니다\"}");
-            })
-        )
         .addFilterBefore(new JwtAuthenticationFilter(jwtTokenizer,customAuthenticationEntryPoint),
             UsernamePasswordAuthenticationFilter.class);
 

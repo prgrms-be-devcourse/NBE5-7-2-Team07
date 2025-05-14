@@ -263,7 +263,7 @@ class MemberControllerTest {
     MvcResult logoutResult = mockMvc.perform(post("/api/users/logout")
         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
         .cookie(refreshCookie))
-        .andExpect(status().isOk())
+        .andExpect(status().isNoContent())
             .andReturn();
 
     Optional<Cookie> logoutRefreshCookie = Arrays.stream(logoutResult.getResponse().getCookies())
@@ -271,9 +271,9 @@ class MemberControllerTest {
                 .findFirst();
 
     System.out.println("로그인이 된 RefreshToken == "  + refreshToken);
-    System.out.println("로그아웃이 된다면 값은 null이 되어야한다 == "+logoutRefreshCookie.isPresent());
-
-    System.out.println("로그아웃한 RefreshToken이 blackListEntity 존재해야함 True == "+ blackListTokenRepository.existsByTokenValue(refreshToken));
-    System.out.println("로그아웃한 AccessToken이 blackListEntity 존재하지 않아야함 False == " + blackListTokenRepository.existsByTokenValue(accessToken));
+    System.out.println("로그아웃이 된 RefreshToken == " + logoutRefreshCookie.get().getValue());
+    System.out.println("로그인 헤더 " + loginResult.getResponse().getHeader(HttpHeaders.AUTHORIZATION).substring(7));
+    System.out.println("로그아윳 헤더 " + logoutResult.getResponse().getHeader(HttpHeaders.AUTHORIZATION).substring(0));
+    assertThat(blackListTokenRepository.existsByTokenValue(refreshToken)).isTrue();
   }
 }
