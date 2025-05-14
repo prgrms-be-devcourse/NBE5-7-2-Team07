@@ -51,7 +51,12 @@ public enum ExceptionCode {
   JWT_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND,"토큰을 찾을 수 없습니다."),
   JWT_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED,"토큰이 만료되었습니다."),
   JWT_INVALID_TOKEN(HttpStatus.BAD_REQUEST,"유효하지 않는 토큰입니다."),
-  JWT_BLACKLISTED_TOKEN(HttpStatus.BAD_REQUEST,"블랙리스트에 등록된 토큰입니다.");
+  JWT_BLACKLISTED_TOKEN(HttpStatus.BAD_REQUEST,"블랙리스트에 등록된 토큰입니다."),
+
+  //Validator
+  INVALID_EMAIL_FORMAT(HttpStatus.BAD_REQUEST,"올바르지 않은 이메일 형식입니다."),
+  INVALID_PASSWORD_FORMAT(HttpStatus.BAD_REQUEST,"올바르지 않은 비밀번호 형식입니다."),
+  INVALID_CHECKPASSWORD_FORMAT(HttpStatus.BAD_REQUEST,"올바르지 않은 비밀번호 형식입니다.");
 
 
   private final HttpStatus httpStatus;
