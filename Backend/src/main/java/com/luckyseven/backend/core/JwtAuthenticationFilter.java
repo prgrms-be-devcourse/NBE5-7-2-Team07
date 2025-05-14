@@ -1,6 +1,6 @@
 package com.luckyseven.backend.core;
 
-import com.luckyseven.backend.domain.member.service.utill.memberDetails;
+import com.luckyseven.backend.domain.member.service.utill.MemberDetails;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import com.luckyseven.backend.sharedkernel.jwt.utill.JwtTokenizer;
@@ -61,7 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     String email =  claims.get("email").toString();
     String nickName= claims.get("nickname").toString();
 
-    memberDetails userDetails = new memberDetails(memberId," ",email, nickName);
+    MemberDetails userDetails = new MemberDetails(memberId," ",email, nickName);
 
     log.info("userDetails UserDetails.memberId ={} , UserDetails.email ={}, nickName ={}",memberId,email,nickName);
 

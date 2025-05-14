@@ -1,6 +1,6 @@
 package com.luckyseven.backend.domain.member.service;
 
-import com.luckyseven.backend.domain.member.service.utill.memberDetails;
+import com.luckyseven.backend.domain.member.service.utill.MemberDetails;
 import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.member.repository.MemberRepository;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
@@ -23,15 +23,15 @@ public class CustomMemberDetailsService implements UserDetailsService {
 
 
   @Override
-  public memberDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+  public MemberDetails loadUserByUsername(String email) throws UsernameNotFoundException {
     Member member = memberRepository.findByEmail(email)
         .orElseThrow(() -> new CustomLogicException(ExceptionCode.MEMBER_EMAIL_NOTFOUND,email));
-    return new memberDetails(member);
+    return new MemberDetails(member);
   }
-  public memberDetails loadUserById(Long id){
+  public MemberDetails loadUserById(Long id){
     Member member = memberRepository.findById(id)
         .orElseThrow(() -> new CustomLogicException(ExceptionCode.MEMBER_ID_NOTFOUND,id));
-    return new memberDetails(member);
+    return new MemberDetails(member);
   }
 
 }

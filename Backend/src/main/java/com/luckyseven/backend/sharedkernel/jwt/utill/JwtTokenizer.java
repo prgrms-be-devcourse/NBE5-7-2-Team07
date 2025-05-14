@@ -1,7 +1,7 @@
 package com.luckyseven.backend.sharedkernel.jwt.utill;
 
 import com.luckyseven.backend.domain.member.service.CustomMemberDetailsService;
-import com.luckyseven.backend.domain.member.service.utill.memberDetails;
+import com.luckyseven.backend.domain.member.service.utill.MemberDetails;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import com.luckyseven.backend.sharedkernel.jwt.entity.BlackListToken;
@@ -56,7 +56,7 @@ public class JwtTokenizer {
 
   }
 
-  public String reissueTokenPair(HttpServletResponse response, memberDetails memberDetails) {
+  public String reissueTokenPair(HttpServletResponse response, MemberDetails memberDetails) {
     String accessToken = createToken(
         memberDetails,
         ACCESS_TOKEN_EXPIRE,
@@ -84,7 +84,7 @@ public class JwtTokenizer {
     return accessToken;
   }
 
-  private String createToken(memberDetails userDetails,Long expire, Key signingKey) {
+  private String createToken(MemberDetails userDetails,Long expire, Key signingKey) {
     return Jwts.builder()
         .subject(userDetails.getId().toString())
         .claim("email", userDetails.getEmail())
@@ -142,7 +142,7 @@ public class JwtTokenizer {
     }
     Claims claims = parseRefreshToken(refreshToken);
     Long memberId = Long.parseLong(claims.getSubject());
-    memberDetails user = customMemberDetailsService.loadUserById(memberId);
+    MemberDetails user = customMemberDetailsService.loadUserById(memberId);
     blackListTokenRepository.save(
         BlackListToken.builder()
             .tokenValue(refreshToken)

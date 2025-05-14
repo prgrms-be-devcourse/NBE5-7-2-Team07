@@ -4,7 +4,7 @@ import com.luckyseven.backend.domain.member.dto.LoginMemberRequest;
 import com.luckyseven.backend.domain.member.dto.RegisterMemberRequest;
 import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.member.repository.MemberRepository;
-import com.luckyseven.backend.domain.member.service.utill.memberDetails;
+import com.luckyseven.backend.domain.member.service.utill.MemberDetails;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import com.luckyseven.backend.sharedkernel.jwt.entity.BlackListToken;
@@ -116,7 +116,7 @@ public class MemberService {
   public String Login(LoginMemberRequest req,HttpServletResponse resp){
     UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(req.email(), req.password());
     Authentication auth = authenticationManager.authenticate(token);
-    memberDetails memberDetails = (memberDetails) auth.getPrincipal();
+    MemberDetails memberDetails = (MemberDetails) auth.getPrincipal();
     return jwtTokenizer.reissueTokenPair(resp, memberDetails);
   }
 
