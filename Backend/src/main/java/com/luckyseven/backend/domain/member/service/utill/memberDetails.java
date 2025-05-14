@@ -7,14 +7,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class CustomUserDetails implements UserDetails {
+public class memberDetails implements UserDetails {
   private final Long id;
   private final String password;
   private final String email;
   private final String nickname;
   private final Collection<? extends GrantedAuthority> authorities;
 
-  public CustomUserDetails(Member member) {
+  public memberDetails(Member member) {
     this.id          = member.getId();
     this.email       = member.getEmail();
     this.nickname     = member.getNickname();
@@ -22,7 +22,7 @@ public class CustomUserDetails implements UserDetails {
     this.authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
   }
 
-  public CustomUserDetails(Long id, String password, String email, String nickname) {
+  public memberDetails(Long id, String password, String email, String nickname) {
     this.id = id;
     this.password = password;
     this.email = email;

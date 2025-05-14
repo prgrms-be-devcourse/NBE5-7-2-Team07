@@ -1,7 +1,7 @@
 package com.luckyseven.backend.sharedkernel.jwt.utill;
 
 import com.luckyseven.backend.domain.member.service.CustomMemberDetailsService;
-import com.luckyseven.backend.domain.member.service.utill.CustomUserDetails;
+import com.luckyseven.backend.domain.member.service.utill.memberDetails;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import com.luckyseven.backend.sharedkernel.jwt.entity.BlackListToken;
@@ -56,23 +56,23 @@ public class JwtTokenizer {
 
   }
 
-  public String reissueTokenPair(HttpServletResponse response,CustomUserDetails customUserDetails) {
+  public String reissueTokenPair(HttpServletResponse response, memberDetails memberDetails) {
     String accessToken = createToken(
-        customUserDetails,
+        memberDetails,
         ACCESS_TOKEN_EXPIRE,
         getSigningKey(accessSecret)
     );
     String refreshToken = createToken(
-        customUserDetails,
+        memberDetails,
         REFRESH_TOKEN_EXPIRE,
         getSigningKey(refreshSecret)
 
     );
 
-    RefreshToken refreshTokenEntity = refreshTokenRepository.findByUserId(customUserDetails.getId())
+    RefreshToken refreshTokenEntity = refreshTokenRepository.findByUserId(memberDetails.getId())
         .orElseGet(() -> {
           return RefreshToken.builder()
-              .userId(customUserDetails.getId())
+              .userId(memberDetails.getId())
               .tokenValue(refreshToken)
               .build();
         });
@@ -84,7 +84,7 @@ public class JwtTokenizer {
     return accessToken;
   }
 
-  private String createToken(CustomUserDetails userDetails,Long expire, Key signingKey) {
+  private String createToken(memberDetails userDetails,Long expire, Key signingKey) {
     return Jwts.builder()
         .subject(userDetails.getId().toString())
         .claim("email", userDetails.getEmail())
@@ -142,7 +142,7 @@ public class JwtTokenizer {
     }
     Claims claims = parseRefreshToken(refreshToken);
     Long memberId = Long.parseLong(claims.getSubject());
-    CustomUserDetails user = customMemberDetailsService.loadUserById(memberId);
+    memberDetails user = customMemberDetailsService.loadUserById(memberId);
     blackListTokenRepository.save(
         BlackListToken.builder()
             .tokenValue(refreshToken)
