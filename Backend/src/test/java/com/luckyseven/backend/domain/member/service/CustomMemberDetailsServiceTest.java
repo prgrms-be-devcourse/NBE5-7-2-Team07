@@ -50,16 +50,16 @@ class CustomMemberDetailsServiceTest {
     String duplicateEmail = "test@test.com";
     RegisterMemberRequest request= RegisterMemberRequest.builder()
         .email(duplicateEmail)
-        .password("123456")
-        .checkPassword("123456")
+        .password("123456A")
+        .checkPassword("123456A")
         .nickname("test")
         .build();
     service.registerMember(request,passwordEncoder);
 
     RegisterMemberRequest newRequest = RegisterMemberRequest.builder()
         .email(duplicateEmail)
-        .password("123456")
-        .checkPassword("123456")
+        .password("123456A")
+        .checkPassword("123456A")
         .nickname("test1")
         .build();
     CustomLogicException ex = assertThrows(
@@ -88,16 +88,16 @@ class CustomMemberDetailsServiceTest {
     String duplicateNickname = "DuplicateNickname";
     RegisterMemberRequest request = RegisterMemberRequest.builder()
         .email("test@test.com")
-        .password("123456")
-        .checkPassword("123456")
+        .password("123456A")
+        .checkPassword("123456A")
         .nickname(duplicateNickname)
         .build();
     service.registerMember(request,passwordEncoder);
 
     RegisterMemberRequest newRequest = RegisterMemberRequest.builder()
         .email("test1@test.com")
-        .password("123456")
-        .checkPassword("123456")
+        .password("123456A")
+        .checkPassword("123456A")
         .nickname(duplicateNickname)
         .build();
 
@@ -125,8 +125,8 @@ class CustomMemberDetailsServiceTest {
   void register_member_password_Define() {
     RegisterMemberRequest register = RegisterMemberRequest.builder()
         .email("test@test.com")
-        .password("123456")
-        .checkPassword("1234567")
+        .password("123456A")
+        .checkPassword("1234567ASC")
         .nickname("test")
         .build();
     CustomLogicException ex = assertThrows(
