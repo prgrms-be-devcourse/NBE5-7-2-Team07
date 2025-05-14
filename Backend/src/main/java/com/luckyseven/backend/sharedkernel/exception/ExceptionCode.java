@@ -46,7 +46,29 @@ public enum ExceptionCode {
    * 500 INTERNAL_SERVER_ERROR: 내부 서버 오류
    */
   INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 서버 오류입니다."),
-  API_CALL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "API 호출에 실패했습니다.");
+  API_CALL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "API 호출에 실패했습니다."),
+
+  //MEMBER 에러입니다.
+  MEMBER_EMAIL_DUPLICATE(HttpStatus.CONFLICT,"이메일 중복입니다.:%s"),
+  MEMBER_NICKNAME_DUPLICATE(HttpStatus.CONFLICT,"닉네임 중복입니다.:%s"),
+  MEMBER_PASSWORD_MISMATCH(HttpStatus.UNAUTHORIZED,"비밀번호 확인 결과가 맞지 않습니다."),
+  MEMBER_EMAIL_NOTFOUND(HttpStatus.NOT_FOUND,"이메일을 찾을 수 없습니다.:%s"),
+  MEMBER_ID_NOTFOUND(HttpStatus.NOT_FOUND,"회원ID를 찾을 수 없습니다."),
+
+  //로그인 관련 에러입니다.
+  AUTHENTICATION_FAILED(HttpStatus.BAD_REQUEST,"로그인을 할 수 없습니다."),
+
+  //JWT 관련 에러입니다.
+  JWT_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND,"토큰을 찾을 수 없습니다."),
+  JWT_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED,"토큰이 만료되었습니다."),
+  JWT_INVALID_TOKEN(HttpStatus.BAD_REQUEST,"유효하지 않는 토큰입니다."),
+  JWT_BLACKLISTED_TOKEN(HttpStatus.BAD_REQUEST,"블랙리스트에 등록된 토큰입니다."),
+
+  //Validator
+  INVALID_EMAIL_FORMAT(HttpStatus.BAD_REQUEST,"올바르지 않은 이메일 형식입니다."),
+  INVALID_PASSWORD_FORMAT(HttpStatus.BAD_REQUEST,"올바르지 않은 비밀번호 형식입니다."),
+  INVALID_CHECKPASSWORD_FORMAT(HttpStatus.BAD_REQUEST,"올바르지 않은 비밀번호 형식입니다.");
+
 
   private final HttpStatus httpStatus;
   private final String message;
