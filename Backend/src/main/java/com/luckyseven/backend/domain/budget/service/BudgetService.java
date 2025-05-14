@@ -23,10 +23,10 @@ public class BudgetService {
   private final BudgetValidator budgetValidator;
 
   @Transactional
-  public BudgetCreateResponse save(Long teamId, BudgetCreateRequest request) {
+  public BudgetCreateResponse save(Long teamId, Long loginMemberId, BudgetCreateRequest request) {
     budgetValidator.validateBudgetNotExist(teamId);
 
-    Budget budget = budgetMapper.toEntity(teamId, request);
+    Budget budget = budgetMapper.toEntity(teamId, loginMemberId, request);
 
     budgetRepository.save(budget);
 
@@ -41,10 +41,11 @@ public class BudgetService {
   }
 
   @Transactional
-  public BudgetUpdateResponse updateByTeamId(Long teamId, @Valid BudgetUpdateRequest request) {
+  public BudgetUpdateResponse updateByTeamId(Long teamId, Long loginMemberId,
+      BudgetUpdateRequest request) {
     Budget budget = budgetValidator.validateBudgetExist(teamId);
 
-    Budget updatedBudget = budgetMapper.toEntity(request, budget);
+    Budget updatedBudget = budgetMapper.toEntity(loginMemberId, request, budget);
 
     return budgetMapper.toUpdateResponse(updatedBudget);
   }

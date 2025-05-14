@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class BudgetMapper {
-  public Budget toEntity(Long teamId, BudgetCreateRequest request) {
+  public Budget toEntity(Long teamId, Long loginMemberId, BudgetCreateRequest request) {
     BigDecimal foreignBalance;
     BigDecimal avgExchangeRate;
 
@@ -28,7 +28,7 @@ public class BudgetMapper {
     return Budget.builder()
         .teamId(teamId)
         .totalAmount(request.getTotalAmount())
-        .setBy(request.getSetBy())
+        .setBy(loginMemberId)
         .balance(request.getTotalAmount())
         .foreignBalance(foreignBalance)
         .foreignCurrency(request.getForeignCurrency())
@@ -60,8 +60,8 @@ public class BudgetMapper {
         .build();
   }
 
-  public Budget toEntity(BudgetUpdateRequest request, Budget budget) {
-    budget.setSetBy(request.getSetBy());
+  public Budget toEntity(Long loginMemberId, BudgetUpdateRequest request, Budget budget) {
+    budget.setSetBy(loginMemberId);
 
     // case 1: 총 예산(totalAmount) + 환전 여부/환율 수정(isExchanged + exchangeRate)
     // totalAmount, Balance update

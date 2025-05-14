@@ -5,6 +5,7 @@ import com.luckyseven.backend.domain.budget.dto.BudgetCreateResponse;
 import com.luckyseven.backend.domain.budget.dto.BudgetReadResponse;
 import com.luckyseven.backend.domain.budget.dto.BudgetUpdateRequest;
 import com.luckyseven.backend.domain.budget.dto.BudgetUpdateResponse;
+import com.luckyseven.backend.domain.budget.entity.Member;
 import com.luckyseven.backend.domain.budget.service.BudgetService;
 import com.luckyseven.backend.domain.budget.validator.BudgetValidator;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -38,12 +40,14 @@ public class BudgetController {
   @ApiResponse(responseCode = "409", description = "예산 중복 생성 시도로 인한 실패")
   @PostMapping("/{teamId}/budget")
   public ResponseEntity<BudgetCreateResponse> create(@PathVariable Long teamId,
+      // TODO: Member entity 제거
+      @AuthenticationPrincipal Member loginMember,
       @Valid @RequestBody BudgetCreateRequest request) {
 
     budgetValidator.validateRequest(request);
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(budgetService.save(teamId, request));
+        .body(budgetService.save(teamId, loginMember.getId(), request));
   }
 
   @Operation(summary = "팀 예산 조회")
@@ -60,12 +64,14 @@ public class BudgetController {
   @ApiResponse(responseCode = "404", description = "예산 정보를 찾을 수 없음")
   @PatchMapping("/{teamId}/budget")
   public ResponseEntity<BudgetUpdateResponse> update(@PathVariable Long teamId,
+      // TODO: Member entity 제거
+      @AuthenticationPrincipal Member loginMember,
       @Valid @RequestBody BudgetUpdateRequest request) {
 
     budgetValidator.validateRequest(request);
 
     return ResponseEntity.status(HttpStatus.OK)
-        .body(budgetService.updateByTeamId(teamId, request));
+        .body(budgetService.updateByTeamId(teamId, loginMember.getId(), request));
   }
 
   @Operation(summary = "팀 예산 삭제")

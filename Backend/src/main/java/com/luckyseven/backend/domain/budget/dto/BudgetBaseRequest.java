@@ -15,9 +15,6 @@ public class BudgetBaseRequest {
   @DecimalMin(value = "0.0", inclusive = false)
   private BigDecimal totalAmount;
 
-  @NotNull
-  private Long setBy;
-
   private Boolean isExchanged;
   @DecimalMin(value = "0.0", inclusive = false)
   private BigDecimal exchangeRate;
