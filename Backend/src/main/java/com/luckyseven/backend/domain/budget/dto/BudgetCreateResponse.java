@@ -12,9 +12,12 @@ import lombok.Getter;
 public class BudgetCreateResponse {
 
   private Long id;
-  private BigDecimal balance;
-  private BigDecimal foreignBalance;
-  private BigDecimal avgExchangeRate;
   private LocalDateTime createdAt;
+
+  private Long setBy;
+  private BigDecimal balance;
+
+  private BigDecimal avgExchangeRate;
+  private BigDecimal foreignBalance;
 
 }

@@ -13,10 +13,13 @@ import lombok.Getter;
 public class BudgetUpdateResponse {
 
   private Long id;
+  private LocalDateTime updatedAt;
+
+  private Long setBy;
   private BigDecimal balance;
   private CurrencyCode foreignCurrency;
-  private BigDecimal foreignBalance;
+
   private BigDecimal avgExchangeRate;
-  private LocalDateTime updatedAt;
+  private BigDecimal foreignBalance;
 
 }

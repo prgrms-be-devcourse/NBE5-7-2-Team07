@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -40,14 +41,14 @@ public class BudgetController {
   @ApiResponse(responseCode = "409", description = "예산 중복 생성 시도로 인한 실패")
   @PostMapping("/{teamId}/budget")
   public ResponseEntity<BudgetCreateResponse> create(@PathVariable Long teamId,
-      // TODO: Member entity 제거
-      @AuthenticationPrincipal Member loginMember,
+      // TODO: @AuthenticationPrincipal Member loginMember 로 수정
+      @RequestParam Long loginMemberId,
       @Valid @RequestBody BudgetCreateRequest request) {
 
     budgetValidator.validateRequest(request);
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(budgetService.save(teamId, loginMember.getId(), request));
+        .body(budgetService.save(teamId, loginMemberId, request));
   }
 
   @Operation(summary = "팀 예산 조회")
@@ -64,14 +65,14 @@ public class BudgetController {
   @ApiResponse(responseCode = "404", description = "예산 정보를 찾을 수 없음")
   @PatchMapping("/{teamId}/budget")
   public ResponseEntity<BudgetUpdateResponse> update(@PathVariable Long teamId,
-      // TODO: Member entity 제거
-      @AuthenticationPrincipal Member loginMember,
+      // TODO: @AuthenticationPrincipal Member loginMember 로 수정
+      @RequestParam Long loginMemberId,
       @Valid @RequestBody BudgetUpdateRequest request) {
 
     budgetValidator.validateRequest(request);
 
     return ResponseEntity.status(HttpStatus.OK)
-        .body(budgetService.updateByTeamId(teamId, loginMember.getId(), request));
+        .body(budgetService.updateByTeamId(teamId, loginMemberId, request));
   }
 
   @Operation(summary = "팀 예산 삭제")

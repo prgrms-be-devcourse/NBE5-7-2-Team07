@@ -15,7 +15,6 @@ public class BudgetCreateRequest extends BudgetBaseRequest {
 
   @NotNull
   private BigDecimal totalAmount;
-
   @NotNull
   private Boolean isExchanged;
 

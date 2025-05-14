@@ -40,6 +40,7 @@ public class BudgetMapper {
 
     return BudgetCreateResponse.builder()
         .id(budget.getId())
+        .setBy(budget.getSetBy())
         .balance(budget.getBalance())
         .foreignBalance(budget.getForeignBalance())
         .avgExchangeRate(budget.getAvgExchangeRate())
@@ -50,6 +51,7 @@ public class BudgetMapper {
   public BudgetReadResponse toReadResponse(Budget budget) {
     return BudgetReadResponse.builder()
         .id(budget.getId())
+        .setBy(budget.getSetBy())
         .totalAmount(budget.getTotalAmount())
         .setBy(budget.getSetBy())
         .balance(budget.getBalance())
@@ -63,33 +65,19 @@ public class BudgetMapper {
   public Budget toEntity(Long loginMemberId, BudgetUpdateRequest request, Budget budget) {
     budget.setSetBy(loginMemberId);
 
-    // case 1: 총 예산(totalAmount) + 환전 여부/환율 수정(isExchanged + exchangeRate)
     // totalAmount, Balance update
     if (request.getTotalAmount() != null) {
       budget.setTotalAmount(request.getTotalAmount());
-      budget.setBalance(request.getTotalAmount());
     }
 
-    // 1-1: isExchanged = false
-    if (request.getIsExchanged() != null && !request.getIsExchanged()) {
-      budget.setForeignBalance(null);
-      budget.setAvgExchangeRate(null);
-      return budget;
-    }
-
-    // 1-2: isExchanged = true
+    // avgExchange, foreignBalance update
     if (request.getIsExchanged() != null) {
-      budget.setAvgExchangeRate(request.getExchangeRate());
-      budget.setForeignBalance(budget.getTotalAmount()
-          .divide(request.getExchangeRate(), 2, RoundingMode.HALF_UP));
+      budget.setAvgExchangeRate(request.getIsExchanged(), request.getExchangeRate());
       return budget;
     }
 
-    // case 2: 총 예산(totalAmount)만 수정
-    if (budget.getAvgExchangeRate() != null) {
-      budget.setForeignBalance(budget.getTotalAmount()
-          .divide(budget.getAvgExchangeRate(), 2, RoundingMode.HALF_UP));
-    }
+    // totalAmount만 수정을 원할 경우, foreignBalance update
+    budget.setForeignBalance();
 
     return budget;
   }
@@ -97,6 +85,7 @@ public class BudgetMapper {
   public BudgetUpdateResponse toUpdateResponse(Budget budget) {
     return BudgetUpdateResponse.builder()
         .id(budget.getId())
+        .setBy(budget.getSetBy())
         .balance(budget.getBalance())
         .foreignCurrency(budget.getForeignCurrency())
         .foreignBalance(budget.getForeignBalance())

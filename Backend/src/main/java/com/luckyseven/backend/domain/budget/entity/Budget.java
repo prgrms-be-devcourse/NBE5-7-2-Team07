@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +22,6 @@ public class Budget extends BaseEntity {
   @Column(nullable = false)
   private Long teamId;
 
-  @Setter
   @Column(nullable = false)
   private BigDecimal totalAmount;
 
@@ -53,4 +53,26 @@ public class Budget extends BaseEntity {
     this.foreignCurrency = foreignCurrency;
     this.avgExchangeRate = avgExchangeRate;
   }
+
+  public void setTotalAmount(BigDecimal totalAmount) {
+    this.totalAmount = totalAmount;
+    this.balance = totalAmount;
+  }
+
+  public void setAvgExchangeRate(boolean isExchanged, BigDecimal exchangeRate) {
+    if (!isExchanged) {
+      this.avgExchangeRate = null;
+      this.foreignBalance = null;
+    } else {
+      this.avgExchangeRate = exchangeRate;
+      this.foreignBalance = totalAmount.divide(exchangeRate, 2, RoundingMode.HALF_UP);
+    }
+  }
+
+  public void setForeignBalance() {
+    if (avgExchangeRate != null) {
+      this.foreignBalance = totalAmount.divide(avgExchangeRate, 2, RoundingMode.HALF_UP);
+    }
+  }
+
 }
