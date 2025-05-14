@@ -5,7 +5,6 @@ import com.luckyseven.backend.domain.budget.dto.BudgetCreateResponse;
 import com.luckyseven.backend.domain.budget.dto.BudgetReadResponse;
 import com.luckyseven.backend.domain.budget.dto.BudgetUpdateRequest;
 import com.luckyseven.backend.domain.budget.dto.BudgetUpdateResponse;
-import com.luckyseven.backend.domain.budget.entity.Member;
 import com.luckyseven.backend.domain.budget.service.BudgetService;
 import com.luckyseven.backend.domain.budget.validator.BudgetValidator;
 import io.swagger.v3.oas.annotations.Operation;

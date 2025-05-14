@@ -26,7 +26,15 @@ public class BudgetService {
   public BudgetCreateResponse save(Long teamId, Long loginMemberId, BudgetCreateRequest request) {
     budgetValidator.validateBudgetNotExist(teamId);
 
-    Budget budget = budgetMapper.toEntity(teamId, loginMemberId, request);
+    Budget budget = Budget.builder()
+        .teamId(teamId)
+        .totalAmount(request.getTotalAmount())
+        .setBy(loginMemberId)
+        .balance(request.getTotalAmount())
+        .foreignCurrency(request.getForeignCurrency())
+        .build();
+
+    budget.setAvgExchangeRate(request.getIsExchanged(), request.getExchangeRate());
 
     budgetRepository.save(budget);
 
@@ -45,9 +53,19 @@ public class BudgetService {
       BudgetUpdateRequest request) {
     Budget budget = budgetValidator.validateBudgetExist(teamId);
 
-    Budget updatedBudget = budgetMapper.toEntity(loginMemberId, request, budget);
+    budget.setSetBy(loginMemberId);
+    // totalAmount, Balance update
+    if (request.getTotalAmount() != null) {
+      budget.setTotalAmount(request.getTotalAmount());
+    }
+    // avgExchange, foreignBalance update
+    if (request.getIsExchanged() != null) {
+      budget.setAvgExchangeRate(request.getIsExchanged(), request.getExchangeRate());
+    }
+    // totalAmount만 수정을 원할 경우, foreignBalance update
+    budget.setForeignBalance();
 
-    return budgetMapper.toUpdateResponse(updatedBudget);
+    return budgetMapper.toUpdateResponse(budget);
   }
 
   @Transactional
