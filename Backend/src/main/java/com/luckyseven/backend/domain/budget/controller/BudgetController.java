@@ -36,7 +36,7 @@ public class BudgetController {
   @ApiResponse(responseCode = "201", description = "예산 생성 성공")
   @ApiResponse(responseCode = "400", description = "예산 생성 실패")
   @ApiResponse(responseCode = "409", description = "예산 중복 생성 시도로 인한 실패")
-  @PostMapping("/{teamId}")
+  @PostMapping("/{teamId}/budget")
   public ResponseEntity<BudgetCreateResponse> create(@PathVariable Long teamId,
       @Valid @RequestBody BudgetCreateRequest request) {
 
@@ -49,7 +49,7 @@ public class BudgetController {
   @Operation(summary = "팀 예산 조회")
   @ApiResponse(responseCode = "200", description = "예산 조회 성공")
   @ApiResponse(responseCode = "404", description = "예산 정보를 찾을 수 없음")
-  @GetMapping("/{teamId}")
+  @GetMapping("/{teamId}/budget")
   public ResponseEntity<BudgetReadResponse> read(@PathVariable Long teamId) {
     return ResponseEntity.ok(budgetService.getByTeamId(teamId));
   }
@@ -58,7 +58,7 @@ public class BudgetController {
   @ApiResponse(responseCode = "200", description = "예산 수정 성공")
   @ApiResponse(responseCode = "400", description = "예산 수정 실패")
   @ApiResponse(responseCode = "404", description = "예산 정보를 찾을 수 없음")
-  @PatchMapping("/{teamId}")
+  @PatchMapping("/{teamId}/budget")
   public ResponseEntity<BudgetUpdateResponse> update(@PathVariable Long teamId,
       @Valid @RequestBody BudgetUpdateRequest request) {
 
@@ -71,7 +71,7 @@ public class BudgetController {
   @Operation(summary = "팀 예산 삭제")
   @ApiResponse(responseCode = "204", description = "예산 삭제 성공")
   @ApiResponse(responseCode = "404", description = "예산 정보를 찾을 수 없음")
-  @DeleteMapping("/{teamId}")
+  @DeleteMapping("/{teamId}/budget")
   public ResponseEntity<Void> delete(@PathVariable Long teamId) {
     budgetService.deleteByTeamId(teamId);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
