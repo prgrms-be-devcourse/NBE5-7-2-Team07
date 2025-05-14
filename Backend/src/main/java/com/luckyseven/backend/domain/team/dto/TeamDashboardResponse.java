@@ -19,11 +19,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TeamDashboardResponse {
 
-  @NotNull(message = "팀 ID는 필수입니다")
   private Long team_id;
 
-  @NotNull(message = "잔액 정보는 필수입니다")
-  @DecimalMin(value = "0.0", message = "잔액은 0 이상이어야 합니다")
   private BigDecimal currency;
 
   private BigDecimal balance;
@@ -32,11 +29,8 @@ public class TeamDashboardResponse {
 
   private BigDecimal totalAmount;
 
-  private BigDecimal exchangeRate;
-
   private BigDecimal avgExchangeRate;
 
-  @Valid
   private List<ExpenseDto> expenseList = new ArrayList<>();
 
   @Getter

@@ -31,7 +31,6 @@ public class TeamMapper {
         .name(team.getName())
         .teamCode(team.getTeamCode())
         .leaderId(team.getLeader().getId())
-        .teamPassword(team.getTeamPassword())
         .build();
   }
 
@@ -85,7 +84,6 @@ public class TeamMapper {
         .balance(budget != null ? budget.getBalance() : BigDecimal.ZERO)
         .foreignBalance(budget != null ? budget.getForeignBalance() : BigDecimal.ZERO)
         .totalAmount(budget != null ? budget.getTotalAmount() : BigDecimal.ZERO)
-        .exchangeRate(budget != null ? budget.getExchangeRate() : BigDecimal.ZERO)
         .avgExchangeRate(budget != null ? budget.getAvgExchangeRate() : BigDecimal.ZERO)
         .expenseList(expenseDtos)
         .build();
