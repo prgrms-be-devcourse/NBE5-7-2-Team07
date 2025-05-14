@@ -1,9 +1,10 @@
 package com.luckyseven.backend.domain.member.controller;
 
-import com.luckyseven.backend.domain.member.service.utill.CustomUserDetails;
 import com.luckyseven.backend.domain.member.dto.LoginMemberRequest;
 import com.luckyseven.backend.domain.member.dto.RegisterMemberRequest;
-import com.luckyseven.backend.domain.member.service.utill.MemberService;
+import com.luckyseven.backend.domain.member.service.MemberService;
+import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
+import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import com.luckyseven.backend.sharedkernel.jwt.utill.JwtTokenizer;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,14 +30,38 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping({"/api/users"})
 public class MemberController implements MemberApi {
   private final MemberService service;
-  private final AuthenticationManager authenticationManager;
   private final PasswordEncoder passwordEncoder;
-  private final JwtTokenizer jwtTokenizer;
+
 
 
   @Override
   @PostMapping("/register")
   public ResponseEntity<String> registerMember(@RequestBody RegisterMemberRequest req) {
+    /* 이걸 @Validate를 해서 Controller에서 처리를 할지 @Validate를 뺴고 Service에서 처리를 할지 고민
+    *  if (bindingResult.hasErrors()) {
+      FieldError fe = bindingResult.getFieldErrors().get(0);
+      String field = fe.getField();
+      String defaultMsg = fe.getDefaultMessage();
+
+      // 2) 필드별로 커스텀 에러코드 던지기
+      switch (field) {
+        case "email":
+          throw new CustomLogicException(
+            ExceptionCode.INVALID_EMAIL_FORMAT, defaultMsg);
+        case "password":
+          throw new CustomLogicException(
+            ExceptionCode.INVALID_PASSWORD_FORMAT, defaultMsg);
+        case "checkPassword":
+          throw new CustomLogicException(
+            ExceptionCode.INVALID_CHECKPASSWORD_FORMAT, defaultMsg);
+        case "nickname":
+          throw new CustomLogicException(
+            ExceptionCode.BAD_REQUEST, defaultMsg);
+        default:
+          throw new CustomLogicException(
+            ExceptionCode.BAD_REQUEST, defaultMsg);
+      }
+    }*/
     log.info("==========");
     log.info("req.email() == {}", req.email());
     log.info("req.password() == {}", req.password());
@@ -75,25 +102,11 @@ public class MemberController implements MemberApi {
     return ResponseEntity.noContent().build();
   }
 
-  @PostMapping("/login")
-    public ResponseEntity<Void> login(@RequestBody LoginMemberRequest req,
-        HttpServletResponse resp){
-      UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(req.email(), req.password());
-      Authentication auth = authenticationManager.authenticate(authToken);
 
-      CustomUserDetails customUserDetails = (CustomUserDetails) auth.getPrincipal();
-      String accessToken = jwtTokenizer.reissueTokenPair(resp,customUserDetails);
-
-      log.info("로그인 성공 , userDetails.id = {} , userDetails.getEmail = {}",customUserDetails.getId(),customUserDetails.getEmail());
-      log.info("AccessToken : {}", accessToken);
-
-      return ResponseEntity.ok().header("Authorization","Bearer "+accessToken).build();
-    }
-/*
   @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody LoginMemberRequest req,
       HttpServletResponse resp){
     String token = service.Login(req,resp);
     return ResponseEntity.ok().header("Authorization","Bearer "+token).build();
-  }*/
+  }
 }
