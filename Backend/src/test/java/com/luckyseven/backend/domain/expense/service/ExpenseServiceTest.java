@@ -176,7 +176,8 @@ class ExpenseServiceTest {
           .team(team)
           .build();
 
-      when(expenseRepository.findById(expense.getId())).thenReturn(Optional.of(expense));
+      when(expenseRepository.findByIdWithTeamAndBudget(expense.getId())).thenReturn(
+          Optional.of(expense));
 
       ExpenseResponse response = expenseService.getExpense(expense.getId());
 
@@ -184,7 +185,7 @@ class ExpenseServiceTest {
       assertThat(response.amount()).isEqualByComparingTo(new BigDecimal("50000"));
       assertThat(response.category()).isEqualTo(ExpenseCategory.MEAL);
       assertThat(response.paymentMethod()).isEqualTo(PaymentMethod.CARD);
-      verify(expenseRepository).findById(expense.getId());
+      verify(expenseRepository).findByIdWithTeamAndBudget(expense.getId());
     }
 
 
@@ -193,7 +194,7 @@ class ExpenseServiceTest {
     void notFound_throwsException() {
       // given
       Long expenseId = 999L;
-      when(expenseRepository.findById(expenseId)).thenReturn(Optional.empty());
+      when(expenseRepository.findByIdWithTeamAndBudget(expenseId)).thenReturn(Optional.empty());
 
       // when & then
       assertThatThrownBy(() -> expenseService.getExpense(expenseId))
@@ -227,7 +228,7 @@ class ExpenseServiceTest {
           .team(team)
           .build();
 
-      when(expenseRepository.findById(1L)).thenReturn(Optional.of(original));
+      when(expenseRepository.findByIdWithTeamAndBudget(1L)).thenReturn(Optional.of(original));
 
       // when
       CreateExpenseResponse response = expenseService.updateExpense(1L, request);
@@ -258,7 +259,7 @@ class ExpenseServiceTest {
           .payer(payer)
           .team(team)
           .build();
-      when(expenseRepository.findById(1L)).thenReturn(Optional.of(original));
+      when(expenseRepository.findByIdWithTeamAndBudget(1L)).thenReturn(Optional.of(original));
 
       // when
       CreateExpenseResponse response = expenseService.updateExpense(1L, request);
@@ -273,7 +274,7 @@ class ExpenseServiceTest {
     @Test
     @DisplayName("존재하지 않는 지출")
     void expenseNotFound_throwsException() {
-      when(expenseRepository.findById(999L)).thenReturn(Optional.empty());
+      when(expenseRepository.findByIdWithTeamAndBudget(999L)).thenReturn(Optional.empty());
       ExpenseUpdateRequest request = ExpenseUpdateRequest.builder()
           .description("없는 지출 수정")
           .amount(new BigDecimal("1000.00"))
@@ -303,7 +304,7 @@ class ExpenseServiceTest {
           .payer(payer)
           .team(team)
           .build();
-      when(expenseRepository.findById(1L)).thenReturn(Optional.of(original));
+      when(expenseRepository.findByIdWithTeamAndBudget(1L)).thenReturn(Optional.of(original));
 
       // when & then
       assertThatThrownBy(() -> expenseService.updateExpense(1L, request))
@@ -325,7 +326,7 @@ class ExpenseServiceTest {
           .amount(new BigDecimal("30000.00"))
           .team(team)
           .build();
-      when(expenseRepository.findById(1L)).thenReturn(Optional.of(expense));
+      when(expenseRepository.findByIdWithTeamAndBudget(1L)).thenReturn(Optional.of(expense));
 
       // when
       ExpenseBalanceResponse response = expenseService.deleteExpense(1L);
@@ -342,7 +343,7 @@ class ExpenseServiceTest {
     @Test
     @DisplayName("존재하지 않는 지출 삭제 시 예외 발생")
     void expenseNotFound_throwsException() {
-      when(expenseRepository.findById(999L)).thenReturn(Optional.empty());
+      when(expenseRepository.findByIdWithTeamAndBudget(999L)).thenReturn(Optional.empty());
 
       assertThatThrownBy(() -> expenseService.deleteExpense(999L))
           .isInstanceOf(CustomLogicException.class)
