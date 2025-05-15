@@ -1,6 +1,7 @@
 package com.luckyseven.backend.domain.team.service;
 
 import com.luckyseven.backend.domain.member.entity.Member;
+import com.luckyseven.backend.domain.member.repository.MemberRepository;
 import com.luckyseven.backend.domain.team.repository.TempMemberRepository;
 import com.luckyseven.backend.domain.team.util.TestEntityBuilder;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
@@ -23,7 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class TempMemberServiceTest {
 
   @Mock
-  private TempMemberRepository tempMemberRepository;
+  private MemberRepository memberRepository;
 
   @Mock
   private Authentication authentication;
@@ -32,7 +33,7 @@ public class TempMemberServiceTest {
   private SecurityContext securityContext;
 
   @InjectMocks
-  private TempMemberService tempMemberService;
+  private MemberRepository MemberRepository;
 
   @BeforeEach
   void setUp() {
@@ -51,14 +52,14 @@ public class TempMemberServiceTest {
     Member expectedMember = TestEntityBuilder.createMemberWithId(memberId, email, name);
 
     when(authentication.getPrincipal()).thenReturn(memberId);
-    when(tempMemberRepository.findById(memberId)).thenReturn(Optional.of(expectedMember));
+    when(memberRepository.findById(memberId)).thenReturn(Optional.of(expectedMember));
 
     // When
-    Member result = tempMemberService.getCurrentMember();
+    Member result = MemberRepository.getCurrentMember();
 
     // Then
     assertEquals(expectedMember, result);
-    verify(tempMemberRepository).findById(memberId);
+    verify(memberRepository).findById(memberId);
   }
 
 
@@ -67,10 +68,10 @@ public class TempMemberServiceTest {
     // Given
     Long memberId = 1L;
     when(authentication.getPrincipal()).thenReturn(memberId);
-    when(tempMemberRepository.findById(memberId)).thenReturn(Optional.empty());
+    when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
 
     // When & Then
-    assertThrows(CustomLogicException.class, () -> tempMemberService.getCurrentMember());
-    verify(tempMemberRepository).findById(memberId);
+    assertThrows(CustomLogicException.class, () -> MemberRepository.getCurrentMember());
+    verify(memberRepository).findById(memberId);
   }
 }

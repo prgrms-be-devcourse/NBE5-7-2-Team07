@@ -7,12 +7,12 @@ import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
 import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
 import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
-import com.luckyseven.backend.domain.team.entity.Budget;
+import com.luckyseven.backend.domain.budget.entity.Budget;
 import com.luckyseven.backend.domain.team.entity.Expense;
 import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
-import com.luckyseven.backend.domain.team.repository.BudgetRepository;
+import com.luckyseven.backend.domain.budget.dao.BudgetRepository;
 import com.luckyseven.backend.domain.team.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.team.repository.TeamMemberRepository;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
@@ -43,7 +43,6 @@ public class TeamService {
   /**
    * 팀을 생성한다. 생성한 회원을 팀 리더로 등록한다
    *
-   * @param creator 팀 생성하는 회원
    * @param request 팀 생성 요청
    * @return 생성된 팀 정보
    */
@@ -66,11 +65,10 @@ public class TeamService {
 
     // <TODO> 예산 생성(임시로 구현)
     Budget budget = Budget.builder()
-        .currency(BigDecimal.ZERO)
+        .foreignCurrency(null)
         .balance(BigDecimal.ZERO)
         .foreignBalance(BigDecimal.ZERO)
         .totalAmount(BigDecimal.ZERO)
-        .exchangeRate(BigDecimal.ONE)
         .avgExchangeRate(BigDecimal.ONE)
         .build();
 
