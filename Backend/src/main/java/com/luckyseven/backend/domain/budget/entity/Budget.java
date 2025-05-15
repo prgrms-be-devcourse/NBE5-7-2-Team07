@@ -19,6 +19,11 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Budget extends BaseEntity {
 
+  @Id
+  @Column(name = "budget_id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
   @Column(nullable = false)
   private Long teamId;
 
