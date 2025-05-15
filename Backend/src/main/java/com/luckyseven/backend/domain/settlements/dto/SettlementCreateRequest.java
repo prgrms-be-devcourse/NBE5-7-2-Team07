@@ -5,25 +5,28 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import lombok.Data;
+import lombok.Builder;
 
 /**
  * DTO for {@link Settlement}
  */
-@Data
-public class SettlementCreateRequest {
+@Builder
+public record SettlementCreateRequest(
 
-  @NotNull
-  @DecimalMin(value = "0.0", inclusive = false)
-  @Digits(integer = 15, fraction = 2)
-  private BigDecimal amount;
+    @NotNull
+    @DecimalMin(value = "0.0", inclusive = false)
+    @Digits(integer = 15, fraction = 2)
+    BigDecimal amount,
 
-  @NotNull
-  private Long settlerId;
+    @NotNull
+    Long settlerId,
 
-  @NotNull
-  private Long payerId;
+    @NotNull
+    Long payerId,
 
-  @NotNull
-  private Long expenseId;
+    @NotNull
+    Long expenseId
+
+) {
+
 }

@@ -2,10 +2,10 @@ package com.luckyseven.backend.domain.settlements.dao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.luckyseven.backend.domain.settlements.TempExpense;
-import com.luckyseven.backend.domain.settlements.TempMember;
-import com.luckyseven.backend.domain.settlements.TempTeam;
+import com.luckyseven.backend.domain.expense.entity.Expense;
+import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.settlements.entity.Settlement;
+import com.luckyseven.backend.domain.team.entity.Team;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.math.BigDecimal;
@@ -29,28 +29,28 @@ class SettlementRepositoryTest {
   @PersistenceContext
   private EntityManager entityManager;
 
-  TempTeam team1;
-  TempTeam team2;
-  TempMember settler1;
-  TempMember settler2;
-  TempMember payer1;
-  TempMember payer2;
-  TempExpense expense1;
-  TempExpense expense2;
+  Team team1;
+  Team team2;
+  Member settler1;
+  Member settler2;
+  Member payer1;
+  Member payer2;
+  Expense expense1;
+  Expense expense2;
 
   @BeforeEach
   void setUp() {
-    team1 = new TempTeam();
-    team2 = new TempTeam();
+    team1 = new Team();
+    team2 = new Team();
 
     // 먼저 팀 엔티티 저장
     entityManager.persist(team1);
     entityManager.persist(team2);
 
-    settler1 = new TempMember(team1);
-    settler2 = new TempMember(team2);
-    payer1 = new TempMember(team1);
-    payer2 = new TempMember(team2);
+    settler1 = Member.builder().email("123@123").build();
+    settler2 = Member.builder().email("123@123").build();
+    payer1 = Member.builder().email("123@123").build();
+    payer2 = Member.builder().email("123@123").build();
 
     // 멤버 엔티티 저장
     entityManager.persist(settler1);
@@ -58,8 +58,8 @@ class SettlementRepositoryTest {
     entityManager.persist(payer1);
     entityManager.persist(payer2);
 
-    expense1 = new TempExpense(team1);
-    expense2 = new TempExpense(team2);
+    expense1 = Expense.builder().amount(BigDecimal.valueOf(1000)).build();
+    expense2 = Expense.builder().amount(BigDecimal.valueOf(1000)).build();
 
     // 비용 엔티티 저장
     entityManager.persist(expense1);

@@ -1,8 +1,9 @@
 package com.luckyseven.backend.domain.settlements.app;
 
-import com.luckyseven.backend.domain.settlements.TempExpense;
-import com.luckyseven.backend.domain.settlements.TempMember;
-import com.luckyseven.backend.domain.settlements.TempTeam;
+import com.luckyseven.backend.domain.expense.entity.Expense;
+import com.luckyseven.backend.domain.expense.service.ExpenseService;
+import com.luckyseven.backend.domain.member.entity.Member;
+import com.luckyseven.backend.domain.member.service.MemberService;
 import com.luckyseven.backend.domain.settlements.dao.SettlementRepository;
 import com.luckyseven.backend.domain.settlements.dao.SettlementSpecification;
 import com.luckyseven.backend.domain.settlements.dto.SettlementCreateRequest;
@@ -13,7 +14,6 @@ import com.luckyseven.backend.domain.settlements.entity.Settlement;
 import com.luckyseven.backend.domain.settlements.util.SettlementMapper;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
-import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,28 +26,24 @@ import org.springframework.transaction.annotation.Transactional;
 public class SettlementService {
 
   private final SettlementRepository settlementRepository;
+  private final MemberService memberService;
+  private final ExpenseService expenseService;
 
   @Transactional
   public SettlementResponse createSettlement(SettlementCreateRequest request) {
-    // TODO: TEMP 엔티티 제거
-    TempTeam team = new TempTeam();
-    TempMember settler = new TempMember(team);
-    TempMember payer = new TempMember(team);
-    TempExpense expense = new TempExpense(team);
+    Member settler = memberService.findMemberOrThrow(request.settlerId());
+    Member payer = memberService.findMemberOrThrow(request.payerId());
+    Expense expense = expenseService.findExpenseOrThrow(request.expenseId());
     Settlement settlement = SettlementMapper.fromSettlementCreateRequest(request, settler, payer,
         expense);
-    BigDecimal amount = request.getAmount();
     return SettlementMapper.toSettlementResponse(settlementRepository.save(settlement));
   }
 
   @Transactional(readOnly = true)
   public SettlementResponse readSettlement(Long id) {
-    Settlement settlement = settlementRepository.findWithSettlerAndPayerById(id).orElseThrow(
-        () -> new CustomLogicException(ExceptionCode.SETTLEMENT_NOT_FOUND)
-    );
+    Settlement settlement = findSettlementOrThrow(id);
     return SettlementMapper.toSettlementResponse(settlement);
   }
-
 
   /**
    * 검색 조건에 따른 정산 목록을 페이지네이션하여 조회합니다. teamId는 필수 condition 각 속성은 선택
@@ -61,16 +57,8 @@ public class SettlementService {
   @Transactional(readOnly = true)
   public Page<SettlementResponse> readSettlementPage(Long teamId,
       SettlementSearchCondition condition, Pageable pageable) {
-    if (teamId == null) {
-      throw new CustomLogicException(ExceptionCode.BAD_REQUEST);
-    }
-
-    Specification<Settlement> specification = Specification
-        .where(SettlementSpecification.hasTeamId(teamId))
-        .and(SettlementSpecification.hasPayerId(condition.getPayerId()))
-        .and(SettlementSpecification.hasSettlerId(condition.getSettlerId()))
-        .and(SettlementSpecification.hasExpenseId(condition.getExpenseId()))
-        .and(SettlementSpecification.isSettled(condition.getIsSettled()));
+    Specification<Settlement> specification = SettlementSpecification.createSpecification(teamId,
+        condition);
     Page<Settlement> settlementPage = settlementRepository.findAll(specification, pageable);
 
     return settlementPage.map(SettlementMapper::toSettlementResponse);
@@ -78,20 +66,30 @@ public class SettlementService {
 
   @Transactional
   public SettlementResponse updateSettlement(Long id, SettlementUpdateRequest request) {
-    Settlement settlement = settlementRepository.findById(id).orElseThrow(
-        () -> new CustomLogicException(ExceptionCode.SETTLEMENT_NOT_FOUND)
-    );
-    // TODO: 실제 엔티티로 대체
-    settlement.update(request.getAmount(), null, null, null, request.getIsSettled());
+
+    Settlement settlement = findSettlementOrThrow(id);
+    Member settler = request.settlerId() != null ?
+        memberService.findMemberOrThrow(request.settlerId()) : null;
+    Member payer = request.settlerId() != null ?
+        memberService.findMemberOrThrow(request.payerId()) : null;
+    Expense expense = request.expenseId() != null ?
+        expenseService.findExpenseOrThrow(request.expenseId()) : null;
+
+    settlement.update(request.amount(), settler, payer, expense, request.isSettled());
     return SettlementMapper.toSettlementResponse(settlementRepository.save(settlement));
   }
 
   @Transactional
   public SettlementResponse settleSettlement(Long id) {
-    Settlement settlement = settlementRepository.findById(id).orElseThrow(
-        () -> new CustomLogicException(ExceptionCode.SETTLEMENT_NOT_FOUND)
-    );
+    Settlement settlement = findSettlementOrThrow(id);
     settlement.setSettled();
     return SettlementMapper.toSettlementResponse(settlementRepository.save(settlement));
+  }
+
+  public Settlement findSettlementOrThrow(Long id) {
+    Settlement settlement = settlementRepository.findWithSettlerAndPayerById(id).orElseThrow(
+        () -> new CustomLogicException(ExceptionCode.SETTLEMENT_NOT_FOUND)
+    );
+    return settlement;
   }
 }
