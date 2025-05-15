@@ -1,11 +1,13 @@
 package com.luckyseven.backend.domain.budget.entity;
 
+import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import lombok.AccessLevel;
@@ -19,8 +21,12 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Budget extends BaseEntity {
 
-  @Column(nullable = false)
-  private Long teamId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @OneToOne(mappedBy = "budget")
+  private Team team;
 
   @Column(nullable = false)
   private BigDecimal totalAmount;
@@ -29,9 +35,13 @@ public class Budget extends BaseEntity {
   @Column(nullable = false)
   private Long setBy;
 
+
+  // 예산 잔고
   @Setter
   @Column(nullable = false)
   private BigDecimal balance;
+
+  // 외화 잔고
   @Setter
   private BigDecimal foreignBalance;
 
@@ -42,10 +52,10 @@ public class Budget extends BaseEntity {
   private BigDecimal avgExchangeRate;
 
   @Builder
-  public Budget(Long teamId, BigDecimal totalAmount, Long setBy,
+  public Budget(Team team, BigDecimal totalAmount, Long setBy,
       BigDecimal balance, BigDecimal foreignBalance, CurrencyCode foreignCurrency,
       BigDecimal avgExchangeRate) {
-    this.teamId = teamId;
+    this.team = team;
     this.totalAmount = totalAmount;
     this.setBy = setBy;
     this.balance = balance;
@@ -103,6 +113,22 @@ public class Budget extends BaseEntity {
     if (avgExchangeRate != null) {
       this.foreignBalance = totalAmount.divide(avgExchangeRate, 2, RoundingMode.HALF_UP);
     }
+  }
+
+  public Budget setTeam(Team team) {
+    // 기존 연결 해제
+    if (this.team != null) {
+      this.team.setBudget(null);
+    }
+
+    this.team = team;
+
+    // 새로운 연결 설정 (Team이 null이 아닌 경우)
+    if (team != null && team.getBudget() != this) {
+      team.setBudget(this);
+    }
+
+    return this;
   }
 
 }
