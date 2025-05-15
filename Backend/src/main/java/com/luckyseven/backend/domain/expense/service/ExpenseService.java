@@ -114,7 +114,7 @@ public class ExpenseService {
         .orElseThrow(() -> new CustomLogicException(EXPENSE_PAYER_NOT_FOUND));
   }
 
-  private Expense findExpenseOrThrow(Long expenseId) {
+  public Expense findExpenseOrThrow(Long expenseId) {
     return expenseRepository.findById(expenseId)
         .orElseThrow(() -> new CustomLogicException(EXPENSE_NOT_FOUND));
   }

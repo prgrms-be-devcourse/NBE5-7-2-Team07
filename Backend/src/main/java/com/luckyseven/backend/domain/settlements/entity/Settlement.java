@@ -1,7 +1,7 @@
 package com.luckyseven.backend.domain.settlements.entity;
 
-import com.luckyseven.backend.domain.settlements.TempExpense;
-import com.luckyseven.backend.domain.settlements.TempMember;
+import com.luckyseven.backend.domain.expense.entity.Expense;
+import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -35,28 +35,27 @@ public class Settlement extends BaseEntity {
   @Column(nullable = false)
   private Boolean isSettled = false;
 
-  // TODO: TEMP 엔티티 제거
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), nullable = false)
-  private TempMember settler;
+  private Member settler;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), nullable = false)
-  private TempMember payer;
+  private Member payer;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), nullable = false)
-  private TempExpense expense;
+  private Expense expense;
 
   @Builder
-  public Settlement(BigDecimal amount, TempMember settler, TempMember payer, TempExpense expense) {
+  public Settlement(BigDecimal amount, Member settler, Member payer, Expense expense) {
     this.amount = amount;
     this.settler = settler;
     this.payer = payer;
     this.expense = expense;
   }
 
-  public void update(BigDecimal amount, TempMember settler, TempMember payer, TempExpense expense,
+  public void update(BigDecimal amount, Member settler, Member payer, Expense expense,
       Boolean isSettled) {
     if (amount != null) {
       this.amount = amount;

@@ -1,8 +1,9 @@
 package com.luckyseven.backend.domain.settlements.app;
 
-import com.luckyseven.backend.domain.settlements.TempExpense;
-import com.luckyseven.backend.domain.settlements.TempMember;
-import com.luckyseven.backend.domain.settlements.TempTeam;
+import com.luckyseven.backend.domain.expense.entity.Expense;
+import com.luckyseven.backend.domain.expense.service.ExpenseService;
+import com.luckyseven.backend.domain.member.entity.Member;
+import com.luckyseven.backend.domain.member.service.MemberService;
 import com.luckyseven.backend.domain.settlements.dao.SettlementRepository;
 import com.luckyseven.backend.domain.settlements.dao.SettlementSpecification;
 import com.luckyseven.backend.domain.settlements.dto.SettlementCreateRequest;
@@ -13,7 +14,6 @@ import com.luckyseven.backend.domain.settlements.entity.Settlement;
 import com.luckyseven.backend.domain.settlements.util.SettlementMapper;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
-import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,17 +26,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class SettlementService {
 
   private final SettlementRepository settlementRepository;
+  private final MemberService memberService;
+  private final ExpenseService expenseService;
 
   @Transactional
   public SettlementResponse createSettlement(SettlementCreateRequest request) {
-    // TODO: TEMP 엔티티 제거
-    TempTeam team = new TempTeam();
-    TempMember settler = new TempMember(team);
-    TempMember payer = new TempMember(team);
-    TempExpense expense = new TempExpense(team);
+    Member settler = memberService.findMemberOrThrow(request.getSettlerId());
+    Member payer = memberService.findMemberOrThrow(request.getPayerId());
+    Expense expense = expenseService.findExpenseOrThrow(request.getExpenseId());
     Settlement settlement = SettlementMapper.fromSettlementCreateRequest(request, settler, payer,
         expense);
-    BigDecimal amount = request.getAmount();
     return SettlementMapper.toSettlementResponse(settlementRepository.save(settlement));
   }
 
@@ -78,11 +77,18 @@ public class SettlementService {
 
   @Transactional
   public SettlementResponse updateSettlement(Long id, SettlementUpdateRequest request) {
+
     Settlement settlement = settlementRepository.findById(id).orElseThrow(
         () -> new CustomLogicException(ExceptionCode.SETTLEMENT_NOT_FOUND)
     );
-    // TODO: 실제 엔티티로 대체
-    settlement.update(request.getAmount(), null, null, null, request.getIsSettled());
+    Member settler = request.getSettlerId() != null ?
+        memberService.findMemberOrThrow(request.getSettlerId()) : null;
+    Member payer = request.getPayerId() != null ?
+        memberService.findMemberOrThrow(request.getPayerId()) : null;
+    Expense expense = request.getExpenseId() != null ?
+        expenseService.findExpenseOrThrow(request.getExpenseId()) : null;
+
+    settlement.update(request.getAmount(), settler, payer, expense, request.getIsSettled());
     return SettlementMapper.toSettlementResponse(settlementRepository.save(settlement));
   }
 

@@ -10,15 +10,15 @@ import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.luckyseven.backend.domain.settlements.TempExpense;
-import com.luckyseven.backend.domain.settlements.TempMember;
-import com.luckyseven.backend.domain.settlements.TempTeam;
+import com.luckyseven.backend.domain.expense.entity.Expense;
+import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.settlements.dao.SettlementRepository;
 import com.luckyseven.backend.domain.settlements.dto.SettlementCreateRequest;
 import com.luckyseven.backend.domain.settlements.dto.SettlementResponse;
 import com.luckyseven.backend.domain.settlements.dto.SettlementSearchCondition;
 import com.luckyseven.backend.domain.settlements.dto.SettlementUpdateRequest;
 import com.luckyseven.backend.domain.settlements.entity.Settlement;
+import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import java.math.BigDecimal;
@@ -47,18 +47,18 @@ class SettlementServiceTest {
   @InjectMocks
   private SettlementService settlementService;
 
-  private TempTeam team;
+  private Team team;
   private Settlement settlement;
-  private TempMember settler;
-  private TempMember payer;
-  private TempExpense expense;
+  private Member settler;
+  private Member payer;
+  private Expense expense;
 
   @BeforeEach
   void setUp() {
-    team = new TempTeam();
-    settler = new TempMember(team);
-    payer = new TempMember(team);
-    expense = new TempExpense(team);
+    team = Team.builder().id(1L).build();
+    settler = Member.builder().email("123@123").build();
+    payer = Member.builder().email("456@456").build();
+    expense = Expense.builder().amount(BigDecimal.valueOf(1000)).build();
     settlement = Settlement.builder()
         .amount(BigDecimal.valueOf(1000))
         .settler(settler)
