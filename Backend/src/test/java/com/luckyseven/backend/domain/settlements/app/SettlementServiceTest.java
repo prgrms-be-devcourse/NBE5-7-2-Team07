@@ -72,22 +72,23 @@ class SettlementServiceTest {
   void createSettlement_ShouldSaveSettlement() {
     //given
     when(settlementRepository.save(any(Settlement.class))).thenReturn(settlement);
-    SettlementCreateRequest request = new SettlementCreateRequest();
-    request.setAmount(BigDecimal.valueOf(1000));
-    request.setPayerId(payer.getId());
-    request.setSettlerId(settler.getId());
-    request.setExpenseId(expense.getId());
+    SettlementCreateRequest request = SettlementCreateRequest.builder()
+        .amount(BigDecimal.valueOf(1000))
+        .payerId(payer.getId())
+        .settlerId(settler.getId())
+        .expenseId(expense.getId())
+        .build();
 
     //when
     SettlementResponse created = settlementService.createSettlement(request);
 
     //then
     assertNotNull(created);
-    assertThat(created.getAmount()).isEqualTo(BigDecimal.valueOf(1000));
-    assertThat(created.getSettlerId()).isEqualTo(settler.getId());
-    assertThat(created.getPayerId()).isEqualTo(payer.getId());
-    assertThat(created.getExpenseId()).isEqualTo(expense.getId());
-    assertFalse(created.getIsSettled());
+    assertThat(created.amount()).isEqualTo(BigDecimal.valueOf(1000));
+    assertThat(created.settlerId()).isEqualTo(settler.getId());
+    assertThat(created.payerId()).isEqualTo(payer.getId());
+    assertThat(created.expenseId()).isEqualTo(expense.getId());
+    assertFalse(created.isSettled());
   }
 
   @Test
@@ -99,7 +100,7 @@ class SettlementServiceTest {
 
     SettlementResponse updated = settlementService.settleSettlement(1L);
 
-    assertTrue(updated.getIsSettled());
+    assertTrue(updated.isSettled());
     verify(settlementRepository).save(settlement);
   }
 
@@ -114,10 +115,10 @@ class SettlementServiceTest {
 
     //then
     assertNotNull(found);
-    assertThat(found.getAmount()).isEqualTo(BigDecimal.valueOf(1000));
-    assertThat(found.getSettlerId()).isEqualTo(settler.getId());
-    assertThat(found.getPayerId()).isEqualTo(payer.getId());
-    assertThat(found.getExpenseId()).isEqualTo(expense.getId());
+    assertThat(found.amount()).isEqualTo(BigDecimal.valueOf(1000));
+    assertThat(found.settlerId()).isEqualTo(settler.getId());
+    assertThat(found.payerId()).isEqualTo(payer.getId());
+    assertThat(found.expenseId()).isEqualTo(expense.getId());
   }
 
   @Test
@@ -128,21 +129,22 @@ class SettlementServiceTest {
     when(settlementRepository.save(any(Settlement.class))).thenReturn(settlement);
 
     BigDecimal newAmount = BigDecimal.valueOf(2000);
-    SettlementUpdateRequest request = new SettlementUpdateRequest();
-    request.setAmount(newAmount);
-    request.setPayerId(payer.getId());
-    request.setSettlerId(settler.getId());
-    request.setExpenseId(expense.getId());
+    SettlementUpdateRequest request = SettlementUpdateRequest.builder()
+        .amount(newAmount)
+        .payerId(payer.getId())
+        .settlerId(settler.getId())
+        .expenseId(expense.getId())
+        .build();
 
     //when
     SettlementResponse updated = settlementService.updateSettlement(1L, request);
 
     //then
     assertNotNull(updated);
-    assertThat(updated.getAmount()).isEqualTo(newAmount);
-    assertThat(updated.getSettlerId()).isEqualTo(settler.getId());
-    assertThat(updated.getPayerId()).isEqualTo(payer.getId());
-    assertThat(updated.getExpenseId()).isEqualTo(expense.getId());
+    assertThat(updated.amount()).isEqualTo(newAmount);
+    assertThat(updated.settlerId()).isEqualTo(settler.getId());
+    assertThat(updated.payerId()).isEqualTo(payer.getId());
+    assertThat(updated.expenseId()).isEqualTo(expense.getId());
   }
 
   @Test
@@ -155,11 +157,12 @@ class SettlementServiceTest {
     when(settlementRepository.findAll(any(Specification.class), any(Pageable.class)))
         .thenReturn(mockPage);
 
-    SettlementSearchCondition condition = new SettlementSearchCondition();
-    condition.setPayerId(1L);
-    condition.setSettlerId(1L);
-    condition.setExpenseId(1L);
-    condition.setIsSettled(false);
+    SettlementSearchCondition condition = SettlementSearchCondition.builder()
+        .payerId(1L)
+        .settlerId(1L)
+        .expenseId(1L)
+        .isSettled(false)
+        .build();
 
     //when
     Page<SettlementResponse> result = settlementService.readSettlementPage(1L, condition,
@@ -167,8 +170,8 @@ class SettlementServiceTest {
 
     //then
     assertThat(result.getContent().size()).isEqualTo(1);
-    assertThat(result.getContent()).allMatch(s -> s.getAmount().equals(BigDecimal.valueOf(1000)));
-    assertThat(result.getContent()).allMatch(s -> !s.getIsSettled());
+    assertThat(result.getContent()).allMatch(s -> s.amount().equals(BigDecimal.valueOf(1000)));
+    assertThat(result.getContent()).allMatch(s -> !s.isSettled());
     verify(settlementRepository).findAll(any(Specification.class), any(Pageable.class));
   }
 
@@ -193,8 +196,9 @@ class SettlementServiceTest {
     Long nonExistingId = 999L;
     when(settlementRepository.findById(nonExistingId)).thenReturn(Optional.empty());
 
-    SettlementUpdateRequest request = new SettlementUpdateRequest();
-    request.setAmount(BigDecimal.valueOf(2000));
+    SettlementUpdateRequest request = SettlementUpdateRequest.builder()
+        .amount(BigDecimal.valueOf(2000))
+        .build();
 
     // when & then
     assertThatThrownBy(() -> settlementService.updateSettlement(nonExistingId, request))
@@ -220,7 +224,9 @@ class SettlementServiceTest {
   void readSettlementPage_WithNullTeamId_ShouldThrowException() {
     // given
     Long nullTeamId = null;
-    SettlementSearchCondition condition = new SettlementSearchCondition();
+    SettlementSearchCondition condition = SettlementSearchCondition.builder()
+        .payerId(1L)
+        .build();
     Pageable pageable = PageRequest.of(0, 10);
 
     // when & then

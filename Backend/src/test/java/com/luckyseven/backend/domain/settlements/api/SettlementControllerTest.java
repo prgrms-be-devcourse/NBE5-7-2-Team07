@@ -110,8 +110,8 @@ class SettlementControllerTest {
     MvcResult result = mockMvc.perform(get("/api/teams/{teamId}/settlements", teamId)
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content[0].id").value(settlement1.getId()))
-        .andExpect(jsonPath("$.content[1].id").value(settlement2.getId()))
+        .andExpect(jsonPath("$.content[0].id").value(settlement1.id()))
+        .andExpect(jsonPath("$.content[1].id").value(settlement2.id()))
         .andReturn();
 
     // then
@@ -167,12 +167,12 @@ class SettlementControllerTest {
   void updateSettlement_ShouldUpdateAndReturnSettlement() throws Exception {
     // given
     Long settlementId = 1L;
-    SettlementUpdateRequest request = new SettlementUpdateRequest();
-    request.setAmount(BigDecimal.valueOf(2000));
-    request.setPayerId(20L);
-    request.setSettlerId(10L);
-    request.setExpenseId(30L);
-    request.setIsSettled(false);
+    SettlementUpdateRequest request = SettlementUpdateRequest.builder()
+        .amount(BigDecimal.valueOf(2000))
+        .payerId(20L)
+        .settlerId(10L)
+        .expenseId(30L)
+        .build();
 
     SettlementResponse mockResponse = SettlementResponse.builder()
         .id(settlementId)
@@ -197,12 +197,12 @@ class SettlementControllerTest {
     String content = result.getResponse().getContentAsString();
     SettlementResponse response = objectMapper.readValue(content, SettlementResponse.class);
 
-    assertThat(response.getId()).isEqualTo(settlementId);
-    assertThat(response.getAmount()).isEqualTo(BigDecimal.valueOf(2000));
-    assertThat(response.getSettlerId()).isEqualTo(10L);
-    assertThat(response.getPayerId()).isEqualTo(20L);
-    assertThat(response.getExpenseId()).isEqualTo(30L);
-    assertThat(response.getIsSettled()).isFalse();
+    assertThat(response.id()).isEqualTo(settlementId);
+    assertThat(response.amount()).isEqualTo(BigDecimal.valueOf(2000));
+    assertThat(response.settlerId()).isEqualTo(10L);
+    assertThat(response.payerId()).isEqualTo(20L);
+    assertThat(response.expenseId()).isEqualTo(30L);
+    assertThat(response.isSettled()).isFalse();
 
     verify(settlementService, times(1)).updateSettlement(eq(settlementId),
         any(SettlementUpdateRequest.class));
@@ -213,7 +213,12 @@ class SettlementControllerTest {
   void settleSettlement_ShouldMarkAsSettled() throws Exception {
     // given
     Long settlementId = 1L;
-    SettlementUpdateRequest request = new SettlementUpdateRequest();
+    SettlementUpdateRequest request = SettlementUpdateRequest.builder()
+        .amount(BigDecimal.valueOf(1000))
+        .payerId(20L)
+        .settlerId(10L)
+        .expenseId(30L)
+        .build();
 
     SettlementResponse mockResponse = SettlementResponse.builder()
         .id(settlementId)
@@ -238,8 +243,8 @@ class SettlementControllerTest {
     String content = result.getResponse().getContentAsString();
     SettlementResponse response = objectMapper.readValue(content, SettlementResponse.class);
 
-    assertThat(response.getId()).isEqualTo(settlementId);
-    assertThat(response.getIsSettled()).isTrue(); // 정산 완료됨 확인
+    assertThat(response.id()).isEqualTo(settlementId);
+    assertThat(response.isSettled()).isTrue(); // 정산 완료됨 확인
 
     verify(settlementService, times(1)).settleSettlement(settlementId);
     verify(settlementService, times(0)).updateSettlement(anyLong(),

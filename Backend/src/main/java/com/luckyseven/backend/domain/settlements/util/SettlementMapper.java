@@ -26,6 +26,6 @@ public class SettlementMapper {
 
   public static Settlement fromSettlementCreateRequest(SettlementCreateRequest request,
       Member settler, Member payer, Expense expense) {
-    return new Settlement(request.getAmount(), settler, payer, expense);
+    return new Settlement(request.amount(), settler, payer, expense);
   }
 }

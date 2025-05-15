@@ -31,9 +31,9 @@ public class SettlementService {
 
   @Transactional
   public SettlementResponse createSettlement(SettlementCreateRequest request) {
-    Member settler = memberService.findMemberOrThrow(request.getSettlerId());
-    Member payer = memberService.findMemberOrThrow(request.getPayerId());
-    Expense expense = expenseService.findExpenseOrThrow(request.getExpenseId());
+    Member settler = memberService.findMemberOrThrow(request.settlerId());
+    Member payer = memberService.findMemberOrThrow(request.payerId());
+    Expense expense = expenseService.findExpenseOrThrow(request.expenseId());
     Settlement settlement = SettlementMapper.fromSettlementCreateRequest(request, settler, payer,
         expense);
     return SettlementMapper.toSettlementResponse(settlementRepository.save(settlement));
@@ -66,10 +66,10 @@ public class SettlementService {
 
     Specification<Settlement> specification = Specification
         .where(SettlementSpecification.hasTeamId(teamId))
-        .and(SettlementSpecification.hasPayerId(condition.getPayerId()))
-        .and(SettlementSpecification.hasSettlerId(condition.getSettlerId()))
-        .and(SettlementSpecification.hasExpenseId(condition.getExpenseId()))
-        .and(SettlementSpecification.isSettled(condition.getIsSettled()));
+        .and(SettlementSpecification.hasPayerId(condition.payerId()))
+        .and(SettlementSpecification.hasSettlerId(condition.settlerId()))
+        .and(SettlementSpecification.hasExpenseId(condition.expenseId()))
+        .and(SettlementSpecification.isSettled(condition.isSettled()));
     Page<Settlement> settlementPage = settlementRepository.findAll(specification, pageable);
 
     return settlementPage.map(SettlementMapper::toSettlementResponse);
@@ -81,14 +81,14 @@ public class SettlementService {
     Settlement settlement = settlementRepository.findById(id).orElseThrow(
         () -> new CustomLogicException(ExceptionCode.SETTLEMENT_NOT_FOUND)
     );
-    Member settler = request.getSettlerId() != null ?
-        memberService.findMemberOrThrow(request.getSettlerId()) : null;
-    Member payer = request.getPayerId() != null ?
-        memberService.findMemberOrThrow(request.getPayerId()) : null;
-    Expense expense = request.getExpenseId() != null ?
-        expenseService.findExpenseOrThrow(request.getExpenseId()) : null;
+    Member settler = request.settlerId() != null ?
+        memberService.findMemberOrThrow(request.settlerId()) : null;
+    Member payer = request.settlerId() != null ?
+        memberService.findMemberOrThrow(request.payerId()) : null;
+    Expense expense = request.expenseId() != null ?
+        expenseService.findExpenseOrThrow(request.expenseId()) : null;
 
-    settlement.update(request.getAmount(), settler, payer, expense, request.getIsSettled());
+    settlement.update(request.amount(), settler, payer, expense, request.isSettled());
     return SettlementMapper.toSettlementResponse(settlementRepository.save(settlement));
   }
 
