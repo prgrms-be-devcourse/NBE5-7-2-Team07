@@ -1,6 +1,7 @@
 package com.luckyseven.backend.domain.team.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.luckyseven.backend.domain.budget.entity.Budget;
 import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
