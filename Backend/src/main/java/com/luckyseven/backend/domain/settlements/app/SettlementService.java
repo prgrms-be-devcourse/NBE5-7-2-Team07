@@ -41,12 +41,9 @@ public class SettlementService {
 
   @Transactional(readOnly = true)
   public SettlementResponse readSettlement(Long id) {
-    Settlement settlement = settlementRepository.findWithSettlerAndPayerById(id).orElseThrow(
-        () -> new CustomLogicException(ExceptionCode.SETTLEMENT_NOT_FOUND)
-    );
+    Settlement settlement = findSettlementOrThrow(id);
     return SettlementMapper.toSettlementResponse(settlement);
   }
-
 
   /**
    * 검색 조건에 따른 정산 목록을 페이지네이션하여 조회합니다. teamId는 필수 condition 각 속성은 선택
@@ -70,9 +67,7 @@ public class SettlementService {
   @Transactional
   public SettlementResponse updateSettlement(Long id, SettlementUpdateRequest request) {
 
-    Settlement settlement = settlementRepository.findById(id).orElseThrow(
-        () -> new CustomLogicException(ExceptionCode.SETTLEMENT_NOT_FOUND)
-    );
+    Settlement settlement = findSettlementOrThrow(id);
     Member settler = request.settlerId() != null ?
         memberService.findMemberOrThrow(request.settlerId()) : null;
     Member payer = request.settlerId() != null ?
@@ -86,10 +81,15 @@ public class SettlementService {
 
   @Transactional
   public SettlementResponse settleSettlement(Long id) {
-    Settlement settlement = settlementRepository.findById(id).orElseThrow(
-        () -> new CustomLogicException(ExceptionCode.SETTLEMENT_NOT_FOUND)
-    );
+    Settlement settlement = findSettlementOrThrow(id);
     settlement.setSettled();
     return SettlementMapper.toSettlementResponse(settlementRepository.save(settlement));
+  }
+
+  public Settlement findSettlementOrThrow(Long id) {
+    Settlement settlement = settlementRepository.findWithSettlerAndPayerById(id).orElseThrow(
+        () -> new CustomLogicException(ExceptionCode.SETTLEMENT_NOT_FOUND)
+    );
+    return settlement;
   }
 }
