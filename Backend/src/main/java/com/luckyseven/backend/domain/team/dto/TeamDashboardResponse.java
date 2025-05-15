@@ -1,9 +1,7 @@
 package com.luckyseven.backend.domain.team.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotNull;
+import com.luckyseven.backend.domain.budget.entity.CurrencyCode;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,7 +19,7 @@ public class TeamDashboardResponse {
 
   private Long team_id;
 
-  private BigDecimal currency;
+  private CurrencyCode foreignCurrency;
 
   private BigDecimal balance;
 

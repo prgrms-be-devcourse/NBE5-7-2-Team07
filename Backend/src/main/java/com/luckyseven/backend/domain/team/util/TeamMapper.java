@@ -5,7 +5,7 @@ import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
 import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
 import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse.ExpenseDto;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
-import com.luckyseven.backend.domain.team.entity.Budget;
+import com.luckyseven.backend.domain.budget.entity.Budget;
 import com.luckyseven.backend.domain.team.entity.Expense;
 import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.team.entity.Team;
@@ -17,10 +17,10 @@ import java.util.List;
 public class TeamMapper {
 
   /**
-   *
    * TeamCreateRequest와 멤버 정보를 Team 엔티티로 변환한다.
-   * @param request 요청
-   * @param leader 리더가 될 멤버
+   *
+   * @param request  요청
+   * @param leader   리더가 될 멤버
    * @param teamCode 팀 join 시 필요한 팀 코드
    * @return Team 엔티티
    */
@@ -35,8 +35,9 @@ public class TeamMapper {
 
   /**
    * Member 와 Team 정보를 TeamMember 엔티티로 변환환다
+   *
    * @param member 연결할 멤버
-   * @param team 연결할 팀
+   * @param team   연결할 팀
    * @return TeamMember 엔티티
    */
   public static TeamMember toTeamMemberEntity(Member member, Team team) {
@@ -86,12 +87,13 @@ public class TeamMapper {
   /**
    * Team, Budget과 Expense 목록을 TeamDashboardResponse로 변환합니다.
    *
-   * @param team 변환할 팀 엔티티
-   * @param budget 팀의 예산 정보
+   * @param team     변환할 팀 엔티티
+   * @param budget   팀의 예산 정보
    * @param expenses 팀의 지출 목록
    * @return 변환된 팀 대시보드 응답 DTO
    */
-  public static TeamDashboardResponse toTeamDashboardResponse(Team team, Budget budget, List<Expense> expenses) {
+  public static TeamDashboardResponse toTeamDashboardResponse(Team team, Budget budget,
+      List<Expense> expenses) {
     if (team == null) {
       return null;
     }
@@ -111,7 +113,7 @@ public class TeamMapper {
 
     return TeamDashboardResponse.builder()
         .team_id(team.getId())
-        .currency(budget != null ? budget.getCurrency() : BigDecimal.ZERO)
+        .foreignCurrency(budget != null ? budget.getForeignCurrency() : null)
         .balance(budget != null ? budget.getBalance() : BigDecimal.ZERO)
         .foreignBalance(budget != null ? budget.getForeignBalance() : BigDecimal.ZERO)
         .totalAmount(budget != null ? budget.getTotalAmount() : BigDecimal.ZERO)
