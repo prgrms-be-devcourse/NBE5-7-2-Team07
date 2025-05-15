@@ -41,6 +41,7 @@ public enum ExceptionCode {
    * 409 CONFLICT
    */
   USERNAME_CONFLICT(HttpStatus.CONFLICT, "존재하는 회원 이름입니다."),
+  BUDGET_CONFLICT(HttpStatus.CONFLICT, "팀에 이미 존재하는 예산이 있습니다."),
 
   /*
    * 500 INTERNAL_SERVER_ERROR: 내부 서버 오류
