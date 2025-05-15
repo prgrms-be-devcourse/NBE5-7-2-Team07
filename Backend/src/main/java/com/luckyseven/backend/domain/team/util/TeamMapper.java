@@ -6,7 +6,7 @@ import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
 import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse.ExpenseDto;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
 import com.luckyseven.backend.domain.budget.entity.Budget;
-import com.luckyseven.backend.domain.team.entity.Expense;
+import com.luckyseven.backend.domain.expense.entity.Expense;
 import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
@@ -102,11 +102,13 @@ public class TeamMapper {
     if (expenses != null) {
       for (Expense expense : expenses) {
         expenseDtos.add(TeamDashboardResponse.ExpenseDto.builder()
-            .description("") // Expense 엔티티에 description 필드가 없음 - 필요시 추가
+            .id(expense.getId())
+            .description(expense.getDescription()) // Expense 엔티티에 description 필드가 없음 - 필요시 추가
             .amount(expense.getAmount())
+            .paymentMethod(expense.getPaymentMethod())
             .category(expense.getCategory())
             .date(expense.getCreatedAt()) // BaseEntity에서 상속받은 createdAt을 사용
-            .payer(expense.getPayer().getId())
+            .payerNickname(expense.getPayer().getNickname())
             .build());
       }
     }

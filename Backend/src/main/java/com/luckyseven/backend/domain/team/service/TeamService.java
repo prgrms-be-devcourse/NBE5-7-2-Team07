@@ -1,29 +1,32 @@
 package com.luckyseven.backend.domain.team.service;
 
-import com.luckyseven.backend.domain.member.controller.MemberController;
+import com.luckyseven.backend.domain.budget.dao.BudgetRepository;
+import com.luckyseven.backend.domain.budget.entity.Budget;
+import com.luckyseven.backend.domain.expense.entity.Expense;
+import com.luckyseven.backend.domain.expense.repository.ExpenseRepository;
+import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.member.repository.MemberRepository;
 import com.luckyseven.backend.domain.member.service.utill.MemberDetails;
 import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
 import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
 import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
-import com.luckyseven.backend.domain.budget.entity.Budget;
-import com.luckyseven.backend.domain.team.entity.Expense;
-import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
-import com.luckyseven.backend.domain.budget.dao.BudgetRepository;
-import com.luckyseven.backend.domain.team.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.team.repository.TeamMemberRepository;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
 import com.luckyseven.backend.domain.team.util.TeamMapper;
-import com.luckyseven.backend.domain.team.util.TeamMemberMapper;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,13 +34,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TeamService {
 
-  private final TempMemberService tempMemberService;
-
   private final TeamRepository teamRepository;
   private final TeamMemberRepository teamMemberRepository;
   private final MemberRepository memberRepository;
   private final BudgetRepository budgetRepository;
   private final ExpenseRepository expenseRepository;
+  private final BCryptPasswordEncoder passwordEncoder;
 
 
   /**
@@ -90,7 +92,8 @@ public class TeamService {
    * @throws IllegalArgumentException 비밀번호 일치 실패 에러.
    */
   @Transactional
-  public TeamJoinResponse joinTeam(MemberDetails memberDetails,String teamCode, String teamPassword) {
+  public TeamJoinResponse joinTeam(MemberDetails memberDetails, String teamCode,
+      String teamPassword) {
 
     Long memberId = memberDetails.getId();
     Member member = memberRepository.findById(memberId)
@@ -151,9 +154,11 @@ public class TeamService {
         .orElseThrow(() -> new CustomLogicException(ExceptionCode.BUDGET_NOT_FOUND,
             "팀 ID [%d]의 예산 정보가 없습니다", teamId));
 
-    List<Expense> expenses = expenseRepository.findAllByTeamId(teamId);
+    Pageable pageable = PageRequest.of(0, 5, Sort.by("createdAt").descending());
+    Page<Expense> expensePage = expenseRepository.findByTeamId(teamId, pageable);
+    List<Expense> recentExpenses = expensePage.getContent();
 
-    return TeamMapper.toTeamDashboardResponse(team, budget, expenses);
+    return TeamMapper.toTeamDashboardResponse(team, budget, recentExpenses);
   }
 
 }
