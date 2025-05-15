@@ -12,29 +12,4 @@ public record TeamJoinRequest(
 
     String teamPassword
 ) {
-
-  // 빌더 메서드 추가
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public static class Builder {
-
-    private String teamCode;
-    private String teamPassword;
-
-    public Builder teamCode(String teamCode) {
-      this.teamCode = teamCode;
-      return this;
-    }
-
-    public Builder teamPassword(String teamPassword) {
-      this.teamPassword = teamPassword;
-      return this;
-    }
-
-    public TeamJoinRequest build() {
-      return new TeamJoinRequest(teamCode, teamPassword);
-    }
-  }
 }

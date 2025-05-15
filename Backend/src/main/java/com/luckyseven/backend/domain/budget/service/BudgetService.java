@@ -9,6 +9,9 @@ import com.luckyseven.backend.domain.budget.dto.BudgetUpdateResponse;
 import com.luckyseven.backend.domain.budget.entity.Budget;
 import com.luckyseven.backend.domain.budget.mapper.BudgetMapper;
 import com.luckyseven.backend.domain.budget.validator.BudgetValidator;
+import com.luckyseven.backend.domain.team.entity.Team;
+import com.luckyseven.backend.domain.team.repository.TeamRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BudgetService {
 
+  private final TeamRepository teamRepository;
   private final BudgetRepository budgetRepository;
   private final BudgetMapper budgetMapper;
   private final BudgetValidator budgetValidator;
@@ -26,9 +30,11 @@ public class BudgetService {
   @Transactional
   public BudgetCreateResponse save(Long teamId, Long loginMemberId, BudgetCreateRequest request) {
     budgetValidator.validateBudgetNotExist(teamId);
+    Team team = teamRepository.findById(teamId)
+        .orElseThrow(() -> new EntityNotFoundException("팀을 찾을 수 없습니다: " + teamId));
 
     Budget budget = Budget.builder()
-        .teamId(teamId)
+        .team(team)
         .totalAmount(request.getTotalAmount())
         .setBy(loginMemberId)
         .balance(request.getTotalAmount())
