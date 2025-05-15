@@ -29,15 +29,15 @@ public class BudgetService {
 
     Budget budget = Budget.builder()
         .teamId(teamId)
-        .totalAmount(request.getTotalAmount())
+        .totalAmount(request.totalAmount())
         .setBy(loginMemberId)
-        .balance(request.getTotalAmount())
-        .foreignCurrency(request.getForeignCurrency())
+        .balance(request.totalAmount())
+        .foreignCurrency(request.foreignCurrency())
         .build();
 
-    budget.setExchangeInfo(request.getIsExchanged(),
+    budget.setExchangeInfo(request.isExchanged(),
         budget.getTotalAmount(),
-        request.getExchangeRate());
+        request.exchangeRate());
 
     budgetRepository.save(budget);
 
@@ -58,7 +58,7 @@ public class BudgetService {
 
     budget.setSetBy(loginMemberId);
 
-    if (request.getAdditionalBudget() != null) {
+    if (request.additionalBudget() != null) {
       addBudget(request, budget);
       return budgetMapper.toUpdateResponse(budget);
     }
@@ -76,25 +76,25 @@ public class BudgetService {
 
   private static void addBudget(BudgetUpdateRequest request, Budget budget) {
     // totalAmount, Balance += additionalBudget
-    if (request.getAdditionalBudget() != null) {
-      budget.updateExchangeInfo(request.getIsExchanged(),
-          request.getAdditionalBudget(),
-          request.getExchangeRate());
-      budget.setTotalAmount(budget.getTotalAmount().add(request.getAdditionalBudget()));
+    if (request.additionalBudget() != null) {
+      budget.updateExchangeInfo(request.isExchanged(),
+          request.additionalBudget(),
+          request.exchangeRate());
+      budget.setTotalAmount(budget.getTotalAmount().add(request.additionalBudget()));
     }
   }
 
   private static void updateTotalAmountOrExchangeRate(BudgetUpdateRequest request, Budget budget) {
     // totalAmount, Balance update
-    if (request.getTotalAmount() != null) {
-      budget.setTotalAmount(request.getTotalAmount());
+    if (request.totalAmount() != null) {
+      budget.setTotalAmount(request.totalAmount());
     }
 
     // avgExchange, foreignBalance update
-    if (request.getIsExchanged() != null) {
-      budget.setExchangeInfo(request.getIsExchanged(),
+    if (request.isExchanged() != null) {
+      budget.setExchangeInfo(request.isExchanged(),
           budget.getTotalAmount(),
-          request.getExchangeRate());
+          request.exchangeRate());
     }
     // totalAmount만 수정을 원할 경우, foreignBalance update
     budget.setForeignBalance();

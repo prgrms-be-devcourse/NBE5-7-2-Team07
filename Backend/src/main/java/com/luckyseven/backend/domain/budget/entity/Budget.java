@@ -3,9 +3,6 @@ package com.luckyseven.backend.domain.budget.entity;
 import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import lombok.AccessLevel;
@@ -18,6 +15,11 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Budget extends BaseEntity {
+
+  @Id
+  @Column(name = "budget_id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
   @Column(nullable = false)
   private Long teamId;
@@ -70,6 +72,7 @@ public class Budget extends BaseEntity {
     this.avgExchangeRate = exchangeRate;
 
   }
+
   public void updateExchangeInfo(boolean isExchanged, BigDecimal amount, BigDecimal exchangeRate) {
     if (!isExchanged) {
       return;
@@ -105,4 +108,9 @@ public class Budget extends BaseEntity {
     }
   }
 
+  public void updateBalance(BigDecimal balance) {
+    if (balance != null) {
+      this.balance = balance;
+    }
+  }
 }
