@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
 import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
 import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
+import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse.ExpenseDto;
 import com.luckyseven.backend.domain.team.dto.TeamJoinRequest;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
 import com.luckyseven.backend.domain.team.dto.TeamMemberDto;
@@ -74,7 +75,7 @@ class TeamControllerTest {
         mockMember = mockMember.builder()
             .id(1L)
             .email("test@example.com")
-            .name("테스트사용자")
+            .nickName("테스트사용자")
             .build();
 
         // TeamCreateRequest 생성
@@ -118,8 +119,8 @@ class TeamControllerTest {
             .build());
 
         // TeamDashboardResponse 생성
-        List<TeamDashboardResponse.ExpenseDto> expenseList = new ArrayList<>();
-        expenseList.add(TeamDashboardResponse.ExpenseDto.builder()
+        List<ExpenseDto> expenseList = new ArrayList<>();
+        expenseList.add(ExpenseDto.builder()
             .description("테스트 지출")
             .amount(10000)
             .category("식비")

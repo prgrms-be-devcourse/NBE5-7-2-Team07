@@ -1,5 +1,8 @@
 package com.luckyseven.backend.domain.team.service;
 
+import com.luckyseven.backend.domain.member.controller.MemberController;
+import com.luckyseven.backend.domain.member.repository.MemberRepository;
+import com.luckyseven.backend.domain.member.service.utill.MemberDetails;
 import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
 import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
 import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
@@ -14,6 +17,7 @@ import com.luckyseven.backend.domain.team.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.team.repository.TeamMemberRepository;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
 import com.luckyseven.backend.domain.team.util.TeamMapper;
+import com.luckyseven.backend.domain.team.util.TeamMemberMapper;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import java.math.BigDecimal;
@@ -27,8 +31,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TeamService {
 
+  private final TempMemberService tempMemberService;
+
   private final TeamRepository teamRepository;
   private final TeamMemberRepository teamMemberRepository;
+  private final MemberRepository memberRepository;
   private final BudgetRepository budgetRepository;
   private final ExpenseRepository expenseRepository;
 
@@ -41,7 +48,13 @@ public class TeamService {
    * @return 생성된 팀 정보
    */
   @Transactional
-  public TeamCreateResponse createTeam(Member creator, TeamCreateRequest request) {
+  public TeamCreateResponse createTeam(MemberDetails memberDetails
+      , TeamCreateRequest request) {
+
+    Long memberId = memberDetails.getId();
+    Member creator = memberRepository.findById(memberId)
+        .orElseThrow(() -> new CustomLogicException(ExceptionCode.MEMBER_ID_NOTFOUND, memberId));
+
     String teamCode = generateTeamCode();
     Team team = TeamMapper.toTeamEntity(request, creator, teamCode);
     creator.addLeadingTeam(team);
@@ -73,14 +86,18 @@ public class TeamService {
   /**
    * 멤버가 팀 코드와 팀 pwd를 입력하여 팀에 가입한다.
    *
-   * @param member       가입할 멤버
    * @param teamCode     팀 코드
    * @param teamPassword 팀 pwd
    * @return 가입된 팀의 정보
    * @throws IllegalArgumentException 비밀번호 일치 실패 에러.
    */
   @Transactional
-  public TeamJoinResponse joinTeam(Member member, String teamCode, String teamPassword) {
+  public TeamJoinResponse joinTeam(MemberDetails memberDetails,String teamCode, String teamPassword) {
+
+    Long memberId = memberDetails.getId();
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new CustomLogicException(ExceptionCode.MEMBER_ID_NOTFOUND, memberId));
+
     Team team = teamRepository.findByTeamCode(teamCode)
         .orElseThrow(() -> new CustomLogicException(ExceptionCode.TEAM_NOT_FOUND,
             "팀 코드가 [%s]인 팀을 찾을 수 없습니다", teamCode));

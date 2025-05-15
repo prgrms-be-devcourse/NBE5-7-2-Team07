@@ -1,6 +1,8 @@
 package com.luckyseven.backend.domain.team.controller;
 
 import com.luckyseven.backend.domain.member.entity.Member;
+import com.luckyseven.backend.domain.member.repository.MemberRepository;
+import com.luckyseven.backend.domain.member.service.utill.MemberDetails;
 import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
 import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
 import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
@@ -67,10 +69,10 @@ public class TeamController {
   )
   @PostMapping
   public ResponseEntity<TeamCreateResponse> createTeam(
-      @Parameter(hidden = true) @AuthenticationPrincipal Member member,
+      @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails memberDetails,
       @Parameter(description = "팀 생성 요청 정보") @Valid @RequestBody
       TeamCreateRequest request) {
-    TeamCreateResponse response = teamService.createTeam(member, request);
+    TeamCreateResponse response = teamService.createTeam(memberDetails, request);
     return ResponseEntity.ok(response);
   }
 
@@ -104,13 +106,10 @@ public class TeamController {
       content = @Content(schema = @Schema(implementation = ErrorResponse.class))
   )
   @PostMapping("/members")
-  public ResponseEntity<TeamJoinResponse> joinTeam(
+  public ResponseEntity<TeamJoinResponse> joinTeam(@AuthenticationPrincipal MemberDetails memberDetails,
       @Parameter(description = "팀 참가 요청 정보") @Valid @RequestBody TeamJoinRequest request) {
-    // 현재 로그인한 회원 정보 get
-    Member currentMember = tempMemberService.getCurrentMember();
-
     // Service
-    TeamJoinResponse response = teamService.joinTeam(currentMember, request.getTeamCode(),
+    TeamJoinResponse response = teamService.joinTeam(memberDetails, request.getTeamCode(),
         request.getTeamPassword());
 
     return ResponseEntity.ok(response);
@@ -181,11 +180,11 @@ public class TeamController {
   )
   @DeleteMapping("/{teamId}/members/{teamMemberId}")
   public ResponseEntity<Void> removeTeamMember(
+      @AuthenticationPrincipal MemberDetails memberDetails,
       @PathVariable Long teamMemberId,
       @PathVariable Long teamId
   ) {
-
-    teamMemberService.removeTeamMember(teamId, teamMemberId);
+    teamMemberService.removeTeamMember(memberDetails, teamId, teamMemberId);
     return ResponseEntity.noContent().build();
   }
 
