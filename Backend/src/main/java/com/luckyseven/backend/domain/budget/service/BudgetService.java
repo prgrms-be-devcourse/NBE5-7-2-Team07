@@ -13,8 +13,6 @@ import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

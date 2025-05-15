@@ -26,9 +26,9 @@ public class TeamMapper {
    */
   public static Team toTeamEntity(TeamCreateRequest request, Member leader, String teamCode) {
     return Team.builder()
-        .name(request.getName())
+        .name(request.name())
         .teamCode(teamCode)
-        .teamPassword(request.getTeamPassword())
+        .teamPassword(request.teamPassword())
         .leader(leader)
         .build();
   }

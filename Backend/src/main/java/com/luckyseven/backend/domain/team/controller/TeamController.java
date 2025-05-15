@@ -109,8 +109,8 @@ public class TeamController {
   public ResponseEntity<TeamJoinResponse> joinTeam(@AuthenticationPrincipal MemberDetails memberDetails,
       @Parameter(description = "팀 참가 요청 정보") @Valid @RequestBody TeamJoinRequest request) {
     // Service
-    TeamJoinResponse response = teamService.joinTeam(memberDetails, request.getTeamCode(),
-        request.getTeamPassword());
+    TeamJoinResponse response = teamService.joinTeam(memberDetails, request.teamCode(),
+        request.teamPassword());
 
     return ResponseEntity.ok(response);
   }

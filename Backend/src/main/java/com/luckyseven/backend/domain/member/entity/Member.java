@@ -67,13 +67,13 @@ public class Member extends BaseEntity {
     this.teamMembers.add(teamMember);
     teamMember.setMember(this);
   }
-
-  @Builder
-  public Member(String email,String password , String nickname){
-    this.email = email;
-    this.password = password;
-    this.nickname = nickname;
-  }
+// 테스트 코드 위해 임시 비활성화
+//  @Builder
+//  public Member(String email,String password , String nickname){
+//    this.email = email;
+//    this.password = password;
+//    this.nickname = nickname;
+//  }
 
   @Builder
   public Member(Long id, String email,String password , String nickname){
