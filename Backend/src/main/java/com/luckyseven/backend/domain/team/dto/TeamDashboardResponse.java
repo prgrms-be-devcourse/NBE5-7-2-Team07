@@ -2,6 +2,8 @@ package com.luckyseven.backend.domain.team.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.luckyseven.backend.domain.budget.entity.CurrencyCode;
+import com.luckyseven.backend.domain.expense.enums.ExpenseCategory;
+import com.luckyseven.backend.domain.expense.enums.PaymentMethod;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -37,12 +39,14 @@ public class TeamDashboardResponse {
   @AllArgsConstructor
   public static class ExpenseDto {
 
+    private Long id;
     private String description;
-    private Integer amount;
-    private String category;
+    private BigDecimal amount;
+    private ExpenseCategory category;
+    private PaymentMethod paymentMethod;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime date;
-    private Long payer;
+    private String payerNickname;
   }
 }
