@@ -1,17 +1,26 @@
 package com.luckyseven.backend.domain.budget.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.DecimalMin;
 import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
-@Getter
-@SuperBuilder
-@Jacksonized
-public class BudgetUpdateRequest extends BudgetBaseRequest {
+public record BudgetUpdateRequest (
+    @JsonProperty("totalAmount")
+    @DecimalMin(value = "0.0", inclusive = false)
+    BigDecimal totalAmount,
 
-  @DecimalMin(value = "0.0", inclusive = false)
-  private BigDecimal additionalBudget;
+    @JsonProperty("isExchanged")
+    Boolean isExchanged,
 
-}
+    @JsonProperty("exchangeRate")
+    @DecimalMin(value = "0.0", inclusive = false)
+    BigDecimal exchangeRate,
+
+
+    @JsonProperty("additionalBudget")
+    @DecimalMin(value = "0.0", inclusive = false)
+    BigDecimal additionalBudget
+) { }

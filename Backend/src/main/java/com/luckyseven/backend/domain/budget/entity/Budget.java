@@ -22,6 +22,7 @@ import lombok.Setter;
 public class Budget extends BaseEntity {
 
   @Id
+  @Column(name = "budget_id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
@@ -80,6 +81,7 @@ public class Budget extends BaseEntity {
     this.avgExchangeRate = exchangeRate;
 
   }
+
   public void updateExchangeInfo(boolean isExchanged, BigDecimal amount, BigDecimal exchangeRate) {
     if (!isExchanged) {
       return;
@@ -131,4 +133,10 @@ public class Budget extends BaseEntity {
     return this;
   }
 
+}
+  public void updateBalance(BigDecimal balance) {
+    if (balance != null) {
+      this.balance = balance;
+    }
+  }
 }
