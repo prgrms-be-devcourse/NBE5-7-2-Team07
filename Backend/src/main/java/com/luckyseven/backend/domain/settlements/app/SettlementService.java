@@ -60,10 +60,6 @@ public class SettlementService {
   @Transactional(readOnly = true)
   public Page<SettlementResponse> readSettlementPage(Long teamId,
       SettlementSearchCondition condition, Pageable pageable) {
-    if (teamId == null) {
-      throw new CustomLogicException(ExceptionCode.BAD_REQUEST);
-    }
-
     Specification<Settlement> specification = Specification
         .where(SettlementSpecification.hasTeamId(teamId))
         .and(SettlementSpecification.hasPayerId(condition.payerId()))

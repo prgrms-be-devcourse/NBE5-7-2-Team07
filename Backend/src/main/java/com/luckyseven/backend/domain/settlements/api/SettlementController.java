@@ -9,12 +9,14 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 @Tag(name = "Settlement")
+@Validated
 public class SettlementController {
 
   private final SettlementService settlementService;
@@ -37,17 +40,16 @@ public class SettlementController {
   @ApiResponse(responseCode = "404", description = "Settlement not found")
   @GetMapping("/settlements/{settlementId}")
   @ResponseStatus(HttpStatus.OK)
-  public SettlementResponse readSettlement(@PathVariable Long settlementId) {
+  public SettlementResponse readSettlement(@PathVariable @Positive Long settlementId) {
     return settlementService.readSettlement(settlementId);
   }
 
   @Operation(summary = "팀ID로 정산 목록 조회, 필터조건 추가 가능")
   @ApiResponse(responseCode = "200", description = "Successfully retrieved settlements")
-  @ApiResponse(responseCode = "400", description = "TeamID가 null인경우")
   @GetMapping("/teams/{teamId}/settlements")
   @ResponseStatus(HttpStatus.OK)
   public Page<SettlementResponse> readSettlements(
-      @PathVariable Long teamId,
+      @PathVariable @Positive Long teamId,
       @ParameterObject SettlementSearchCondition condition,
       @PageableDefault(page = 0, size = 10) Pageable pageable
   ) {
@@ -62,7 +64,7 @@ public class SettlementController {
   @PatchMapping("/settlements/{settlementId}")
   @ResponseStatus(HttpStatus.OK)
   public SettlementResponse updateSettlement(
-      @PathVariable Long settlementId,
+      @PathVariable @Positive Long settlementId,
       @Parameter(description = "true면 body를 무시하고 정산처리만 진행") @RequestParam(defaultValue = "false") Boolean settledOnly
       , @Valid @RequestBody SettlementUpdateRequest request) {
     if (settledOnly) {
