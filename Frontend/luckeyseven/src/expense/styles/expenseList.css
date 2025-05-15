@@ -1,0 +1,269 @@
+/* CSS Variables */
+:root {
+  --color-primary: #4A90E2;
+  --color-primary-dark: #357ABD;
+  --color-bg: #F5F7FA;
+  --color-card: #FFFFFF;
+  --color-text: #333333;
+  --color-muted: #777777;
+  --radius: 8px;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --spacing: 16px;
+  --font-base: 'Noto Sans KR', sans-serif;
+}
+
+/* 박스 사이징 전역 적용 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 전체 초기화 */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-base);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* 컨테이너 */
+.expense-tracker {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing);
+}
+
+/* 헤더 */
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: calc(var(--spacing) * 1.5);
+}
+.title {
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+/* 헤더 오른쪽 버튼 그룹 */
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  gap: var(--spacing);
+}
+
+/* 버튼 스타일 */
+.btn {
+  padding: 0.75em 1.5em;
+  font-size: 0.95rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow);
+}
+.btn-outlined {
+  background: var(--color-card);
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+}
+.btn-outlined:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+.btn-filled {
+  background: var(--color-primary);
+  color: #fff;
+  border: 2px solid var(--color-primary);
+}
+.btn-filled:hover {
+  background: var(--color-primary-dark);
+}
+
+/* 소제목 */
+.section-title {
+  font-size: 1.4rem;
+  margin-bottom: var(--spacing);
+  font-weight: 500;
+}
+
+/* 예산 수정 액션 */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--spacing);
+}
+
+/* 테이블 카드 */
+.expense-table {
+  overflow-x: auto;
+  background: var(--color-card);
+  padding: var(--spacing);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* 테이블 레이아웃 고정하고 칼럼 폭 할당 */
+.expense-table table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin: 0;
+}
+
+/* 칼럼별 폭 비율 */
+.expense-table th:nth-child(1),
+.expense-table td:nth-child(1) { width: 35%; } /* 제목 */
+.expense-table th:nth-child(2),
+.expense-table td:nth-child(2) { width: 20%; } /* 가격 */
+.expense-table th:nth-child(3),
+.expense-table td:nth-child(3) { width: 15%; } /* 카테고리 */
+.expense-table th:nth-child(4),
+.expense-table td:nth-child(4) { width: 15%; } /* 날짜 */
+.expense-table th:nth-child(5),
+.expense-table td:nth-child(5) { width: 15%; } /* 결제자 */
+
+/* 헤더 / 셀 공통 패딩 및 정렬 */
+.expense-table th,
+.expense-table td {
+  padding: 0.75em 1em;
+  text-align: left;
+  vertical-align: middle;
+}
+
+/* 헤더 스타일 */
+.expense-table thead th {
+  background-color: var(--color-bg);
+  color: var(--color-muted);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #eee;
+}
+
+/* 바디 행 배경 스트라이프 */
+.expense-table tbody tr:nth-child(odd) {
+  background-color: #FAFAFA;
+}
+.expense-table tbody tr:nth-child(even) {
+  background-color: #fff;
+}
+.expense-table tbody tr:hover {
+  background-color: #F0F8FF;
+}
+
+/* 금액 강조 */
+.expense-table .amount {
+  font-weight: 600;
+}
+
+/* 카테고리 이탤릭, muted 컬러 */
+.expense-table .category {
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+/* 모달 오버레이 */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* 모달 박스 */
+.modal {
+  background: #fff;
+  border-radius: var(--radius);
+  width: 400px;
+  max-width: 90%;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  position: relative;
+}
+.modal header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.modal .close-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* 모달 폼 레이아웃 */
+.modal-form label {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+.modal-form input,
+.modal-form select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* 모달 액션 버튼 */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+.modal-actions button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.modal-actions button:first-child {
+  background: #f2f2f2;
+  border: 1px solid #ccc;
+}
+.modal-actions button:last-child {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  gap: 8px;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination button.active {
+  background: #4a90e2;
+  color: #fff;
+  border-color: #4a90e2;
+}
