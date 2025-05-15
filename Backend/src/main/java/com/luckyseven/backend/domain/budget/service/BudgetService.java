@@ -68,13 +68,19 @@ public class BudgetService {
     return budgetMapper.toUpdateResponse(budget);
   }
 
+  @Transactional
+  public void deleteByTeamId(Long teamId) {
+    Budget budget = budgetValidator.validateBudgetExist(teamId);
+    budgetRepository.delete(budget);
+  }
+
   private static void addBudget(BudgetUpdateRequest request, Budget budget) {
     // totalAmount, Balance += additionalBudget
     if (request.getAdditionalBudget() != null) {
-      budget.setTotalAmount(budget.getTotalAmount().add(request.getAdditionalBudget()));
-      budget.setExchangeInfo(request.getIsExchanged(),
+      budget.updateExchangeInfo(request.getIsExchanged(),
           request.getAdditionalBudget(),
           request.getExchangeRate());
+      budget.setTotalAmount(budget.getTotalAmount().add(request.getAdditionalBudget()));
     }
   }
 
@@ -92,11 +98,5 @@ public class BudgetService {
     }
     // totalAmount만 수정을 원할 경우, foreignBalance update
     budget.setForeignBalance();
-  }
-
-  @Transactional
-  public void deleteByTeamId(Long teamId) {
-    Budget budget = budgetValidator.validateBudgetExist(teamId);
-    budgetRepository.delete(budget);
   }
 }

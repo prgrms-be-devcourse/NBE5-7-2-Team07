@@ -61,22 +61,34 @@ public class Budget extends BaseEntity {
 
   public void setExchangeInfo(boolean isExchanged, BigDecimal amount, BigDecimal exchangeRate) {
     if (!isExchanged) {
+      this.avgExchangeRate = null;
+      this.foreignBalance = null;
       return;
     }
 
     updateForeignBalance(amount, exchangeRate);
-    updateExchangeRate(exchangeRate);
+    this.avgExchangeRate = exchangeRate;
+
+  }
+  public void updateExchangeInfo(boolean isExchanged, BigDecimal amount, BigDecimal exchangeRate) {
+    if (!isExchanged) {
+      return;
+    }
+
+    updateForeignBalance(amount, exchangeRate);
+    updateAvgExchangeRate(amount, exchangeRate);
 
   }
 
-  private void updateExchangeRate(BigDecimal exchangeRate) {
+  // 예산 추가 후 외화잔고 및 평균환율 수정
+  private void updateAvgExchangeRate(BigDecimal amount, BigDecimal exchangeRate) {
     if (this.avgExchangeRate == null) {
       avgExchangeRate = exchangeRate;
       return;
     }
-    this.avgExchangeRate = avgExchangeRate
-        .add(exchangeRate)
-        .divide(BigDecimal.valueOf(2), 2, RoundingMode.HALF_UP);
+    this.avgExchangeRate = (this.balance.multiply(this.avgExchangeRate)
+        .add(amount.multiply(exchangeRate)))
+        .divide(this.balance.add(amount), 2, RoundingMode.HALF_UP);
   }
 
   private void updateForeignBalance(BigDecimal amount, BigDecimal exchangeRate) {
