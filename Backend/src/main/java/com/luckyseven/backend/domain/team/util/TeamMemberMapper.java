@@ -5,7 +5,6 @@ import com.luckyseven.backend.domain.team.entity.TeamMember;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-@Component
 public class TeamMemberMapper {
 
   /**
@@ -14,7 +13,7 @@ public class TeamMemberMapper {
    * @param teamMember 변환할 팀멤버 엔티티
    * @return 변환된 팀멤버 DTO
    */
-  public TeamMemberDto toDto(TeamMember teamMember) {
+  public static TeamMemberDto toDto(TeamMember teamMember) {
     if (teamMember == null) {
       return null;
     }
@@ -35,13 +34,13 @@ public class TeamMemberMapper {
    * @param teamMembers 변환할 팀멤버 엔티티 리스트
    * @return 변환된 팀멤버 DTO 리스트
    */
-  public List<TeamMemberDto> toDtoList(List<TeamMember> teamMembers) {
+  public static List<TeamMemberDto> toDtoList(List<TeamMember> teamMembers) {
     if (teamMembers == null) {
       return List.of();
     }
 
     return teamMembers.stream()
-        .map(this::toDto)
+        .map(TeamMemberMapper::toDto)
         .toList();
   }
 

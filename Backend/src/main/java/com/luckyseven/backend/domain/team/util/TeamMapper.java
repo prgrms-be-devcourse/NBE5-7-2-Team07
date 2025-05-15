@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-@Component
 public class TeamMapper {
 
   /**
@@ -26,7 +25,7 @@ public class TeamMapper {
    * @param teamCode 팀 join 시 필요한 팀 코드
    * @return Team 엔티티
    */
-  public Team toTeamEntity(TeamCreateRequest request, Member leader, String teamCode) {
+  public static Team toTeamEntity(TeamCreateRequest request, Member leader, String teamCode) {
     return Team.builder()
         .name(request.getName())
         .teamCode(teamCode)
@@ -41,7 +40,7 @@ public class TeamMapper {
    * @param team 연결할 팀
    * @return TeamMember 엔티티
    */
-  public TeamMember toTeamMemberEntity(Member member, Team team) {
+  public static TeamMember toTeamMemberEntity(Member member, Team team) {
     return TeamMember.builder()
         .team(team)
         .member(member)
@@ -55,7 +54,7 @@ public class TeamMapper {
    * @param team 변환할 팀 엔티티
    * @return 변환된 팀 생성 응답 DTO
    */
-  public TeamCreateResponse toTeamCreateResponse(Team team) {
+  public static TeamCreateResponse toTeamCreateResponse(Team team) {
     if (team == null) {
       return null;
     }
@@ -73,7 +72,7 @@ public class TeamMapper {
    * @param team 변환할 팀 엔티티
    * @return 변환된 팀 참가 응답 DTO
    */
-  public TeamJoinResponse toTeamJoinResponse(Team team) {
+  public static TeamJoinResponse toTeamJoinResponse(Team team) {
     if (team == null) {
       return null;
     }
@@ -93,7 +92,7 @@ public class TeamMapper {
    * @param expenses 팀의 지출 목록
    * @return 변환된 팀 대시보드 응답 DTO
    */
-  public TeamDashboardResponse toTeamDashboardResponse(Team team, Budget budget, List<Expense> expenses) {
+  public static TeamDashboardResponse toTeamDashboardResponse(Team team, Budget budget, List<Expense> expenses) {
     if (team == null) {
       return null;
     }
