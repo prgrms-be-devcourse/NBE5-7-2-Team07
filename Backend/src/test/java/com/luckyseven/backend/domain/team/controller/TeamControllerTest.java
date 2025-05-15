@@ -8,7 +8,7 @@ import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
 import com.luckyseven.backend.domain.team.dto.TeamJoinRequest;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
 import com.luckyseven.backend.domain.team.dto.TeamMemberDto;
-import com.luckyseven.backend.domain.team.entity.Member;
+import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.team.service.TeamMemberService;
 import com.luckyseven.backend.domain.team.service.TeamService;
 import com.luckyseven.backend.domain.team.service.TempMemberService;

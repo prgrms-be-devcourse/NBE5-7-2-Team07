@@ -7,13 +7,12 @@ import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse.ExpenseDto;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
 import com.luckyseven.backend.domain.team.entity.Budget;
 import com.luckyseven.backend.domain.team.entity.Expense;
-import com.luckyseven.backend.domain.team.entity.Member;
+import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.stereotype.Component;
 
 public class TeamMapper {
 

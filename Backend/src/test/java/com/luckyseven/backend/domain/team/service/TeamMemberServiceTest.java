@@ -1,7 +1,7 @@
 package com.luckyseven.backend.domain.team.service;
 
 import com.luckyseven.backend.domain.team.dto.TeamMemberDto;
-import com.luckyseven.backend.domain.team.entity.Member;
+import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
 import com.luckyseven.backend.domain.team.repository.TeamMemberRepository;

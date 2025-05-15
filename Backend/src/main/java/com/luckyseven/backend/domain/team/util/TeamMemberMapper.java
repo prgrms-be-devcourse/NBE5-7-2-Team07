@@ -3,7 +3,6 @@ package com.luckyseven.backend.domain.team.util;
 import com.luckyseven.backend.domain.team.dto.TeamMemberDto;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
 import java.util.List;
-import org.springframework.stereotype.Component;
 
 public class TeamMemberMapper {
 
@@ -23,7 +22,7 @@ public class TeamMemberMapper {
         .teamId(teamMember.getTeam().getId())
         .teamName(teamMember.getTeam().getName())
         .memberId(teamMember.getMember().getId())
-        .memberName(teamMember.getMember().getName())
+        .memberNickName(teamMember.getMember().getNickname())
         .memberEmail(teamMember.getMember().getEmail())
         .build();
   }

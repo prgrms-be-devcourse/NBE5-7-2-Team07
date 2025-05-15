@@ -17,7 +17,7 @@ public class TeamMemberDto {
   private Long memberId;
 
   @Size(min = 2, max = 30, message = "회원 이름은 2자 이상 30자 이하여야 합니다")
-  private String memberName;
+  private String memberNickName;
 
   @Email(message = "올바른 이메일 형식이 아닙니다")
   private String memberEmail;

@@ -6,7 +6,7 @@ import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
 import com.luckyseven.backend.domain.team.entity.Budget;
 import com.luckyseven.backend.domain.team.entity.Expense;
-import com.luckyseven.backend.domain.team.entity.Member;
+import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
 import com.luckyseven.backend.domain.team.repository.BudgetRepository;
@@ -32,7 +32,6 @@ public class TeamService {
   private final BudgetRepository budgetRepository;
   private final ExpenseRepository expenseRepository;
 
-  private final TeamMapper teamMapper;
 
   /**
    * 팀을 생성한다. 생성한 회원을 팀 리더로 등록한다
@@ -44,10 +43,10 @@ public class TeamService {
   @Transactional
   public TeamCreateResponse createTeam(Member creator, TeamCreateRequest request) {
     String teamCode = generateTeamCode();
-    Team team = teamMapper.toTeamEntity(request, creator, teamCode);
+    Team team = TeamMapper.toTeamEntity(request, creator, teamCode);
     creator.addLeadingTeam(team);
     Team savedTeam = teamRepository.save(team);
-    TeamMember teamMember = teamMapper.toTeamMemberEntity(creator, savedTeam);
+    TeamMember teamMember = TeamMapper.toTeamMemberEntity(creator, savedTeam);
 
     // 리더를 TeamMember 에 추가
     teamMemberRepository.save(teamMember);
@@ -68,7 +67,7 @@ public class TeamService {
     savedBudget.setTeam(savedTeam);
 
     savedTeam.addTeamMember(teamMember);
-    return teamMapper.toTeamCreateResponse(savedTeam);
+    return TeamMapper.toTeamCreateResponse(savedTeam);
   }
 
   /**
@@ -96,7 +95,7 @@ public class TeamService {
           "회원 ID [%d]는 이미 팀 ID [%d]에 가입되어 있습니다", member.getId(), team.getId());
     }
 
-    TeamMember teamMember = teamMapper.toTeamMemberEntity(member, team);
+    TeamMember teamMember = TeamMapper.toTeamMemberEntity(member, team);
     TeamMember savedTeamMember = teamMemberRepository.save(teamMember);
 
     team.addTeamMember(savedTeamMember);
@@ -108,7 +107,7 @@ public class TeamService {
           "팀 멤버 관계 설정에 실패했습니다");
     }
 
-    return teamMapper.toTeamJoinResponse(team);
+    return TeamMapper.toTeamJoinResponse(team);
   }
 
   /**
@@ -139,7 +138,7 @@ public class TeamService {
 
     List<Expense> expenses = expenseRepository.findAllByTeamId(teamId);
 
-    return teamMapper.toTeamDashboardResponse(team, budget, expenses);
+    return TeamMapper.toTeamDashboardResponse(team, budget, expenses);
   }
 
 }

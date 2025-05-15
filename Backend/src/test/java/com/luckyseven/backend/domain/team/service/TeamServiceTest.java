@@ -6,7 +6,7 @@ import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
 import com.luckyseven.backend.domain.team.entity.Budget;
 import com.luckyseven.backend.domain.team.entity.Expense;
-import com.luckyseven.backend.domain.team.entity.Member;
+import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
 import com.luckyseven.backend.domain.team.repository.BudgetRepository;
@@ -65,7 +65,7 @@ public class TeamServiceTest {
         .id(1L)
         .name("테스터")
         .email("text@example.com")
-        .nickname("test")
+        .nickname("테스터")
         .build();
 
     request = TeamCreateRequest.builder()
@@ -96,7 +96,7 @@ public class TeamServiceTest {
         .teamPassword(team.getTeamPassword())
         .build();
 
-    given(teamMapper.toCreateResponse(any(Team.class))).willReturn(expectedResponse);
+    given(teamMapper.toTeamCreateResponse(any(Team.class))).willReturn(expectedResponse);
 
     //when
     TeamCreateResponse result = teamService.createTeam(creator, request);
@@ -154,7 +154,7 @@ public class TeamServiceTest {
         .leaderId(team.getLeader().getId())
         .build();
 
-    given(teamMapper.toJoinResponse(team)).willReturn(expectedResponse);
+    given(teamMapper.toTeamJoinResponse(team)).willReturn(expectedResponse);
 
     // when
     TeamJoinResponse result = teamService.joinTeam(newMember, teamCode, teamPassword);

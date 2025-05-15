@@ -1,6 +1,6 @@
 package com.luckyseven.backend.domain.team.service;
 
-import com.luckyseven.backend.domain.team.entity.Member;
+import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.team.repository.TempMemberRepository;
 import com.luckyseven.backend.domain.team.util.TestEntityBuilder;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
