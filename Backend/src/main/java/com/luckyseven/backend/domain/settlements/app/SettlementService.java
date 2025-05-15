@@ -60,12 +60,8 @@ public class SettlementService {
   @Transactional(readOnly = true)
   public Page<SettlementResponse> readSettlementPage(Long teamId,
       SettlementSearchCondition condition, Pageable pageable) {
-    Specification<Settlement> specification = Specification
-        .where(SettlementSpecification.hasTeamId(teamId))
-        .and(SettlementSpecification.hasPayerId(condition.payerId()))
-        .and(SettlementSpecification.hasSettlerId(condition.settlerId()))
-        .and(SettlementSpecification.hasExpenseId(condition.expenseId()))
-        .and(SettlementSpecification.isSettled(condition.isSettled()));
+    Specification<Settlement> specification = SettlementSpecification.createSpecification(teamId,
+        condition);
     Page<Settlement> settlementPage = settlementRepository.findAll(specification, pageable);
 
     return settlementPage.map(SettlementMapper::toSettlementResponse);
