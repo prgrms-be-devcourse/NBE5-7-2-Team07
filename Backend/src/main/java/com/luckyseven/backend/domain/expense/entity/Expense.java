@@ -2,14 +2,15 @@ package com.luckyseven.backend.domain.expense.entity;
 
 import com.luckyseven.backend.domain.expense.enums.ExpenseCategory;
 import com.luckyseven.backend.domain.expense.enums.PaymentMethod;
-import com.luckyseven.backend.domain.expense.util.TempMember;
-import com.luckyseven.backend.domain.expense.util.TempTeam;
+import com.luckyseven.backend.domain.member.entity.Member;
+import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -54,28 +55,27 @@ public class Expense extends BaseEntity {
   @Column(name = "payment_method", nullable = false)
   private PaymentMethod paymentMethod;
 
-  // TODO: 임시로 설정한 TEMP 엔티티 삭제 및 수정
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(
       foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT),
       nullable = false
   )
-  private TempMember payer;
+  private Member payer;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(
       foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT),
       nullable = false
   )
-  private TempTeam team;
+  private Team team;
 
   @Builder
   public Expense(String description,
       BigDecimal amount,
       ExpenseCategory category,
       PaymentMethod paymentMethod,
-      TempMember payer,
-      TempTeam team) {
+      Member payer,
+      Team team) {
     this.description = description;
     this.amount = amount;
     this.category = category;
