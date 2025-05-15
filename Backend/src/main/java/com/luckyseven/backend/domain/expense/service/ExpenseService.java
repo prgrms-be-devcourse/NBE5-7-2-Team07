@@ -106,12 +106,6 @@ public class ExpenseService {
     }
   }
 
-  // TODO: 논의 후 삭제 예정
-  public Team findTeamOrThrow(Long teamId) {
-    return teamRepository.findById(teamId)
-        .orElseThrow(() -> new CustomLogicException(TEAM_NOT_FOUND));
-  }
-
   private Team findTeamWithBudgetOrThrow(Long teamId) {
     return teamRepository.findTeamWithBudget(teamId)
         .orElseThrow(() -> new CustomLogicException(TEAM_NOT_FOUND));
