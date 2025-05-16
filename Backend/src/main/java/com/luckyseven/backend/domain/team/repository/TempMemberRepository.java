@@ -1,6 +1,6 @@
 package com.luckyseven.backend.domain.team.repository;
 
-import com.luckyseven.backend.domain.team.entity.Member;
+import com.luckyseven.backend.domain.member.entity.Member;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
