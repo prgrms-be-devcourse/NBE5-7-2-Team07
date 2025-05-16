@@ -3,6 +3,7 @@ import AddExpenseDialog from './AddExpenseDialog';
 import ExpenseDetailDialog from './ExpenseDetailDialog';
 import '../../components/styles/expenseList.css';
 import { getListExpense } from '../../service/ExpenseService';
+import { FaMoneyBillWave } from 'react-icons/fa';  
 
 const CATEGORY_LABELS = {
   MEAL: '식사',
@@ -16,11 +17,12 @@ export default function ExpenseList({ teamId = 1 }) {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [selectedExpenseId, setSelectedExpenseId] = useState(null);
 
-  // 페이징 상태
+  // 페이징 및 정렬 상태
   const [expenses, setExpenses] = useState([]);
   const [page, setPage] = useState(0); // 0-based index
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [sortDirection, setSortDirection] = useState('DESC');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -32,7 +34,7 @@ export default function ExpenseList({ teamId = 1 }) {
   const fetchExpenses = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getListExpense(teamId, page, size);
+      const data = await getListExpense(teamId, page, size, `createdAt,${sortDirection}`);
       setExpenses(data.content);
       setTotalPages(data.totalPages);
       setError(null);
@@ -41,9 +43,9 @@ export default function ExpenseList({ teamId = 1 }) {
     } finally {
       setLoading(false);
     }
-  }, [teamId, page, size]);
+  }, [teamId, page, size, sortDirection]);
 
-  // 초기 및 페이지 변경 시 데이터 로드
+  // 초기 및 페이지/정렬 변경 시 데이터 로드
   useEffect(() => {
     fetchExpenses();
   }, [fetchExpenses]);
@@ -68,7 +70,7 @@ export default function ExpenseList({ teamId = 1 }) {
       </div>
     </div>
   );
-  
+
   if (error) return (
     <div className="expense-tracker">
       <div className="header">
@@ -87,8 +89,8 @@ export default function ExpenseList({ teamId = 1 }) {
   const closeDetail = () => setSelectedExpenseId(null);
   const goToPage = (pageNumber) => setPage(pageNumber - 1);
 
-  // 지출 추가 성공 콜백
- const handleAddSuccess = async (newExpense, balancesObj) => {
+  // 지출 추가 성공 콜백 (전체 리스트 재조회)
+  const handleAddSuccess = async (newExpense, balancesObj) => {
     setBalances(balancesObj);
     setNotification({ message: '지출이 성공적으로 등록되었습니다.', type: 'register' });
     setShowAddDialog(false);
@@ -99,19 +101,12 @@ export default function ExpenseList({ teamId = 1 }) {
     }
   };
 
-
   // 지출 수정 성공 콜백
   const handleUpdateSuccess = (updatedExpense, balancesObj) => {
     setExpenses(prev =>
       prev.map(exp =>
         exp.id === updatedExpense.id
-          ? {
-              ...exp,
-              description: updatedExpense.description,
-              amount: updatedExpense.amount,
-              category: updatedExpense.category,
-              createdAt: updatedExpense.createdAt
-            }
+          ? { ...updatedExpense }
           : exp
       )
     );
@@ -129,15 +124,14 @@ export default function ExpenseList({ teamId = 1 }) {
   };
 
   // 숫자 또는 대체 문자열 반환 헬퍼
-  const fmt = (value) =>
-    value != null ? value.toLocaleString() : '-';
+  const fmt = (value) => (value != null ? value.toLocaleString() : '-');
 
   // 날짜 포맷팅 (YYYY-MM-DD)
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', { 
-      year: 'numeric', 
-      month: 'long', 
+    return date.toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
       day: 'numeric',
       weekday: 'short'
     });
@@ -148,21 +142,23 @@ export default function ExpenseList({ teamId = 1 }) {
       <div className="header">
         <h1 className="title">여행 경비 매니저</h1>
         <div className="header-actions">
-          {/* 여기에 추가 액션 버튼들 */}
+          {/* 예산 수정, CSV 내보내기 등 버튼 추가 가능 */}
         </div>
       </div>
 
       <div className="content">
-        <h2 className="section-title">지출 내역</h2>
-        
-        {/* 서버에서 받은 최신 잔고 및 알림 배너 */}
+        <h2 className="section-title">
+  <FaMoneyBillWave className="section-icon" />
+  지출 내역
+</h2>
+
         {(balances || notification.message) && (
           <div className="balance-banner">
             {balances && (
               <div>
                 <span className="label">원화 잔고:</span>
                 <strong>₩{fmt(balances.balance)}</strong>
-                &nbsp;&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;
                 <span className="label">외화 잔고:</span>
                 <strong>${fmt(balances.foreignBalance)}</strong>
               </div>
@@ -174,25 +170,24 @@ export default function ExpenseList({ teamId = 1 }) {
             )}
           </div>
         )}
-        
+
         <div className="actions">
-          <button className="btn btn-outlined">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 20V10"></path>
-              <path d="M18 14l-6-6-6 6"></path>
-              <line x1="6" y1="4" x2="18" y2="4"></line>
-            </svg>
-            예산 수정
-          </button>
-          <button className="btn btn-filled" onClick={() => setShowAddDialog(true)}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="16"></line>
-              <line x1="8" y1="12" x2="16" y2="12"></line>
-            </svg>
-            지출 추가
-          </button>
-        </div>
+  {/* 버튼 그룹이 위에 */}
+  <div className="header-actions">
+    <button className="btn btn-outlined">예산 수정</button>
+    <button className="btn btn-filled" onClick={() => setShowAddDialog(true)}>지출 추가</button>
+  </div>
+
+  {/* 정렬 컨트롤이 아래에 */}
+  <div className="sort-control">
+    <button
+      className="sort-btn"
+      onClick={() => setSortDirection(prev => prev === 'DESC' ? 'ASC' : 'DESC')}
+    >
+      날짜순 <span className="icon">{sortDirection === 'DESC' ? '↓' : '↑'}</span>
+    </button>
+  </div>
+</div>
 
         {expenses.length === 0 ? (
           <div className="empty-state">
@@ -213,21 +208,10 @@ export default function ExpenseList({ teamId = 1 }) {
               </thead>
               <tbody>
                 {expenses.map(exp => (
-                  <tr
-                    key={exp.id}
-                    onClick={() => openDetail(exp.id)}
-                    style={{ cursor: 'pointer' }}
-                  >
+                  <tr key={exp.id} onClick={() => openDetail(exp.id)} style={{ cursor: 'pointer' }}>
                     <td>{exp.description}</td>
                     <td className="amount">₩{exp.amount.toLocaleString()}</td>
-                    <td>
-                      <span 
-                        className="category" 
-                        data-category={exp.category}
-                      >
-                        {CATEGORY_LABELS[exp.category] || exp.category}
-                      </span>
-                    </td>
+                    <td><span className="category" data-category={exp.category}>{CATEGORY_LABELS[exp.category] || exp.category}</span></td>
                     <td>{formatDate(exp.createdAt)}</td>
                     <td>{exp.payerNickname}</td>
                   </tr>
@@ -237,79 +221,25 @@ export default function ExpenseList({ teamId = 1 }) {
           </div>
         )}
 
-        {/* 페이지 네비게이션 */}
-        {expenses.length > 0 && totalPages > 1 && (
+        {totalPages > 1 && (
           <div className="pagination">
-            <button 
-              onClick={() => goToPage(page)} 
-              disabled={page === 0}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
-            </button>
-            
+            <button onClick={() => goToPage(page)} disabled={page === 0}>←</button>
             {Array.from({ length: totalPages }, (_, i) => {
-              // 현재 페이지 주변의 페이지 버튼만 표시
               const pageNum = i + 1;
               const currentPage = page + 1;
-              
-              // 첫 페이지, 마지막 페이지, 현재 페이지 주변의 페이지만 표시
-              if (
-                pageNum === 1 || 
-                pageNum === totalPages || 
-                (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-              ) {
-                return (
-                  <button
-                    key={i}
-                    className={pageNum === currentPage ? 'active' : ''}
-                    onClick={() => goToPage(pageNum)}
-                  >
-                    {pageNum}
-                  </button>
-                );
+              if (pageNum === 1 || pageNum === totalPages || (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)) {
+                return <button key={i} className={pageNum === currentPage ? 'active' : ''} onClick={() => goToPage(pageNum)}>{pageNum}</button>;
               }
-              
-              // 생략 부호 표시 (현재 페이지의 왼쪽)
-              if (pageNum === currentPage - 2 && currentPage > 3) {
-                return <span key={`ellipsis-left`} className="pagination-ellipsis">...</span>;
-              }
-              
-              // 생략 부호 표시 (현재 페이지의 오른쪽)
-              if (pageNum === currentPage + 2 && currentPage < totalPages - 2) {
-                return <span key={`ellipsis-right`} className="pagination-ellipsis">...</span>;
-              }
-              
+              if (pageNum === currentPage - 2 && currentPage > 3) return <span key="ellip-1" className="pagination-ellipsis">...</span>;
+              if (pageNum === currentPage + 2 && currentPage < totalPages - 2) return <span key="ellip-2" className="pagination-ellipsis">...</span>;
               return null;
             })}
-            
-            <button
-              onClick={() => goToPage(page + 2)}
-              disabled={page + 1 === totalPages}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </button>
+            <button onClick={() => goToPage(page + 2)} disabled={page + 1 === totalPages}>→</button>
           </div>
         )}
 
-        {showAddDialog && (
-          <AddExpenseDialog
-            onClose={() => setShowAddDialog(false)}
-            onSuccess={handleAddSuccess}
-          />
-        )}
-
-        {selectedExpenseId && (
-          <ExpenseDetailDialog
-            expenseId={selectedExpenseId}
-            onClose={closeDetail}
-            onUpdate={handleUpdateSuccess}
-            onDelete={handleDeleteSuccess}
-          />
-        )}
+        {showAddDialog && <AddExpenseDialog onClose={() => setShowAddDialog(false)} onSuccess={handleAddSuccess} />}
+        {selectedExpenseId && <ExpenseDetailDialog expenseId={selectedExpenseId} onClose={closeDetail} onUpdate={handleUpdateSuccess} onDelete={handleDeleteSuccess} />}
       </div>
     </div>
   );
