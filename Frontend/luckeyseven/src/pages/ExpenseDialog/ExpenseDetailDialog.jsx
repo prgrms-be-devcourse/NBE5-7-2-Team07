@@ -161,7 +161,7 @@ export default function ExpenseDetailDialog({
           ) : (
             <>
               <p><strong>설명:</strong> {detail.description}</p>
-              <p><strong>금액:</strong> ₩{detail.amount.toLocaleString()}</p>
+              <p><strong>금액:</strong> {detail.amount.toLocaleString()}</p>
               <p><strong>카테고리:</strong> {CATEGORY_LABELS[detail.category]}</p>
               <p><strong>결제 수단:</strong> {PAYMENT_LABELS[detail.paymentMethod]}</p>
               <p><strong>결제자:</strong> {detail.payerNickname}</p>
