@@ -130,9 +130,9 @@ export default function ExpenseDetailDialog({
     <div className="modal-overlay">
       <div className="modal">
         <header>
-          <h3>지출 상세</h3>
+          <h3>{isEditing ? '지출 수정' : '지출 상세'}</h3>
           <button className="close-btn" onClick={onClose}>×</button>
-        </header>
+          </header>
 
         <div className="detail-content">
           {isEditing ? (
@@ -171,13 +171,13 @@ export default function ExpenseDetailDialog({
             </>
           ) : (
             <>
-              <p><strong>설명:</strong> {detail.description}</p>
-              <p><strong>금액:</strong> {detail.amount.toLocaleString()}</p>
-              <p><strong>카테고리:</strong> {CATEGORY_LABELS[detail.category]}</p>
-              <p><strong>결제 수단:</strong> {PAYMENT_LABELS[detail.paymentMethod]}</p>
-              <p><strong>결제자:</strong> {detail.payerNickname}</p>
-              <p><strong>결제일:</strong> {fmtDate(detail.createdAt)}</p>
-              <p><strong>수정일:</strong> {fmtDate(detail.updatedAt)}</p>
+              <p><strong>설명</strong> {detail.description}</p>
+              <p><strong>지출 금액</strong> <span className="amount">{detail.amount.toLocaleString()}원</span></p>
+              <p><strong>카테고리</strong>{' '}<span className="category"data-category={detail.category}>{CATEGORY_LABELS[detail.category]}</span></p>
+              <p><strong>결제 수단</strong>{' '}<span className="payment" data-payment={detail.paymentMethod}>{PAYMENT_LABELS[detail.paymentMethod]}</span></p>
+              <p><strong>결제자</strong> {detail.payerNickname}</p>
+              <p><strong>결제일</strong> {fmtDate(detail.createdAt)}</p>
+              <p><strong>수정일</strong> {fmtDate(detail.updatedAt)}</p>
             </>
           )}
         </div>

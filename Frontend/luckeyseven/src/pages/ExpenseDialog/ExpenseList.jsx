@@ -88,12 +88,17 @@ export default function ExpenseList({ teamId = 1 }) {
   const goToPage = (pageNumber) => setPage(pageNumber - 1);
 
   // 지출 추가 성공 콜백
-  const handleAddSuccess = (newExpense, balancesObj) => {
-    setExpenses(prev => [newExpense, ...prev]);
+ const handleAddSuccess = async (newExpense, balancesObj) => {
     setBalances(balancesObj);
     setNotification({ message: '지출이 성공적으로 등록되었습니다.', type: 'register' });
     setShowAddDialog(false);
+    try {
+      await fetchExpenses();
+    } catch (err) {
+      console.error('지출 리스트 재조회 실패:', err);
+    }
   };
+
 
   // 지출 수정 성공 콜백
   const handleUpdateSuccess = (updatedExpense, balancesObj) => {

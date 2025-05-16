@@ -1,177 +1,262 @@
-:root {
-  --overlay-bg: rgba(0, 0, 0, 0.6);
-  --modal-bg: #fafafa;
-  --modal-radius: 12px;
-  --modal-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
-  --primary-color: #4a90e2;
-  --primary-color-hover: #357ab8;
-  --danger-color: #e74c3c;
-  --danger-color-hover: #c0392b;
-  --text-color: #333;
-  --text-light: #555;
-  --input-bg: #fff;
-  --input-border: #ccc;
-  --input-focus: #4a90e2;
-  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-}
-
-.field select[name="category"] {
-  min-width: 200px;
-  max-width: 100%;
-  width: auto;
-  /* 높이 조절 or padding 조절(이미 추가하신 경우 생략) */
-  height: 40px;
-  padding: 12px var(--spacing-sm);
-  /* 테두리 둥글게 */
-  border-radius: 12px;
-}
-
+/* 모달 오버레이 스타일링 */
 .modal-overlay {
   position: fixed;
-  inset: 0;
-  background: var(--overlay-bg);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  animation: fadeIn 0.3s ease;
 }
 
+/* 모달 기본 스타일 */
 .modal {
-  background: var(--modal-bg);
-  border-radius: var(--modal-radius);
-  width: 360px;
-  max-width: 90%;
-  padding: var(--spacing-lg);
-  box-shadow: var(--modal-shadow);
-  font-family: var(--font-family);
-  color: var(--text-color);
-  animation: fadeInScale 0.3s ease-out;
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 460px;
+  overflow: hidden;
+  animation: slideIn 0.3s ease;
 }
 
-@keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
+/* 모달 헤더 */
 .modal header {
+  background: linear-gradient(135deg, #4568dc, #b06ab3);
+  color: white;
+  padding: 16px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-md);
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
 }
 
 .modal header h3 {
   margin: 0;
-  font-size: 1.5rem;
-  color: var(--primary-color);
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
-.close-btn {
+.modal .close-btn {
   background: none;
   border: none;
-  font-size: 1.5rem;
-  line-height: 1;
+  color: white;
+  font-size: 24px;
   cursor: pointer;
-  color: var(--text-light);
-  transition: color 0.2s;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.2s;
 }
 
-.close-btn:hover {
-  color: var(--danger-color);
+.modal .close-btn:hover {
+  opacity: 1;
 }
 
+/* 모달 콘텐츠 */
 .detail-content {
-  display: flex;
-  flex-direction: column;
+  padding: 24px;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: var(--spacing-md);
-}
-
-.field label {
-  font-size: 0.9rem;
-  margin-bottom: var(--spacing-sm);
-  color: var(--text-light);
-}
-
-.field input {
-  padding: var(--spacing-sm);
-  border: 1px solid var(--input-border);
-  border-radius: 6px;
-  background: var(--input-bg);
-  font-size: 0.95rem;
-  transition: border-color 0.2s;
-}
-
-.field input:focus {
-  outline: none;
-  border-color: var(--input-focus);
-  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
-}
-
+/* 수정 모드가 아닐 때의 필드 스타일 */
 .detail-content p {
-  margin: var(--spacing-sm) 0;
-  font-size: 0.95rem;
-  line-height: 1.4;
+  margin: 12px 0;
+  font-size: 15px;
+  line-height: 24px;
+  color: #333;
+  display: flex;
+  justify-content: space-between;
 }
 
 .detail-content p strong {
-  display: inline-block;
-  width: 80px;
-  color: var(--text-light);
+  font-weight: 600;
+  color: #444;
+  min-width: 100px;
 }
 
+/* 금액 스타일 - 진한 파란색으로 강조 */
+.detail-content p:nth-child(2) strong + span {
+  color: #1a56db;
+  font-weight: 600;
+  font-size: 17px;
+}
+.category, .payment {
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* 카테고리 색상 */
+.category[data-category="MEAL"] {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.category[data-category="SNACK"] {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.category[data-category="TRANSPORT"] {
+  background-color: #e0f2f1;
+  color: #00695c;
+}
+
+.category[data-category="ACCOMMODATION"] {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
+.category[data-category="MISCELLANEOUS"] {
+  background-color: #f5f5f5;
+  color: #424242;
+}
+
+/* 결제 방법 색상 */
+.payment[data-payment="CARD"] {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.payment[data-payment="CASH"] {
+  background-color: #fffde7;
+  color: #f57f17;
+}
+
+.payment[data-payment="OTHER"] {
+  background-color: #f5f5f5;
+  color: #424242;
+}
+
+/* 수정 모드의 필드 스타일 */
+.field {
+  margin-bottom: 16px;
+}
+
+.field label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #444;
+  margin-bottom: 6px;
+}
+
+.field input, .field select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: border-color 0.2s;
+}
+
+.field input:focus, .field select:focus {
+  border-color: #4568dc;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(69, 104, 220, 0.2);
+}
+
+/* 버튼 컨테이너 */
 .modal-actions {
+  padding: 16px 24px;
   display: flex;
   justify-content: flex-end;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-lg);
+  gap: 12px;
+  border-top: 1px solid #eee;
 }
 
+/* 기본 버튼 스타일 */
 .modal-actions button {
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: 6px;
+  padding: 10px 20px;
   border: none;
-  font-size: 0.9rem;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition: all 0.2s;
 }
 
-.modal-actions button:first-child {
-  background: #f0f0f0;
-  color: var(--text-color);
+/* 일반 버튼 (취소, 수정) */
+.modal-actions button:not(.save-btn):not(.delete-btn) {
+  background-color: #f5f5f5;
+  color: #333;
 }
 
-.modal-actions button:first-child:hover,
-.modal-actions button:first-child:focus {
-  background: #e0e0e0;
-  transform: translateY(-1px);
+.modal-actions button:not(.save-btn):not(.delete-btn):hover {
+  background-color: #e8e8e8;
 }
 
-.modal-actions button:last-child {
-  background: var(--danger-color);
-  color: #fff;
+/* 저장 버튼 */
+.save-btn {
+  background-color: #4568dc;
+  color: white;
 }
 
-.modal-actions button:last-child:hover,
-.modal-actions button:last-child:focus {
-  background: var(--danger-color-hover);
-  transform: translateY(-1px);
+.save-btn:hover {
+  background-color: #3a57c5;
 }
 
-.modal-actions .save-btn {
-  background: var(--primary-color);
-  color: #fff;
+/* 삭제 버튼 */
+.delete-btn {
+  background-color: #ff5252;
+  color: white;
 }
 
-.modal-actions .save-btn:hover,
-.modal-actions .save-btn:focus {
-  background: var(--primary-color-hover);
-  transform: translateY(-1px);
+.delete-btn:hover {
+  background-color: #e04848;
+}
+
+/* 애니메이션 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 480px) {
+  .modal {
+    width: 95%;
+    max-height: 85vh;
+  }
+  
+  .detail-content {
+    padding: 16px;
+  }
+  
+  .modal-actions {
+    padding: 12px 16px;
+  }
+}
+
+/* 스크롤바 스타일링 */
+.detail-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.detail-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.detail-content::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border-radius: 10px;
+}
+
+.detail-content::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
 }
