@@ -43,15 +43,15 @@ public class Settlement extends BaseEntity {
   private Boolean isSettled = false;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), nullable = false)
+  @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), name = "settler_id", nullable = false)
   private Member settler;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), nullable = false)
+  @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), name = "payer_id", nullable = false)
   private Member payer;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), nullable = false)
+  @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), name = "expense_id", nullable = false)
   private Expense expense;
 
   @Builder
