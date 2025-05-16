@@ -8,6 +8,7 @@ import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
 import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
 import com.luckyseven.backend.domain.team.dto.TeamJoinRequest;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
+import com.luckyseven.backend.domain.team.dto.TeamListResponse;
 import com.luckyseven.backend.domain.team.dto.TeamMemberDto;
 
 import com.luckyseven.backend.domain.team.service.TeamMemberService;
@@ -114,7 +115,27 @@ public class TeamController {
 
     return ResponseEntity.ok(response);
   }
+  @GetMapping("/my-teams")
+  @Operation(
+      summary = "내 팀 목록 조회",
+      description = "로그인한 사용자가 속한 모든 팀 목록을 조회합니다"
+  )
+  @ApiResponse(
+      responseCode = "200",
+      description = "팀 목록 조회 성공",
+      content = @Content(schema = @Schema(implementation = TeamListResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "401",
+      description = "인증되지 않은 사용자",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+  )
+  public ResponseEntity<List<TeamListResponse>> getMyTeams(
+      @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails memberDetails) {
 
+    List<TeamListResponse> teams = teamService.getTeamsByMemberId(memberDetails.getId());
+    return ResponseEntity.ok(teams);
+  }
   @Operation(
       summary = "팀 멤버 조회",
       description = "팀의 모든 멤버를 조회합니다"

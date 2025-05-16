@@ -43,9 +43,9 @@ public class TeamMemberServiceTest {
   private TeamMemberService teamMemberService;
 
   private MemberDetails mockMemberDetails;
-  private Member actingMember; // Member performing the action
-  private Member teamLeaderMember; // Member who is the team leader
-  private Member regularMember; // Another member in the team
+  private Member actingMember;
+  private Member regularMember;
+  private Member teamLeaderMember;
 
   @BeforeEach
   void setUp() {
@@ -56,7 +56,6 @@ public class TeamMemberServiceTest {
     regularMember = TestEntityBuilder.createMemberWithId(3L, "member@example.com",
         "Regular Member");
 
-    // Default mock for memberDetails (stubbings moved to individual tests where needed)
   }
 
   /**
@@ -70,7 +69,7 @@ public class TeamMemberServiceTest {
     Long teamMemberId = 101L;
 
     Team team = TestEntityBuilder.createTeamWithId(teamId, "테스트 팀", "TEST-001", "pass123");
-    team.setLeader(teamLeaderMember); // Set a leader for the team
+    team.setLeader(teamLeaderMember);
     Member memberInTeam = TestEntityBuilder.createMemberWithId(memberId, "test@example.com", "홍길동");
     TeamMember teamMember = TestEntityBuilder.createTeamMemberWithId(teamMemberId, team,
         memberInTeam);
