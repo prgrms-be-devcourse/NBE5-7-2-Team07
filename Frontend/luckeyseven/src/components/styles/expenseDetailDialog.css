@@ -1,0 +1,176 @@
+:root {
+  --overlay-bg: rgba(0, 0, 0, 0.6);
+  --modal-bg: #fafafa;
+  --modal-radius: 12px;
+  --modal-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  --primary-color: #4a90e2;
+  --primary-color-hover: #357ab8;
+  --danger-color: #e74c3c;
+  --danger-color-hover: #c0392b;
+  --text-color: #333;
+  --text-light: #555;
+  --input-bg: #fff;
+  --input-border: #ccc;
+  --input-focus: #4a90e2;
+  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+}
+
+.field select[name="category"] {
+  min-width: 200px;
+  max-width: 100%;
+  width: auto;
+
+  /* 높이 조절 or padding 조절(이미 추가하신 경우 생략) */
+  height: 40px; 
+  padding: 12px var(--spacing-sm); 
+
+  /* 테두리 둥글게 */
+  border-radius: 12px;
+}
+
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--modal-bg);
+  border-radius: var(--modal-radius);
+  width: 360px;
+  max-width: 90%;
+  padding: var(--spacing-lg);
+  box-shadow: var(--modal-shadow);
+  font-family: var(--font-family);
+  color: var(--text-color);
+  animation: fadeInScale 0.3s ease-out;
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modal header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.modal header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--primary-color);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text-light);
+  transition: color 0.2s;
+}
+.close-btn:hover {
+  color: var(--danger-color);
+}
+
+.detail-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--spacing-md);
+}
+
+.field label {
+  font-size: 0.9rem;
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-light);
+}
+
+.field input {
+  padding: var(--spacing-sm);
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  background: var(--input-bg);
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.detail-content p {
+  margin: var(--spacing-sm) 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.detail-content p strong {
+  display: inline-block;
+  width: 80px;
+  color: var(--text-light);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+}
+
+.modal-actions button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 6px;
+  border: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.modal-actions button:first-child {
+  background: #f0f0f0;
+  color: var(--text-color);
+}
+.modal-actions button:first-child:hover,
+.modal-actions button:first-child:focus {
+  background: #e0e0e0;
+  transform: translateY(-1px);
+}
+
+.modal-actions button:last-child {
+  background: var(--danger-color);
+  color: #fff;
+}
+.modal-actions button:last-child:hover,
+.modal-actions button:last-child:focus {
+  background: var(--danger-color-hover);
+  transform: translateY(-1px);
+}
+
+.modal-actions .save-btn {
+  background: var(--primary-color);
+  color: #fff;
+}
+.modal-actions .save-btn:hover,
+.modal-actions .save-btn:focus {
+  background: var(--primary-color-hover);
+  transform: translateY(-1px);
+}

@@ -1,0 +1,190 @@
+// src/components/ExpenseDetailDialog.jsx
+import React, { useState, useEffect } from 'react';
+import {
+  getExpense,
+  updateExpense,
+  deleteExpense
+} from '../../service/ExpenseService';
+import '../../components/styles/expenseDetailDialog.css';
+
+const CATEGORY_LABELS = {
+  MEAL: '식사',
+  SNACK: '간식',
+  TRANSPORT: '교통',
+  ACCOMMODATION: '숙박',
+  MISCELLANEOUS: '기타'
+};
+
+const PAYMENT_LABELS = {
+  CARD: '카드',
+  CASH: '현금',
+  OTHER: '기타'
+};
+
+export default function ExpenseDetailDialog({
+  expenseId,
+  onClose,
+  onUpdate,    // (updatedExpense, balances) => void
+  onDelete     // (expenseId, balances) => void
+}) {
+  const [detail, setDetail] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    description: '',
+    amount: 0,
+    category: ''
+  });
+
+  // 1) 상세 데이터 로드
+  useEffect(() => {
+    if (!expenseId) return;
+    (async () => {
+      try {
+        const data = await getExpense(expenseId);
+        setDetail(data);
+        setFormData({
+          description: data.description,
+          amount: data.amount,
+          category: data.category
+        });
+      } catch (err) {
+        alert('상세 조회에 실패했습니다.');
+        onClose();
+      }
+    })();
+  }, [expenseId, onClose]);
+
+  if (!detail) return null;
+
+  const fmtDate = dt => new Date(dt).toLocaleString();
+
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'amount' ? Number(value) : value
+    }));
+  };
+
+  // 저장 (수정) 처리
+  const handleSave = async () => {
+    try {
+      const req = {
+        description: formData.description,
+        amount: formData.amount,
+        category: formData.category
+      };
+      const updated = await updateExpense(detail.id, req);
+      onUpdate(
+        {
+          ...detail,
+          ...req,
+          amount: updated.amount,
+          createdAt: updated.createdAt,
+          updatedAt: updated.updatedAt
+        },
+        { balance: updated.balance, foreignBalance: updated.foreignBalance }
+      );
+      setDetail(prev => ({ ...prev, ...req }));
+      setIsEditing(false);
+      onClose();  // 다이얼로그 닫기
+    } catch (err) {
+      const msg = err.response?.data?.message || '수정에 실패했습니다.';
+      alert(msg);
+    }
+  };
+
+  // 삭제 처리
+  const handleDelete = async () => {
+    if (!window.confirm('정말 이 지출을 삭제하시겠어요?')) return;
+    try {
+      const resp = await deleteExpense(detail.id);
+      onDelete(detail.id, { balance: resp.balance, foreignBalance: resp.foreignBalance });
+      onClose();
+    } catch (err) {
+      const msg = err.response?.data?.message || '삭제에 실패했습니다.';
+      alert(msg);
+    }
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      description: detail.description,
+      amount: detail.amount,
+      category: detail.category
+    });
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal">
+        <header>
+          <h3>지출 상세</h3>
+          <button className="close-btn" onClick={onClose}>×</button>
+        </header>
+
+        <div className="detail-content">
+          {isEditing ? (
+            <>
+              <div className="field">
+                <label>설명</label>
+                <input
+                  type="text"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="field">
+                <label>금액 (₩)</label>
+                <input
+                  type="number"
+                  name="amount"
+                  value={formData.amount}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="field">
+                <label>카테고리</label>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                >
+                  {Object.entries(CATEGORY_LABELS).map(([k, l]) => (
+                    <option key={k} value={k}>{l}</option>
+                  ))}
+                </select>
+              </div>
+            </>
+          ) : (
+            <>
+              <p><strong>설명:</strong> {detail.description}</p>
+              <p><strong>금액:</strong> ₩{detail.amount.toLocaleString()}</p>
+              <p><strong>카테고리:</strong> {CATEGORY_LABELS[detail.category]}</p>
+              <p><strong>결제 수단:</strong> {PAYMENT_LABELS[detail.paymentMethod]}</p>
+              <p><strong>결제자:</strong> {detail.payerNickname}</p>
+              <p><strong>생성일:</strong> {fmtDate(detail.createdAt)}</p>
+              <p><strong>수정일:</strong> {fmtDate(detail.updatedAt)}</p>
+            </>
+          )}
+        </div>
+
+        <div className="modal-actions">
+          {isEditing ? (
+            <>
+              <button onClick={handleCancel}>취소</button>
+              <button className="save-btn" onClick={handleSave}>수정</button>
+            </>
+          ) : (
+            <>
+              <button onClick={() => setIsEditing(true)}>수정</button>
+              <button className="delete-btn" onClick={handleDelete}>삭제</button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
