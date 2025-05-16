@@ -1,13 +1,14 @@
 package com.luckyseven.backend.domain.settlements.dto;
 
-import lombok.Data;
+import lombok.Builder;
 
-@Data
-public class SettlementSearchCondition {
+@Builder
+public record SettlementSearchCondition(
 
-  private Long expenseId;
-  private Long settlerId;
-  private Long payerId;
-  private Boolean isSettled;
+    Long expenseId,
+    Long settlerId,
+    Long payerId,
+    Boolean isSettled
+) {
 
 }

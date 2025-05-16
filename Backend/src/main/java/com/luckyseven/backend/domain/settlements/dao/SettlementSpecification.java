@@ -1,5 +1,6 @@
 package com.luckyseven.backend.domain.settlements.dao;
 
+import com.luckyseven.backend.domain.settlements.dto.SettlementSearchCondition;
 import com.luckyseven.backend.domain.settlements.entity.Settlement;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -28,5 +29,15 @@ public class SettlementSpecification {
   public static Specification<Settlement> isSettled(Boolean isSettled) {
     return (root, query, criteriaBuilder) -> isSettled == null ? null
         : criteriaBuilder.equal(root.get("isSettled"), isSettled);
+  }
+
+  public static Specification<Settlement> createSpecification(Long teamId,
+      SettlementSearchCondition condition) {
+    return Specification
+        .where(SettlementSpecification.hasTeamId(teamId))
+        .and(hasPayerId(condition.payerId()))
+        .and(hasSettlerId(condition.settlerId()))
+        .and(hasExpenseId(condition.expenseId()))
+        .and(isSettled(condition.isSettled()));
   }
 }

@@ -1,7 +1,7 @@
 package com.luckyseven.backend.domain.settlements.util;
 
-import com.luckyseven.backend.domain.settlements.TempExpense;
-import com.luckyseven.backend.domain.settlements.TempMember;
+import com.luckyseven.backend.domain.expense.entity.Expense;
+import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.settlements.dto.SettlementCreateRequest;
 import com.luckyseven.backend.domain.settlements.dto.SettlementResponse;
 import com.luckyseven.backend.domain.settlements.entity.Settlement;
@@ -24,9 +24,8 @@ public class SettlementMapper {
         .build();
   }
 
-  // TODO: TEMP 엔티티 제거
   public static Settlement fromSettlementCreateRequest(SettlementCreateRequest request,
-      TempMember settler, TempMember payer, TempExpense expense) {
-    return new Settlement(request.getAmount(), settler, payer, expense);
+      Member settler, Member payer, Expense expense) {
+    return new Settlement(request.amount(), settler, payer, expense);
   }
 }

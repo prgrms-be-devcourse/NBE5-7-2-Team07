@@ -1,6 +1,6 @@
 package com.luckyseven.backend.domain.team.repository;
 
-import com.luckyseven.backend.domain.team.entity.Member;
+import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
 import java.util.List;

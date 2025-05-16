@@ -14,4 +14,5 @@ public interface SettlementRepository extends JpaRepository<Settlement, Long>,
   @EntityGraph(attributePaths = {"settler", "payer"})
   Optional<Settlement> findWithSettlerAndPayerById(Long id);
 
+
 }
