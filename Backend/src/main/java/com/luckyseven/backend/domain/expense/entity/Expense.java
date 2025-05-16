@@ -64,6 +64,7 @@ public class Expense extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(
+      name = "team_id",
       foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT),
       nullable = false
   )

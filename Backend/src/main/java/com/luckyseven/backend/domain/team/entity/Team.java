@@ -1,6 +1,8 @@
 package com.luckyseven.backend.domain.team.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.luckyseven.backend.domain.budget.entity.Budget;
+import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.AttributeOverride;
@@ -10,6 +12,9 @@ import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -23,14 +28,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Builder
 @Table(name = "team", indexes = {
     @Index(name = "idx_team_leader_id", columnList = "leader_id"),
     @Index(name = "idx_team_budget_id", columnList = "budget_id")
@@ -38,6 +42,10 @@ import lombok.experimental.SuperBuilder;
 })
 @AttributeOverride(name = "id", column = @Column(name = "team_id"))
 public class Team extends BaseEntity {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
   @Column(nullable = false)
   private String name;

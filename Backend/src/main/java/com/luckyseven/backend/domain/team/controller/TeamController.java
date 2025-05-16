@@ -1,12 +1,13 @@
 package com.luckyseven.backend.domain.team.controller;
 
+import com.luckyseven.backend.domain.member.service.utill.MemberDetails;
 import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
 import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
 import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
 import com.luckyseven.backend.domain.team.dto.TeamJoinRequest;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
+import com.luckyseven.backend.domain.team.dto.TeamListResponse;
 import com.luckyseven.backend.domain.team.dto.TeamMemberDto;
-import com.luckyseven.backend.domain.team.entity.Member;
 import com.luckyseven.backend.domain.team.service.TeamMemberService;
 import com.luckyseven.backend.domain.team.service.TeamService;
 import com.luckyseven.backend.domain.team.service.TempMemberService;
@@ -66,10 +67,10 @@ public class TeamController {
   )
   @PostMapping
   public ResponseEntity<TeamCreateResponse> createTeam(
-      @Parameter(hidden = true) @AuthenticationPrincipal Member member,
+      @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails memberDetails,
       @Parameter(description = "팀 생성 요청 정보") @Valid @RequestBody
       TeamCreateRequest request) {
-    TeamCreateResponse response = teamService.createTeam(member, request);
+    TeamCreateResponse response = teamService.createTeam(memberDetails, request);
     return ResponseEntity.ok(response);
   }
 
@@ -103,18 +104,35 @@ public class TeamController {
       content = @Content(schema = @Schema(implementation = ErrorResponse.class))
   )
   @PostMapping("/members")
-  public ResponseEntity<TeamJoinResponse> joinTeam(
+  public ResponseEntity<TeamJoinResponse> joinTeam(@AuthenticationPrincipal MemberDetails memberDetails,
       @Parameter(description = "팀 참가 요청 정보") @Valid @RequestBody TeamJoinRequest request) {
-    // 현재 로그인한 회원 정보 get
-    Member currentMember = tempMemberService.getCurrentMember();
-
     // Service
-    TeamJoinResponse response = teamService.joinTeam(currentMember, request.getTeamCode(),
-        request.getTeamPassword());
+    TeamJoinResponse response = teamService.joinTeam(memberDetails, request.teamCode(),
+        request.teamPassword());
 
     return ResponseEntity.ok(response);
   }
+  @GetMapping("/my-teams")
+  @Operation(
+      summary = "내 팀 목록 조회",
+      description = "로그인한 사용자가 속한 모든 팀 목록을 조회합니다"
+  )
+  @ApiResponse(
+      responseCode = "200",
+      description = "팀 목록 조회 성공",
+      content = @Content(schema = @Schema(implementation = TeamListResponse.class))
+  )
+  @ApiResponse(
+      responseCode = "401",
+      description = "인증되지 않은 사용자",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+  )
+  public ResponseEntity<List<TeamListResponse>> getMyTeams(
+      @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails memberDetails) {
 
+    List<TeamListResponse> teams = teamService.getTeamsByMemberId(memberDetails.getId());
+    return ResponseEntity.ok(teams);
+  }
   @Operation(
       summary = "팀 멤버 조회",
       description = "팀의 모든 멤버를 조회합니다"
@@ -180,11 +198,11 @@ public class TeamController {
   )
   @DeleteMapping("/{teamId}/members/{teamMemberId}")
   public ResponseEntity<Void> removeTeamMember(
+      @AuthenticationPrincipal MemberDetails memberDetails,
       @PathVariable Long teamMemberId,
       @PathVariable Long teamId
   ) {
-
-    teamMemberService.removeTeamMember(teamId, teamMemberId);
+    teamMemberService.removeTeamMember(memberDetails, teamId, teamMemberId);
     return ResponseEntity.noContent().build();
   }
 
