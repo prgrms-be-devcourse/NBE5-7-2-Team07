@@ -1,4 +1,3 @@
-// src/components/AddExpenseDialog.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getTeamMembers, createExpense } from '../../service/ExpenseService';
@@ -33,6 +32,17 @@ export default function AddExpenseDialog({ onClose, onSuccess }) {
     settlerIds: []
   });
 
+  // ESC 키로 닫기
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   useEffect(() => {
     async function fetchMembers() {
       try {
@@ -53,7 +63,7 @@ export default function AddExpenseDialog({ onClose, onSuccess }) {
     fetchMembers();
   }, [teamId]);
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value, options } = e.target;
     if (name === 'settlerIds') {
       const selected = Array.from(options)
@@ -69,7 +79,7 @@ export default function AddExpenseDialog({ onClose, onSuccess }) {
     }
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const payload = {
@@ -129,6 +139,7 @@ export default function AddExpenseDialog({ onClose, onSuccess }) {
             <input
               name="amount"
               type="number"
+              step="100"
               value={form.amount}
               onChange={handleChange}
               min="0"
@@ -149,7 +160,7 @@ export default function AddExpenseDialog({ onClose, onSuccess }) {
             결제자
             <select name="payerId" value={form.payerId} onChange={handleChange} required>
               {users.map(u => (
-                <option key={u.id} value={String(u.id)}>
+                <option key={u.memberId} value={String(u.memberId)}>
                   {u.memberNickName}
                 </option>
               ))}
@@ -175,7 +186,7 @@ export default function AddExpenseDialog({ onClose, onSuccess }) {
               required
             >
               {users.map(u => (
-                <option key={u.id} value={String(u.id)}>
+                <option key={u.memberId} value={String(u.memberId)}>
                   {u.memberNickName}
                 </option>
               ))}

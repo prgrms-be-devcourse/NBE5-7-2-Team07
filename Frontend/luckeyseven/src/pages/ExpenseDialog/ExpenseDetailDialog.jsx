@@ -1,4 +1,3 @@
-// src/components/ExpenseDetailDialog.jsx
 import React, { useState, useEffect } from 'react';
 import {
   getExpense,
@@ -24,8 +23,8 @@ const PAYMENT_LABELS = {
 export default function ExpenseDetailDialog({
   expenseId,
   onClose,
-  onUpdate,    // (updatedExpense, balances) => void
-  onDelete     // (expenseId, balances) => void
+  onUpdate,
+  onDelete
 }) {
   const [detail, setDetail] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -34,6 +33,17 @@ export default function ExpenseDetailDialog({
     amount: 0,
     category: ''
   });
+
+  // ESC 키로 닫기
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   // 1) 상세 데이터 로드
   useEffect(() => {
@@ -58,7 +68,7 @@ export default function ExpenseDetailDialog({
 
   const fmtDate = dt => new Date(dt).toLocaleString();
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -87,7 +97,7 @@ export default function ExpenseDetailDialog({
       );
       setDetail(prev => ({ ...prev, ...req }));
       setIsEditing(false);
-      onClose();  // 다이얼로그 닫기
+      onClose();
     } catch (err) {
       const msg = err.response?.data?.message || '수정에 실패했습니다.';
       alert(msg);
@@ -141,6 +151,7 @@ export default function ExpenseDetailDialog({
                 <input
                   type="number"
                   name="amount"
+                  step="100"
                   value={formData.amount}
                   onChange={handleChange}
                 />
@@ -165,7 +176,7 @@ export default function ExpenseDetailDialog({
               <p><strong>카테고리:</strong> {CATEGORY_LABELS[detail.category]}</p>
               <p><strong>결제 수단:</strong> {PAYMENT_LABELS[detail.paymentMethod]}</p>
               <p><strong>결제자:</strong> {detail.payerNickname}</p>
-              <p><strong>생성일:</strong> {fmtDate(detail.createdAt)}</p>
+              <p><strong>결제일:</strong> {fmtDate(detail.createdAt)}</p>
               <p><strong>수정일:</strong> {fmtDate(detail.updatedAt)}</p>
             </>
           )}
