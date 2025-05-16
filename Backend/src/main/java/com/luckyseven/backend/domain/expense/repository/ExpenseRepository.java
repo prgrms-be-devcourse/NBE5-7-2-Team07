@@ -16,7 +16,15 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
   @Query("""
         select e from Expense e
          join fetch e.payer p
-        where e.id = :expenseId
+         where e.id = :expenseId
       """)
   Optional<Expense> findByIdWithPayer(Long expenseId);
+
+  @Query("""
+         select e from Expense e
+          join fetch e.team t
+          join fetch t.budget
+          where e.id = :expenseId
+      """)
+  Optional<Expense> findWithTeamAndBudgetById(Long expenseId);
 }
