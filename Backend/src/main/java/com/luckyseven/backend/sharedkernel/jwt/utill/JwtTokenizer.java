@@ -28,6 +28,7 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -78,7 +79,7 @@ public class JwtTokenizer {
         });
     refreshTokenRepository.save(refreshTokenEntity);
 
-    addTokenCookie(response,"refreshToken",refreshToken,REFRESH_TOKEN_EXPIRE);
+    addRefreshToken(response,refreshToken,REFRESH_TOKEN_EXPIRE);
 
 
     return accessToken;
@@ -98,11 +99,28 @@ public class JwtTokenizer {
   private void addTokenCookie(HttpServletResponse response ,String tokenName ,  String tokenValue, Long expirationTime){
     Cookie tokenCookie = new Cookie(tokenName, tokenValue);
     tokenCookie.setPath("/");
-    tokenCookie.setHttpOnly(true);
+    tokenCookie.setHttpOnly(false);
     tokenCookie.setMaxAge(Math.toIntExact(expirationTime/1000));
     tokenCookie.setSecure(false);
     tokenCookie.setAttribute("SameSite","None");
     response.addCookie(tokenCookie);
+  }
+  private void addRefreshToken(HttpServletResponse response, String tokenValue,
+      Long expirationTime) {
+    ResponseCookie refreshToken = ResponseCookie.from("refreshToken", tokenValue)
+        .httpOnly(true)
+        .secure(true)
+        .sameSite("Lax")
+        .path("/")
+        .maxAge(expirationTime)
+        .domain("localhost")
+        .build();
+
+    log.info("Setting Cookie - Name : {} , Value : {}", refreshToken.getName(),
+        refreshToken.getValue());
+
+    response.addHeader("Set-Cookie", refreshToken.toString());
+
   }
 
 
