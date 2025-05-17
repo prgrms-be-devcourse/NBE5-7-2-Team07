@@ -9,8 +9,8 @@ const PageHeaderControls = () => {
           <p className={styles.pageSubtitle}>Manage your team's expenses and budget</p>
         </div>
         <div className={styles.pageActions}>
-          <button className={styles.buttonSecondary}>Edit Budget</button>
-          <button className={styles.buttonPrimary}>Add Expense</button>
+          <button className={styles.buttonSecondary}>예산 추가</button>
+          <button className={styles.buttonPrimary}>예산 수정</button>
         </div>
       </div>
   );
