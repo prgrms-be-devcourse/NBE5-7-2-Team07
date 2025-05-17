@@ -112,7 +112,7 @@ public class TeamController {
 
     return ResponseEntity.ok(response);
   }
-  @GetMapping("/my-teams")
+  @GetMapping("/myTeams")
   @Operation(
       summary = "내 팀 목록 조회",
       description = "로그인한 사용자가 속한 모든 팀 목록을 조회합니다"

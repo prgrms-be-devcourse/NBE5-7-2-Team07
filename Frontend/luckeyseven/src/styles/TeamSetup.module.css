@@ -145,3 +145,38 @@
   margin: 0;
   font-size: var(--text-lg); /* Slightly larger text for emphasis */
 }
+
+
+/* 추가: 팀명 강조용 */
+.teamCardTitle {
+  font-weight: 600;
+  font-size: var(--text-lg);
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+  text-align: center;
+}
+
+/* 추가: 카드 안의 버튼 */
+.teamCardButton {
+  background-color: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: var(--space-sm) var(--space-lg);
+  cursor: pointer;
+  font-weight: 500;
+  margin-top: 0.7rem;
+  margin-bottom: 0.3rem;
+  transition: background-color 0.2s;
+  width: 100%;
+  max-width: 240px;
+  font-size: var(--text-md);
+}
+.teamCardButton:hover {
+  background-color: #0056b3;
+}
+
+/* 카드 하단 여백 조정 */
+.teamCard:last-child {
+  margin-bottom: 0;
+}

@@ -95,3 +95,51 @@ export const getTeamMembers = async (teamId) => {
     throw error;
   }
 };
+
+export const createTeam = async (name, teamPassword) => {
+  try {
+    const response = await privateApi.post('/api/teams', {
+      name: name,
+      teamPassword: teamPassword,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating team:', error);
+    throw error;
+  }
+};
+
+export const joinTeam = async (teamCode, teamPassword) => {
+  try {
+    const response = await privateApi.post('/api/teams/members', {
+      teamCode: teamCode,
+      teamPassword: teamPassword,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error joining team:', error);
+    throw error;
+  }
+}
+
+export async function getMyTeams() {
+  // 예시 리턴: [{ id: 1, name: 'Alpha' }, ...]
+  try {
+    const response = await privateApi.get('/api/teams/myteams');
+    return response.data;
+  }
+  catch (error) {
+    console.error('Error fetching my teams:', error);
+    throw error;
+  }
+}
+
+export const deleteTeam = async (teamId) => {
+  try {
+    const response = await privateApi.delete(`/api/teams/${teamId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting team:', error);
+    throw error;
+  }
+};

@@ -1,11 +1,13 @@
 import React from 'react';
 import styles from '../styles/PageHeaderControls.module.css';
 
-const PageHeaderControls = () => {
+const PageHeaderControls = ({pageHeaderData}) => {
+  console.log('PageHeaderControls props ->', { pageHeaderData });
+   const { teamName } = pageHeaderData;
   return (
       <div className={styles.pageHeaderControls}>
         <div>
-          <h2 className={styles.pageTitle}>Japan Trip 25</h2>
+          <h2 className={styles.pageTitle}>{teamName}</h2>
           <p className={styles.pageSubtitle}>Manage your team's expenses and budget</p>
         </div>
         <div className={styles.pageActions}>
