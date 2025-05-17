@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styles from '../styles/Header.module.css';
 
 const Header = () => {
@@ -9,8 +10,9 @@ const Header = () => {
           <h1 className={styles.headerTitle}>Travel Expense Manager</h1>
         </div>
         <nav className={styles.headerNav}>
-          <a href="#dashboard" className={styles.navLink}>Dashboard</a>
-          <a href="#logout" className={styles.navLink}>Logout</a>
+          <Link to="/team-setup" className={styles.navLink}>Team Setup</Link>
+          <a href="/TeamDashboard" className={styles.navLink}>Dashboard</a>
+          <a href="/logout" className={styles.navLink}>Logout</a>
         </nav>
       </header>
   );

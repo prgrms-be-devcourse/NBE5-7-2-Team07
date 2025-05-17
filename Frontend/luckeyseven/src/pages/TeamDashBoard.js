@@ -11,6 +11,7 @@ import MembersTabContent from '../components/MembersTabContent';
 
 
 // Placeholder for chart - In a real app, use a library like recharts or chart.js
+// 추후 반영
 const DoughnutChartPlaceholder = () => (
     <div className={styles.doughnutChart}>
       Chart
@@ -63,9 +64,7 @@ function TeamDashBoard() {
         <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
         {activeTab === 'Overview' && <OverviewTabContent dashboardData={dashboardData} />}
         {activeTab === 'Members' && <MembersTabContent teamCode={membersData.teamCode} teamPassword={membersData.teamPassword} members={membersData.members} />}
-        {/* Add other tab content components here based on activeTab */}
-        {/* {activeTab === 'Expenses' && <ExpensesTabContent />} */}
-        {/* etc. */}
+        {/* Expenses and Settlement tabs now navigate to separate pages */}
       </main>
     </div>
   );

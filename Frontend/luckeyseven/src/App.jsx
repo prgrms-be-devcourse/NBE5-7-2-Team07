@@ -1,11 +1,12 @@
 import React from "react"
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
-import Login from "./pages/Login"
-import Signup from "./pages/Signup"
+import {BrowserRouter as Router, Navigate, Route, Routes} from "react-router-dom"
 import Home from "./pages/Home"
+import ExpensesPage from "./pages/ExpensesPage"
+import SettlementPage from "./pages/SettlementPage"
 import "./styles/auth.css"
-import { getCurrentUser } from "./service/AuthService"
+import {getCurrentUser} from "./service/AuthService"
 import TeamDashBoard from "./pages/TeamDashBoard";
+import TeamSetup from "./pages/TeamSetup"
 
 // 보호된 라우트 컴포넌트
 const ProtectedRoute = ({ children }) => {
@@ -23,6 +24,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/team/:teamId/expenses"    element={<ExpensesPage />} />
         {/*<Route path="/login" element={<Login />} />*/}
         {/*<Route path="/signup" element={<Signup />} />*/}
         <Route path="/TeamDashBoard" element={<TeamDashBoard />} />
@@ -34,6 +36,8 @@ function App() {
             // </ProtectedRoute>
           } 
         />
+        <Route path="/team-setup" element ={<TeamSetup/>}/> 
+        <Route path="/team/:teamId/settlement"  element={<SettlementPage />} />
       </Routes>
     </Router>
   )
