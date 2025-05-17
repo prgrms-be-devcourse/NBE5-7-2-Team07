@@ -2,6 +2,8 @@ import React from 'react';
 import styles from '../styles/SummaryCard.module.css';
 
 const SummaryCard = ({ title, amount, currency, percentage, of }) => {
+    console.log('SummaryCard props ->', { title, amount, currency, percentage, of });
+
   return (
       <div className={styles.summaryCard}>
         <p className={styles.cardTitle}>{title}</p>

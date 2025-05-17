@@ -1,5 +1,6 @@
 package com.luckyseven.backend.domain.team.util;
 
+import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.team.dto.TeamMemberDto;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
 import java.util.List;
@@ -17,6 +18,10 @@ public class TeamMemberMapper {
       return null;
     }
 
+    Member leader = teamMember.getTeam().getLeader();
+    Member currentDtoMember = teamMember.getMember();
+    String role = leader.getId().equals(currentDtoMember.getId()) ? "Leader" : "Member";
+
     return TeamMemberDto.builder()
         .id(teamMember.getId())
         .teamId(teamMember.getTeam().getId())
@@ -24,6 +29,7 @@ public class TeamMemberMapper {
         .memberId(teamMember.getMember().getId())
         .memberNickName(teamMember.getMember().getNickname())
         .memberEmail(teamMember.getMember().getEmail())
+        .role(role)
         .build();
   }
 

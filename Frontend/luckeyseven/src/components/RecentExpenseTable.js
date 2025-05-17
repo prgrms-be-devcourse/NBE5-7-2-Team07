@@ -2,13 +2,24 @@ import React from 'react';
 import styles from '../styles/RecentExpensesTable.module.css';
 
 const RecentExpensesTable = ({ expenses }) => {
+  const CATEGORY_LABELS ={
+    MEAL : '식사',
+    SNACK: '간식',
+    TRANSPORT: '교통',
+    MISCELLANEOUS: '숙박',
+    ACCOMMODATION: '기타', 
+  }
   const categoryColors = {
-    'Food & Drinks': '#4CAF50',
-    Transportation: '#2196F3',
-    Shopping: '#9C27B0',
-    Entertainment: '#E91E63',
-    Accommodation: '#FFC107', // Assuming a color for accommodation
+    MEAL : '#4CAF50',
+    SNACK: '#2196F3',
+    TRANSPORT: '#9C27B0',
+    MISCELLANEOUS: '#E91E63',
+    ACCOMMODATION: '#FFC107', 
   };
+
+  function getCategoryLabel(code) {
+    return CATEGORY_LABELS[code] ?? code;
+  }
 
   return (
       <div className={styles.recentExpenses}>
@@ -30,14 +41,14 @@ const RecentExpensesTable = ({ expenses }) => {
                 <td data-label="Title">{exp.title}</td>
                 <td data-label="Amount">
                   <div className={styles.expenseAmount}>₩{exp.amount.toLocaleString()}</div>
-                  <div className={styles.expenseAmountSecondary}>{exp.jpy.toLocaleString()} JPY</div>
+                  <div className={styles.expenseAmountSecondary}>{exp.currrency}{exp.amount}</div>
                 </td>
                 <td data-label="Category">
                 <span
                     className={styles.expenseCategory}
                     style={{ backgroundColor: categoryColors[exp.category] || '#ccc' }}
                 >
-                  {exp.category}
+                  {getCategoryLabel(exp.category)}
                 </span>
                 </td>
                 <td data-label="Date">{exp.date}</td>

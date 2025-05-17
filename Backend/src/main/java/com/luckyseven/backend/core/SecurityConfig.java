@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -15,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.util.AntPathMatcher;
 
 
 @Slf4j
@@ -39,6 +41,7 @@ public class SecurityConfig {
         .sessionManagement(session ->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .exceptionHandling(ex -> ex.authenticationEntryPoint(customAuthenticationEntryPoint))
         .authorizeHttpRequests(auth -> auth
+            .requestMatchers(HttpMethod.GET, "/api/teams/**").permitAll()
             .requestMatchers("/api/users/**",
                 "/v3/api-docs/**",
                 "/swagger-ui.html",
@@ -46,7 +49,7 @@ public class SecurityConfig {
                 "/swagger-resources/**",
                 "/webjars/**","/refresh").permitAll()
             .anyRequest().authenticated())
-        .addFilterBefore(new JwtAuthenticationFilter(jwtTokenizer,customAuthenticationEntryPoint),
+        .addFilterBefore(new JwtAuthenticationFilter(jwtTokenizer,customAuthenticationEntryPoint, new AntPathMatcher()),
             UsernamePasswordAuthenticationFilter.class);
 
     return http.build();

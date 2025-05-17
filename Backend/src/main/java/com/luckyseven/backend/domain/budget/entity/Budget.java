@@ -4,6 +4,8 @@ import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -42,7 +44,8 @@ public class Budget extends BaseEntity {
   @Setter
   private BigDecimal foreignBalance;
 
-  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 3)
   private CurrencyCode foreignCurrency;
 
   @Setter

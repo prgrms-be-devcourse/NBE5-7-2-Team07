@@ -74,3 +74,24 @@ export async function postRefreshToken() {
     throw error;
   }
 }
+
+// Team API calls
+export const getTeamDashboard = async (teamId) => {
+  try {
+    const response = await privateApi.get(`/api/teams/${teamId}/dashboard`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching team dashboard:', error);
+    throw error;
+  }
+};
+
+export const getTeamMembers = async (teamId) => {
+  try {
+    const response = await privateApi.get(`/api/teams/${teamId}/members`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching team members:', error);
+    throw error;
+  }
+};

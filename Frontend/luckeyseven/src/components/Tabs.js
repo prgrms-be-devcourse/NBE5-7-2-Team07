@@ -2,7 +2,7 @@ import React from 'react';
 import styles from '../styles/Tabs.module.css';
 
 const Tabs = ({ activeTab, setActiveTab }) => {
-  const tabs = ['Overview', 'Expenses', 'Members', 'Settlement'];
+  const tabs = ['Overview', 'Members', 'Expenses', 'Settlement'];
   return (
       <div className={styles.tabs}>
         {tabs.map(tab => (
