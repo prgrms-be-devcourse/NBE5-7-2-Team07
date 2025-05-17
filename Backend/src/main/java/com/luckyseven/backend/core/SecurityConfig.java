@@ -44,7 +44,10 @@ public class SecurityConfig {
                 "/swagger-ui.html",
                 "/swagger-ui/**",
                 "/swagger-resources/**",
-                "/webjars/**","/refresh").permitAll()
+                "/webjars/**",
+                "api/refresh",
+                "/**").permitAll()
+
             .anyRequest().authenticated())
         .addFilterBefore(new JwtAuthenticationFilter(jwtTokenizer,customAuthenticationEntryPoint),
             UsernamePasswordAuthenticationFilter.class);
