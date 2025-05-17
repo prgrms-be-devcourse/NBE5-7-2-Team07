@@ -96,15 +96,6 @@ public class JwtTokenizer {
         .compact();
   }
 
-  private void addTokenCookie(HttpServletResponse response ,String tokenName ,  String tokenValue, Long expirationTime){
-    Cookie tokenCookie = new Cookie(tokenName, tokenValue);
-    tokenCookie.setPath("/");
-    tokenCookie.setHttpOnly(false);
-    tokenCookie.setMaxAge(Math.toIntExact(expirationTime/1000));
-    tokenCookie.setSecure(false);
-    tokenCookie.setAttribute("SameSite","None");
-    response.addCookie(tokenCookie);
-  }
   private void addRefreshToken(HttpServletResponse response, String tokenValue,
       Long expirationTime) {
     ResponseCookie refreshToken = ResponseCookie.from("refreshToken", tokenValue)
