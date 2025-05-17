@@ -9,7 +9,7 @@
   box-shadow: 0 5px 20px rgba(0,0,0,0.05);
 }
 
-/* 헤더 영역 */
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -72,13 +72,13 @@
 
 .actions {
   display: flex;
-  flex-direction: column;   /* 세로로 쌓기 */
-  align-items: flex-end;    /* 오른쪽 끝 정렬 */
+  flex-direction: column;   
+  align-items: flex-end;   
   margin: 20px 0;
-  gap: 10px;                /* 위아래 요소 간 간격 */
+  gap: 10px;               
 }
 
-/* 정렬 컨트롤 영역 - 새로 추가된 영역 */
+
 .list-controls {
   display: flex;
   justify-content: space-between;
@@ -148,7 +148,7 @@
   background-color: #3a57c5;
 }
 
-/* 잔고 배너 */
+
 .balance-banner {
   background: linear-gradient(135deg, #f6f9fe, #e7effd);
   border-radius: 10px;
@@ -215,7 +215,7 @@
   font-size: 14px;
 }
 
-/* 테이블 스타일 */
+
 .expense-table {
   overflow-x: auto;
   background-color: white;

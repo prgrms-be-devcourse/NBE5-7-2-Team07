@@ -17,9 +17,9 @@ export default function ExpenseList({ teamId = 1 }) {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [selectedExpenseId, setSelectedExpenseId] = useState(null);
 
-  // 페이징 및 정렬 상태
+
   const [expenses, setExpenses] = useState([]);
-  const [page, setPage] = useState(0); // 0-based index
+  const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [sortDirection, setSortDirection] = useState('DESC');
@@ -123,10 +123,10 @@ export default function ExpenseList({ teamId = 1 }) {
     closeDetail();
   };
 
-  // 숫자 또는 대체 문자열 반환 헬퍼
+  // 숫자 또는 대체 문자열 반환 
   const fmt = (value) => (value != null ? value.toLocaleString() : '-');
 
-  // 날짜 포맷팅 (YYYY-MM-DD)
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('ko-KR', {
@@ -172,13 +172,13 @@ export default function ExpenseList({ teamId = 1 }) {
         )}
 
         <div className="actions">
-  {/* 버튼 그룹이 위에 */}
+
   <div className="header-actions">
     <button className="btn btn-outlined">예산 수정</button>
     <button className="btn btn-filled" onClick={() => setShowAddDialog(true)}>지출 추가</button>
   </div>
 
-  {/* 정렬 컨트롤이 아래에 */}
+
   <div className="sort-control">
     <button
       className="sort-btn"
