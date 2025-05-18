@@ -51,6 +51,7 @@ public class ExpenseService {
     Expense expense = ExpenseMapper.fromExpenseRequest(request, team, payer);
     Expense saved = expenseRepository.save(expense);
 
+    // TODO: 낙관적 락(Lock) 적용 검토
     budget.updateBalance(budget.getBalance().subtract(request.amount()));
 
     createAllSettlements(request, payer, saved);
