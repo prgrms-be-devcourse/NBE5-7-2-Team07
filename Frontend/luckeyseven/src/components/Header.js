@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
-import {Link, useNavigate} from 'react-router-dom';
+import {Link, useLocation, useNavigate} from 'react-router-dom';
 import styles from '../styles/Header.module.css';
 import {logout} from "../service/AuthService";
 
 const Header = () => {
     const navigate = useNavigate();
+    const location = useLocation(); // 현재 경로 확인
     const [error, setError] = useState("");
     const handleLogout = async () => {
         try {
@@ -14,6 +15,7 @@ const Header = () => {
             setError("로그아웃 중 오류가 발생했습니다.");
         }
     };
+    const isTeamSetup = location.pathname === "/team-setup";
   return (
       <header className={styles.header}>
         <div className={styles.headerLogo}>
@@ -22,7 +24,7 @@ const Header = () => {
         </div>
         <nav className={styles.headerNav}>
           <Link to="/team-setup" className={styles.navLink}>Team Setup</Link>
-          <Link to="/TeamDashboard" className={styles.navLink}>Dashboard</Link>
+            {!isTeamSetup && <Link to="/TeamDashboard" className={styles.navLink}>Dashboard</Link>}
             <button onClick={handleLogout} className={styles.navLink} style={{background:'none', border:'none', cursor:'pointer'}}>
                 Logout
             </button>
