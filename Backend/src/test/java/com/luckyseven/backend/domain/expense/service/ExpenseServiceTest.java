@@ -3,6 +3,7 @@ package com.luckyseven.backend.domain.expense.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,7 +18,9 @@ import com.luckyseven.backend.domain.expense.enums.ExpenseCategory;
 import com.luckyseven.backend.domain.expense.enums.PaymentMethod;
 import com.luckyseven.backend.domain.expense.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.member.entity.Member;
-import com.luckyseven.backend.domain.member.repository.MemberRepository;
+import com.luckyseven.backend.domain.member.service.MemberService;
+import com.luckyseven.backend.domain.settlements.app.SettlementService;
+import com.luckyseven.backend.domain.settlements.dao.SettlementRepository;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
 import com.luckyseven.backend.sharedkernel.dto.PageResponse;
@@ -47,10 +50,16 @@ class ExpenseServiceTest {
   private TeamRepository teamRepository;
 
   @Mock
-  private MemberRepository memberRepository;
+  private MemberService memberService;
 
   @Mock
   private ExpenseRepository expenseRepository;
+
+  @Mock
+  private SettlementService settlementService;
+
+  @Mock
+  private SettlementRepository settlementRepository;
 
   @InjectMocks
   private ExpenseService expenseService;
@@ -58,6 +67,8 @@ class ExpenseServiceTest {
   private Team team;
   private Budget budget;
   private Member payer;
+  private Member settler1;
+  private Member settler2;
 
   @BeforeEach
   void setUp() {
@@ -70,6 +81,21 @@ class ExpenseServiceTest {
         .nickname("하하하하하")
         .password("1234")
         .build();
+
+    settler1 = Member.builder()
+        .id(10L)
+        .email("settler1@example.com")
+        .nickname("정산자1")
+        .password("abcd1234")
+        .build();
+
+    settler2 = Member.builder()
+        .id(20L)
+        .email("settler2@example.com")
+        .nickname("정산자2")
+        .password("qwer5678")
+        .build();
+
     team = Team.builder()
         .id(1L)
         .name("테스트팀")
@@ -78,6 +104,7 @@ class ExpenseServiceTest {
         .leader(payer)
         .budget(budget)
         .build();
+
   }
 
   @Nested
@@ -101,7 +128,7 @@ class ExpenseServiceTest {
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(teamRepository.findTeamWithBudget(1L))
           .thenReturn(Optional.of(team));
-      when(memberRepository.findById(1L)).thenReturn(Optional.of(payer));
+      when(memberService.findMemberOrThrow(1L)).thenReturn(payer);
 
       // when
       CreateExpenseResponse response = expenseService.saveExpense(1L, request);
@@ -143,7 +170,6 @@ class ExpenseServiceTest {
       @DisplayName("예산보다 큰 지출 금액")
       void insufficientBalance_throwsException() {
         when(teamRepository.findTeamWithBudget(1L)).thenReturn(Optional.of(team));
-        when(memberRepository.findById(1L)).thenReturn(Optional.of(payer));
         ExpenseRequest request = ExpenseRequest.builder()
             .payerId(1L)
             .description("럭키비키즈 팀 배부르게 식사")
@@ -158,6 +184,44 @@ class ExpenseServiceTest {
             .isEqualTo(ExceptionCode.INSUFFICIENT_BALANCE);
       }
     }
+
+    @Test
+    @DisplayName("지출 등록 성공 및 정산 생성 호출")
+    void success_and_createSettlements() {
+      // given
+      ExpenseRequest request = ExpenseRequest.builder()
+          .payerId(1L)
+          .settlerId(List.of(10L, 20L))
+          .description("럭키비키즈 점심 식사")
+          .amount(new BigDecimal("50000.00"))
+          .category(ExpenseCategory.MEAL)
+          .paymentMethod(PaymentMethod.CASH)
+          .build();
+
+      when(expenseRepository.save(any(Expense.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
+      when(teamRepository.findTeamWithBudget(1L))
+          .thenReturn(Optional.of(team));
+      when(memberService.findMemberOrThrow(1L))
+          .thenReturn(payer);
+
+      // when
+      CreateExpenseResponse response = expenseService.saveExpense(1L, request);
+
+      // then – expense 저장 검증
+      ArgumentCaptor<Expense> expenseCaptor = ArgumentCaptor.forClass(Expense.class);
+      verify(expenseRepository).save(expenseCaptor.capture());
+      Expense savedExpense = expenseCaptor.getValue();
+      assertThat(savedExpense.getDescription()).isEqualTo(request.description());
+
+      // then – 예산 차감 검증
+      BigDecimal expectedBalance = new BigDecimal("100000.00").subtract(request.amount());
+      assertThat(budget.getBalance()).isEqualByComparingTo(expectedBalance);
+      assertThat(response.balance()).isEqualByComparingTo(expectedBalance);
+
+      verify(settlementService).createAllSettlements(eq(request), eq(payer), eq(savedExpense));
+    }
+
   }
 
   @Nested
