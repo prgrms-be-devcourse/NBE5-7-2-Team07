@@ -1,7 +1,9 @@
 package com.luckyseven.backend.domain.settlements.app;
 
+import static com.luckyseven.backend.sharedkernel.exception.ExceptionCode.EXPENSE_NOT_FOUND;
+
 import com.luckyseven.backend.domain.expense.entity.Expense;
-import com.luckyseven.backend.domain.expense.service.ExpenseService;
+import com.luckyseven.backend.domain.expense.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.member.service.MemberService;
 import com.luckyseven.backend.domain.settlements.dao.SettlementRepository;
@@ -27,13 +29,13 @@ public class SettlementService {
 
   private final SettlementRepository settlementRepository;
   private final MemberService memberService;
-  private final ExpenseService expenseService;
+  private final ExpenseRepository expenseRepository;
 
   @Transactional
-  public SettlementResponse createSettlement(SettlementCreateRequest request) {
+  public SettlementResponse createSettlement(SettlementCreateRequest request,
+      Member payer, Expense expense) {
+
     Member settler = memberService.findMemberOrThrow(request.settlerId());
-    Member payer = memberService.findMemberOrThrow(request.payerId());
-    Expense expense = expenseService.findExpenseOrThrow(request.expenseId());
     Settlement settlement = SettlementMapper.fromSettlementCreateRequest(request, settler, payer,
         expense);
     return SettlementMapper.toSettlementResponse(settlementRepository.save(settlement));
@@ -72,8 +74,7 @@ public class SettlementService {
         memberService.findMemberOrThrow(request.settlerId()) : null;
     Member payer = request.settlerId() != null ?
         memberService.findMemberOrThrow(request.payerId()) : null;
-    Expense expense = request.expenseId() != null ?
-        expenseService.findExpenseOrThrow(request.expenseId()) : null;
+    Expense expense = findExpenseOrThrow(request.expenseId());
 
     settlement.update(request.amount(), settler, payer, expense, request.isSettled());
     return SettlementMapper.toSettlementResponse(settlementRepository.save(settlement));
@@ -91,5 +92,10 @@ public class SettlementService {
         () -> new CustomLogicException(ExceptionCode.SETTLEMENT_NOT_FOUND)
     );
     return settlement;
+  }
+
+  private Expense findExpenseOrThrow(Long expenseId) {
+    return expenseRepository.findById(expenseId)
+        .orElseThrow(() -> new CustomLogicException(EXPENSE_NOT_FOUND));
   }
 }
