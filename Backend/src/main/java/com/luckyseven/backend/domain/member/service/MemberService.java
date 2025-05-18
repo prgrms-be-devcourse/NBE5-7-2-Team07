@@ -14,6 +14,8 @@ import com.luckyseven.backend.sharedkernel.jwt.utill.JwtTokenizer;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+import java.util.HashSet;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -96,4 +98,11 @@ public class MemberService {
     );
   }
 
+  public List<Member> findMembersByIds(List<Long> ids) {
+    List<Member> members = memberRepository.findAllById(ids);
+    if (members.size() != new HashSet<>(ids).size()) {
+      throw new CustomLogicException(ExceptionCode.MEMBER_ID_NOTFOUND);
+    }
+    return members;
+  }
 }
