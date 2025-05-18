@@ -11,8 +11,8 @@ const Header = () => {
         </div>
         <nav className={styles.headerNav}>
           <Link to="/team-setup" className={styles.navLink}>Team Setup</Link>
-          <a href="/TeamDashboard" className={styles.navLink}>Dashboard</a>
-          <a href="/logout" className={styles.navLink}>Logout</a>
+          <Link to="/TeamDashboard" className={styles.navLink}>Dashboard</Link>
+          <Link to="/logout" className={styles.navLink}>Logout</Link>
         </nav>
       </header>
   );

@@ -92,26 +92,26 @@ const TeamSetup = () => {
   ];
 
   // useEffect 부분 임시 수정
-  useEffect(() => {
-    // 목업 데이터로 테스트
-    setTeams(MOCK_TEAMS);
-    // 실제 연동 시에는 위 코드 대신 fetchTeams 함수 사용
-  }, []);
-  // 내 팀 목록 불러오기
   // useEffect(() => {
-  //   const fetchTeams = async () => {
-  //     setTeamsLoading(true);
-  //     try {
-  //       const myTeams = await getMyTeams();
-  //       setTeams(myTeams);
-  //     } catch (e) {
-  //       setTeams([]);
-  //     } finally {
-  //       setTeamsLoading(false);
-  //     }
-  //   };
-  //   fetchTeams();
-  // }, [loading]); // 팀 생성/참가 후 자동 새로고침(loading 끝나면 재호출)
+  //   // 목업 데이터로 테스트
+  //   setTeams(MOCK_TEAMS);
+  //   // 실제 연동 시에는 위 코드 대신 fetchTeams 함수 사용
+  // }, []);
+  // 내 팀 목록 불러오기
+  useEffect(() => {
+    const fetchTeams = async () => {
+      setTeamsLoading(true);
+      try {
+        const myTeams = await getMyTeams();
+        setTeams(myTeams);
+      } catch (e) {
+        setTeams([]);
+      } finally {
+        setTeamsLoading(false);
+      }
+    };
+    fetchTeams();
+  }, [loading]); // 팀 생성/참가 후 자동 새로고침(loading 끝나면 재호출)
 
   // 팀 생성
   const handleCreate = async ({ teamName, teamPassword }) => {
@@ -121,7 +121,7 @@ const TeamSetup = () => {
       const newTeam = await createTeam(teamName, teamPassword);
       const teamId = newTeam.id?.toString();
       setCurrentTeamId(teamId);
-      navigate(`/TeamDashBoard/${teamId}`);
+      navigate(`/TeamDashBoard`);
     } catch (e) {
       setError("팀 생성에 실패했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
@@ -137,7 +137,7 @@ const TeamSetup = () => {
       const joinedTeam = await joinTeam(teamCode, teamPassword);
       const teamId = joinedTeam.id?.toString();
       setCurrentTeamId(teamId);
-      navigate(`/TeamDashBoard/${teamId}`);
+      navigate(`/TeamDashBoard`);
     } catch (e) {
       setError("팀 참가에 실패했습니다. 팀 코드와 비밀번호를 확인하세요.");
     } finally {

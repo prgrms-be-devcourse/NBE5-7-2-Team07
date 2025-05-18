@@ -18,7 +18,8 @@ export default function Home() {
           setUser(currentUser);
         } else {
           setError("로그인이 필요합니다.");
-          navigate("/TeamDashBoard");
+          // navigate("/TeamDashBoard");
+          navigate("/login")
         }
       } catch (err) {
         setError("로그인이 필요합니다.");

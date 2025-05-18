@@ -24,40 +24,43 @@ import org.springframework.util.AntPathMatcher;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-  private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-  private final JwtTokenizer jwtTokenizer;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final JwtTokenizer jwtTokenizer;
 
 
-  @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-    return config.getAuthenticationManager();
-  }
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
 
-  @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .cors(Customizer.withDefaults())
-        .csrf(csrf -> csrf.disable())
-        .sessionManagement(session ->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .exceptionHandling(ex -> ex.authenticationEntryPoint(customAuthenticationEntryPoint))
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers(HttpMethod.GET, "/api/teams/**").permitAll()
-            .requestMatchers("/api/users/**",
-                "/v3/api-docs/**",
-                "/swagger-ui.html",
-                "/swagger-ui/**",
-                "/swagger-resources/**",
-                "/webjars/**","/refresh").permitAll()
-            .anyRequest().authenticated())
-        .addFilterBefore(new JwtAuthenticationFilter(jwtTokenizer,customAuthenticationEntryPoint, new AntPathMatcher()),
-            UsernamePasswordAuthenticationFilter.class);
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(customAuthenticationEntryPoint))
+                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers(HttpMethod.GET, "/api/teams/**").permitAll()
+                        .requestMatchers("/api/users/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/swagger-resources/**",
+                                "/webjars/**",
+                                "api/refresh",
+                                "/**").permitAll()
 
-    return http.build();
-  }
+                        .anyRequest().authenticated())
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenizer, customAuthenticationEntryPoint, new AntPathMatcher()),
+                        UsernamePasswordAuthenticationFilter.class);
 
-  @Bean
-  public BCryptPasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
+        return http.build();
+    }
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
 

@@ -7,6 +7,8 @@ import "./styles/auth.css"
 import {getCurrentUser} from "./service/AuthService"
 import TeamDashBoard from "./pages/TeamDashBoard";
 import TeamSetup from "./pages/TeamSetup"
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 // 보호된 라우트 컴포넌트
 const ProtectedRoute = ({ children }) => {
@@ -25,15 +27,15 @@ function App() {
     <Router>
       <Routes>
         <Route path="/team/:teamId/expenses"    element={<ExpensesPage />} />
-        {/*<Route path="/login" element={<Login />} />*/}
-        {/*<Route path="/signup" element={<Signup />} />*/}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/TeamDashBoard" element={<TeamDashBoard />} />
         <Route 
           path="/" 
           element={
-            // <ProtectedRoute>
+            <ProtectedRoute>
               <Home />
-            // </ProtectedRoute>
+            </ProtectedRoute>
           } 
         />
         <Route path="/team-setup" element ={<TeamSetup/>}/> 
