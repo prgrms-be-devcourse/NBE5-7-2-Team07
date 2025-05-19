@@ -16,7 +16,9 @@ public record TeamMemberDto(
     String memberNickName,
 
     @Email(message = "올바른 이메일 형식이 아닙니다")
-    String memberEmail
+    String memberEmail,
+
+    String role
 ) {
 
   // 빌더 메서드 추가
@@ -32,6 +34,7 @@ public record TeamMemberDto(
     private Long memberId;
     private String memberNickName;
     private String memberEmail;
+    private String role;
 
     public Builder id(Long id) {
       this.id = id;
@@ -63,8 +66,13 @@ public record TeamMemberDto(
       return this;
     }
 
+    public Builder role(String role) {
+      this.role = role;
+      return this;
+    }
+
     public TeamMemberDto build() {
-      return new TeamMemberDto(id, teamId, teamName, memberId, memberNickName, memberEmail);
+      return new TeamMemberDto(id, teamId, teamName, memberId, memberNickName, memberEmail, role);
     }
   }
 }
