@@ -14,6 +14,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
   @EntityGraph(attributePaths = {"payer"})
   Page<Expense> findByTeamId(Long teamId, Pageable pageable);
 
+  // TODO: 쿼리 최적화
   @EntityGraph(attributePaths = "payer")
   @Query(
       value = """
