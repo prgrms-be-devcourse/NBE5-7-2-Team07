@@ -22,7 +22,6 @@ import com.luckyseven.backend.sharedkernel.dto.PageResponse;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -31,7 +30,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class ExpenseService {
 
@@ -40,64 +38,63 @@ public class ExpenseService {
   private final MemberService memberService;
   private final SettlementService settlementService;
 
+
   @Transactional
   @CacheEvict(value = "recentExpenses", allEntries = true)
   public CreateExpenseResponse saveExpense(Long teamId, ExpenseRequest request) {
+    Team team = teamRepository.findTeamWithBudget(teamId)
+        .orElseThrow(() -> new CustomLogicException(TEAM_NOT_FOUND));
 
-    Team team = findTeamWithBudgetOrThrow(teamId);
-
-    Member payer = findPayerOrThrow(request.payerId());
-
+    Member payer = memberService.findMemberOrThrow(request.payerId());
     Budget budget = team.getBudget();
     validateSufficientBudget(request.amount(), budget.getBalance());
 
     Expense expense = ExpenseMapper.fromExpenseRequest(request, team, payer);
     Expense saved = expenseRepository.save(expense);
 
-    // TODO: 낙관적 락(Lock) 적용 검토
+    // TODO: 낙관적(Lock) 고려
     budget.updateBalance(budget.getBalance().subtract(request.amount()));
-
-    createAllSettlements(request, payer, saved);
+    settlementService.createAllSettlements(request, payer, saved);
 
     return ExpenseMapper.toCreateExpenseResponse(saved, budget);
   }
 
-
   @Transactional(readOnly = true)
   public ExpenseResponse getExpense(Long expenseId) {
-    Expense expense = findExpenseOrThrow(expenseId);
+    Expense expense = expenseRepository.findByIdWithPayer(expenseId)
+        .orElseThrow(() -> new CustomLogicException(EXPENSE_NOT_FOUND));
     return ExpenseMapper.toExpenseResponse(expense);
   }
 
-  // teamId별로 최근 10건 조회 결과를 캐시에 저장
+  // TODO: 캐시 튜닝 필요
   @Transactional(readOnly = true)
   @Cacheable(
       value = "recentExpenses",
-      key = "T(java.util.Objects).hash(#teamId, #pageable.pageNumber, #pageable.pageSize, #pageable.sort.toString())"
+      key = "'team:' + #teamId + ':page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize"
   )
   public PageResponse<ExpenseResponse> getListExpense(Long teamId, Pageable pageable) {
+
     validateTeamExists(teamId);
 
-    Page<ExpenseResponse> page =
-        expenseRepository.findResponsesByTeamId(teamId, pageable);
+    Page<ExpenseResponse> page = expenseRepository.findResponsesByTeamId(teamId, pageable);
     return ExpenseMapper.toPageResponse(page);
   }
-
 
   @Transactional
   @CacheEvict(value = "recentExpenses", allEntries = true)
   public CreateExpenseResponse updateExpense(Long expenseId, ExpenseUpdateRequest request) {
-    Expense expense = findExpenseWithTeamBudget(expenseId);
-    BigDecimal originalAmount = expense.getAmount();
-    BigDecimal newAmount = request.amount();
+    Expense expense = expenseRepository.findWithTeamAndBudgetById(expenseId)
+        .orElseThrow(() -> new CustomLogicException(EXPENSE_NOT_FOUND));
 
+    BigDecimal original = expense.getAmount();
+    BigDecimal updated = request.amount();
     Budget budget = expense.getTeam().getBudget();
-    BigDecimal delta = newAmount.subtract(originalAmount);
+    BigDecimal delta = updated.subtract(original);
     if (delta.compareTo(BigDecimal.ZERO) > 0) {
       validateSufficientBudget(delta, budget.getBalance());
     }
 
-    expense.update(request.description(), newAmount, request.category());
+    expense.update(request.description(), updated, request.category());
     budget.updateBalance(budget.getBalance().subtract(delta));
 
     return ExpenseMapper.toCreateExpenseResponse(expense, budget);
@@ -106,17 +103,14 @@ public class ExpenseService {
   @Transactional
   @CacheEvict(value = "recentExpenses", allEntries = true)
   public ExpenseBalanceResponse deleteExpense(Long expenseId) {
-    Expense expense = findExpenseWithTeamBudget(expenseId);
-    Budget budget = expense.getTeam().getBudget();
+    Expense expense = expenseRepository.findWithTeamAndBudgetById(expenseId)
+        .orElseThrow(() -> new CustomLogicException(EXPENSE_NOT_FOUND));
 
+    Budget budget = expense.getTeam().getBudget();
     budget.updateBalance(budget.getBalance().add(expense.getAmount()));
     expenseRepository.delete(expense);
 
     return ExpenseMapper.toExpenseBalanceResponse(budget);
-  }
-
-  private void createAllSettlements(ExpenseRequest request, Member payer, Expense expense) {
-    settlementService.createAllSettlements(request, payer, expense);
   }
 
   private void validateTeamExists(Long teamId) {
@@ -125,29 +119,9 @@ public class ExpenseService {
     }
   }
 
-  private Expense findExpenseWithTeamBudget(Long expenseId) {
-    return expenseRepository.findWithTeamAndBudgetById(expenseId)
-        .orElseThrow(() -> new CustomLogicException(EXPENSE_NOT_FOUND));
-  }
-
-  private Team findTeamWithBudgetOrThrow(Long teamId) {
-    return teamRepository.findTeamWithBudget(teamId)
-        .orElseThrow(() -> new CustomLogicException(TEAM_NOT_FOUND));
-  }
-
-  private Member findPayerOrThrow(Long memberId) {
-    return memberService.findMemberOrThrow(memberId);
-  }
-
-  public Expense findExpenseOrThrow(Long expenseId) {
-    return expenseRepository.findByIdWithPayer(expenseId)
-        .orElseThrow(() -> new CustomLogicException(EXPENSE_NOT_FOUND));
-  }
-
   private void validateSufficientBudget(BigDecimal amount, BigDecimal balance) {
     if (balance.compareTo(amount) < 0) {
       throw new CustomLogicException(INSUFFICIENT_BALANCE);
     }
   }
 }
-
