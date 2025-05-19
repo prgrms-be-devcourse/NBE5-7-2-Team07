@@ -133,7 +133,6 @@ public class Budget extends BaseEntity {
     return this;
   }
 
-}
   public void updateBalance(BigDecimal balance) {
     if (balance != null) {
       this.balance = balance;
