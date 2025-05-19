@@ -8,6 +8,7 @@ import { TeamSettlementsPage } from "./pages/Settlement/TeamSettlementsPage"
 import { SettlementNewPage } from "./pages/Settlement/SettlementNewPage"
 import { SettlementEditPage } from "./pages/Settlement/SettlementEditPage"
 import { SettlementDetailPage } from "./pages/Settlement/SettlementDetailPage"
+import ExpenseList from "./pages/ExpenseDialog/ExpenseList"
 import "./styles/auth.css"
 import { getCurrentUser } from "./service/AuthService"
 import { ToastProvider } from "./context/ToastContext"
@@ -78,6 +79,24 @@ function App() {
             element={
               <ProtectedRoute>
                 <SettlementEditPage />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Expense 관련 라우트 */}
+          <Route 
+            path="/expenses" 
+            element={
+              <ProtectedRoute>
+                <ExpenseList />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/teams/:teamId/expenses" 
+            element={
+              <ProtectedRoute>
+                <ExpenseList />
               </ProtectedRoute>
             } 
           />

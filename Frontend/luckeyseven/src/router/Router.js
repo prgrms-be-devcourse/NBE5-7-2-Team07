@@ -12,7 +12,7 @@ export default function Router() {
                element={<TeamSettlementsPage/>}/>
         <Route path="/teams/:teamId/settlements/new"
                element={<SettlementNewPage/>}/>
-        <Route path="/teams/:teamId/settlements/:settlementId"
+        <Route path="/settlements/:settlementId"
                element={<SettlementDetailPage/>}/>
         <Route path="/teams/:teamId/settlements/:settlementId/edit"
                element={<SettlementEditPage/>}/>
