@@ -4,8 +4,9 @@ import {useEffect, useState} from "react"
 import {Link, useLocation, useNavigate, useParams} from "react-router-dom"
 import {SettlementList} from "../../components/settlement/settlement-list"
 import {SettlementFilter} from "../../components/settlement/settlement-filter"
-import {getListSettlements} from "../../service/settlementService"
+import {getListSettlements, getUsers} from "../../service/settlementService"
 import {useToast} from "../../context/ToastContext"
+import {getAllExpense} from "../../service/ExpenseService";
 
 export function TeamSettlementsPage() {
   const {teamId} = useParams()
@@ -58,16 +59,18 @@ export function TeamSettlementsPage() {
         setIsLoading(true)
 
         // 페이징 처리된 데이터 로드
-        const response = await getListSettlements(teamId, page, size, sort,
+        const settlements = await getListSettlements(teamId, page, size, sort,
             filters)
+        const users = await getUsers(teamId)
+        const expenses = await getAllExpense(teamId)
 
-        setSettlements(response.content)
-        setUsers(response.users)
-        setExpenses(response.expenses)
+        setSettlements(settlements.content)
+        setUsers(users.data)
+        setExpenses(expenses)
 
         // 페이징 메타데이터 설정
-        setTotalPages(response.totalPages)
-        setTotalElements(response.totalElements)
+        setTotalPages(settlements.totalPages)
+        setTotalElements(settlements.totalElements)
       } catch (error) {
         console.error("팀 정산 내역 조회 오류:", error)
         setError(error.message)
