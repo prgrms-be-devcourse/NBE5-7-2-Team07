@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.luckyseven.backend.domain.expense.entity.Expense;
 import com.luckyseven.backend.domain.member.entity.Member;
+import com.luckyseven.backend.domain.member.service.MemberService;
 import com.luckyseven.backend.domain.settlements.dao.SettlementRepository;
 import com.luckyseven.backend.domain.settlements.dto.SettlementCreateRequest;
 import com.luckyseven.backend.domain.settlements.dto.SettlementResponse;
@@ -43,6 +44,9 @@ class SettlementServiceTest {
 
   @Mock
   private SettlementRepository settlementRepository;
+
+  @Mock
+  private MemberService memberService;
 
   @InjectMocks
   private SettlementService settlementService;

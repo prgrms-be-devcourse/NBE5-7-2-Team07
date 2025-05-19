@@ -5,6 +5,7 @@ import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.settlements.dto.SettlementCreateRequest;
 import com.luckyseven.backend.domain.settlements.dto.SettlementResponse;
 import com.luckyseven.backend.domain.settlements.entity.Settlement;
+import java.math.BigDecimal;
 
 public class SettlementMapper {
 
@@ -27,5 +28,19 @@ public class SettlementMapper {
   public static Settlement fromSettlementCreateRequest(SettlementCreateRequest request,
       Member settler, Member payer, Expense expense) {
     return new Settlement(request.amount(), settler, payer, expense);
+  }
+
+  public static SettlementCreateRequest toSettlementCreateRequest(
+      Expense expense,
+      Long payerId,
+      Long settlerId,
+      BigDecimal shareAmount
+  ) {
+    return SettlementCreateRequest.builder()
+        .expenseId(expense.getId())
+        .payerId(payerId)
+        .settlerId(settlerId)
+        .amount(shareAmount)
+        .build();
   }
 }

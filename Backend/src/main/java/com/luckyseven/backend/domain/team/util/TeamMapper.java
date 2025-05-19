@@ -124,6 +124,9 @@ public class TeamMapper {
 
     return TeamDashboardResponse.builder()
         .team_id(team.getId())
+        .teamCode(team.getTeamCode())
+        .teamName(team.getName())
+        .teamPassword(team.getTeamPassword())
         .foreignCurrency(budget != null ? budget.getForeignCurrency() : null)
         .balance(budget != null ? budget.getBalance() : BigDecimal.ZERO)
         .foreignBalance(budget != null ? budget.getForeignBalance() : BigDecimal.ZERO)

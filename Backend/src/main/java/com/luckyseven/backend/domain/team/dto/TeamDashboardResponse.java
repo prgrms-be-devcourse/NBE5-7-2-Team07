@@ -21,6 +21,12 @@ public class TeamDashboardResponse {
 
   private Long team_id;
 
+  private String teamName;
+
+  private String teamCode;
+
+  private String teamPassword;
+
   private CurrencyCode foreignCurrency;
 
   private BigDecimal balance;

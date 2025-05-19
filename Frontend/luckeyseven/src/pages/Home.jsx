@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import {  Link, useNavigate } from "react-router-dom";
 import "../styles/auth.css";
 import { logout, getCurrentUser, refreshAccessToken } from "../service/AuthService";
 
@@ -19,7 +19,8 @@ export default function Home() {
           setUser(currentUser);
         } else {
           setError("로그인이 필요합니다.");
-          navigate("/login");
+          // navigate("/TeamDashBoard");
+          navigate("/login")
         }
       } catch (err) {
         setError("로그인이 필요합니다.");
