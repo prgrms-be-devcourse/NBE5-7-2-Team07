@@ -1,9 +1,9 @@
 import React from "react"
 import {
   BrowserRouter as Router,
-  Routes,
+  Navigate,
   Route,
-  Navigate
+  Routes
 } from "react-router-dom"
 import Login from "./pages/Login/Login"
 import Signup from "./pages/Login/Signup"
@@ -18,10 +18,9 @@ import "./styles/auth.css"
 import {getCurrentUser} from "./service/AuthService"
 import TeamDashBoard from "./pages/TeamDashBoard";
 import TeamSetup from "./pages/TeamSetup"
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import {getCurrentUser} from "./service/AuthService"
 import {ToastProvider} from "./context/ToastContext"
+import SettlementPage from "./pages/SettlementPage";
+import ExpensesPage from "./pages/ExpensesPage";
 
 // 보호된 라우트 컴포넌트
 const ProtectedRoute = ({children}) => {
