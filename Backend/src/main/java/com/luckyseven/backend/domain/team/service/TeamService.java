@@ -11,6 +11,7 @@ import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
 import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
 import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
+import com.luckyseven.backend.domain.team.dto.TeamListResponse;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
 import com.luckyseven.backend.domain.team.repository.TeamMemberRepository;
@@ -21,6 +22,7 @@ import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -67,11 +69,12 @@ public class TeamService {
 
     // <TODO> 예산 생성(임시로 구현)
     Budget budget = Budget.builder()
-        .foreignCurrency(null)
+        .foreignCurrency(com.luckyseven.backend.domain.budget.entity.CurrencyCode.KRW) // Set default currency to KRW
         .balance(BigDecimal.ZERO)
         .foreignBalance(BigDecimal.ZERO)
         .totalAmount(BigDecimal.ZERO)
         .avgExchangeRate(BigDecimal.ONE)
+        .setBy(memberId) // Set the creator as the setter
         .build();
 
     // Team이 Budget의 주인이므로, Team 에서 Budget set
@@ -137,6 +140,17 @@ public class TeamService {
     return UUID.randomUUID().toString().substring(0, 8);
   }
 
+
+  @Transactional(readOnly = true)
+  public List<TeamListResponse> getTeamsByMemberId(Long memberId) {
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new CustomLogicException(ExceptionCode.MEMBER_ID_NOTFOUND, memberId));
+
+    List<TeamMember> teamMembers = teamMemberRepository.findByMemberId(memberId);
+    return teamMembers.stream()
+        .map(teamMember -> TeamMapper.toTeamListResponse(teamMember.getTeam()))
+        .collect(Collectors.toList());
+  }
 
   /**
    * 대시보드를 가져온다.

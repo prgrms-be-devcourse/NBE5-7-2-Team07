@@ -8,6 +8,7 @@ import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
 import com.luckyseven.backend.domain.budget.entity.Budget;
 import com.luckyseven.backend.domain.expense.entity.Expense;
 import com.luckyseven.backend.domain.member.entity.Member;
+import com.luckyseven.backend.domain.team.dto.TeamListResponse;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
 import java.math.BigDecimal;
@@ -15,6 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TeamMapper {
+
+  public static TeamListResponse toTeamListResponse(Team team) {
+    return new TeamListResponse(
+        team.getId(),
+        team.getName(),
+        team.getTeamCode()
+    );
+  }
 
   /**
    * TeamCreateRequest와 멤버 정보를 Team 엔티티로 변환한다.
