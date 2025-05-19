@@ -98,6 +98,7 @@ public class MemberController implements MemberApi {
 
   @PostMapping("/logout")
   public ResponseEntity<Void> logout(@CookieValue(name = "refreshToken") String refreshToken, HttpServletResponse resp) {
+    service.logout(refreshToken,resp);
     resp.setHeader("Authorization", "");
     resp.setHeader("Access-Control-Expose-Headers", "Authorization");
     return ResponseEntity.noContent().build();

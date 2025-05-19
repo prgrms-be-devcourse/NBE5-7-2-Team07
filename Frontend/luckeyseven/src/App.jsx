@@ -1,48 +1,124 @@
 import React from "react"
-import {BrowserRouter as Router, Navigate, Route, Routes} from "react-router-dom"
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate
+} from "react-router-dom"
+import Login from "./pages/Login/Login"
+import Signup from "./pages/Login/Signup"
 import Home from "./pages/Home"
-import ExpensesPage from "./pages/ExpensesPage"
-import SettlementPage from "./pages/SettlementPage"
+import {HomePage as SettlementHomePage} from "./pages/Settlement/HomePage"
+import {TeamSettlementsPage} from "./pages/Settlement/TeamSettlementsPage"
+import {SettlementNewPage} from "./pages/Settlement/SettlementNewPage"
+import {SettlementEditPage} from "./pages/Settlement/SettlementEditPage"
+import {SettlementDetailPage} from "./pages/Settlement/SettlementDetailPage"
+import ExpenseList from "./pages/ExpenseDialog/ExpenseList"
 import "./styles/auth.css"
 import {getCurrentUser} from "./service/AuthService"
 import TeamDashBoard from "./pages/TeamDashBoard";
 import TeamSetup from "./pages/TeamSetup"
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import {getCurrentUser} from "./service/AuthService"
+import {ToastProvider} from "./context/ToastContext"
 
 // 보호된 라우트 컴포넌트
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({children}) => {
   const user = getCurrentUser();
-  
+
   if (!user) {
     // 로그인되지 않은 경우 로그인 페이지로 리다이렉트
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace/>;
   }
-  
+
   return children;
 };
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/team/:teamId/expenses"    element={<ExpensesPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/TeamDashBoard" element={<TeamDashBoard />} />
-        <Route 
-          path="/" 
-          element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          } 
-        />
-        <Route path="/team-setup" element ={<TeamSetup/>}/> 
-        <Route path="/team/:teamId/settlement"  element={<SettlementPage />} />
-      </Routes>
-    </Router>
+      <ToastProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login/>}/>
+            <Route path="/signup" element={<Signup/>}/>
+            <Route path="/TeamDashBoard" element={<TeamDashBoard/>}/>
+            <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Home/>
+                  </ProtectedRoute>
+                }
+            />
+            <Route path="/team-setup" element={<TeamSetup/>}/>
+            {/*settlement 임시 페이지 import 삭제로 인한 warning. 병합된 페이지로 변경 예정*/}
+            <Route path="/team/:teamId/settlement" element={<SettlementPage/>}/>
+            {/*expenses 임시 페이지 import 삭제로 인한 warning. 병합된 페이지로 변경 예정*/}
+            <Route path="/team/:teamId/expenses" element={<ExpensesPage/>}/>
+            {/* Settlement 관련 라우트 */}
+            <Route
+                path="/settlement"
+                element={
+                  <ProtectedRoute>
+                    <SettlementHomePage/>
+                  </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/teams/:teamId/settlements"
+                element={
+                  <ProtectedRoute>
+                    <TeamSettlementsPage/>
+                  </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/settlements/new"
+                element={
+                  <ProtectedRoute>
+                    <SettlementNewPage/>
+                  </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/settlements/:settlementId"
+                element={
+                  <ProtectedRoute>
+                    <SettlementDetailPage/>
+                  </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/settlements/:settlementId/edit"
+                element={
+                  <ProtectedRoute>
+                    <SettlementEditPage/>
+                  </ProtectedRoute>
+                }
+            />
+
+            {/* Expense 관련 라우트 */}
+            <Route
+                path="/expenses"
+                element={
+                  <ProtectedRoute>
+                    <ExpenseList/>
+                  </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/teams/:teamId/expenses"
+                element={
+                  <ProtectedRoute>
+                    <ExpenseList/>
+                  </ProtectedRoute>
+                }
+            />
+          </Routes>
+        </Router>
+      </ToastProvider>
   )
 }
 
-export default App 
+export default App

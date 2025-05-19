@@ -73,7 +73,7 @@ public class ExpenseService {
 
   @Transactional
   public CreateExpenseResponse updateExpense(Long expenseId, ExpenseUpdateRequest request) {
-    Expense expense = findExpenseOrThrow(expenseId);
+    Expense expense = findExpenseWithTeamBudget(expenseId);
     BigDecimal originalAmount = expense.getAmount();
     BigDecimal newAmount = request.amount();
 
@@ -91,7 +91,7 @@ public class ExpenseService {
 
   @Transactional
   public ExpenseBalanceResponse deleteExpense(Long expenseId) {
-    Expense expense = findExpenseOrThrow(expenseId);
+    Expense expense = findExpenseWithTeamBudget(expenseId);
     Budget budget = expense.getTeam().getBudget();
 
     budget.updateBalance(budget.getBalance().add(expense.getAmount()));
@@ -106,6 +106,11 @@ public class ExpenseService {
     }
   }
 
+  private Expense findExpenseWithTeamBudget(Long expenseId) {
+    return expenseRepository.findWithTeamAndBudgetById(expenseId)
+        .orElseThrow(() -> new CustomLogicException(EXPENSE_NOT_FOUND));
+  }
+
   private Team findTeamWithBudgetOrThrow(Long teamId) {
     return teamRepository.findTeamWithBudget(teamId)
         .orElseThrow(() -> new CustomLogicException(TEAM_NOT_FOUND));
@@ -117,8 +122,7 @@ public class ExpenseService {
   }
 
   public Expense findExpenseOrThrow(Long expenseId) {
-    return expenseRepository.findById(expenseId)
-
+    return expenseRepository.findByIdWithPayer(expenseId)
         .orElseThrow(() -> new CustomLogicException(EXPENSE_NOT_FOUND));
   }
 
