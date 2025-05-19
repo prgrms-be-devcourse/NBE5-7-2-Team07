@@ -9,7 +9,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,8 +16,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
 
 @Slf4j
 @Component
@@ -26,9 +28,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final JwtTokenizer jwtTokenizer;
   private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+  private final PathMatcher pathMatcher;
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request){
+//    if (HttpMethod.GET.matches(request.getMethod()) && pathMatcher.match("/api/teams/**",
+//        request.getRequestURI())) {
+//      return true;
+//    }
     String path = request.getRequestURI();
     return path.startsWith("/api/users/");
   }

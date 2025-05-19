@@ -1,7 +1,5 @@
 package com.luckyseven.backend.domain.team.controller;
 
-import com.luckyseven.backend.domain.member.entity.Member;
-import com.luckyseven.backend.domain.member.repository.MemberRepository;
 import com.luckyseven.backend.domain.member.service.utill.MemberDetails;
 import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
 import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
@@ -10,7 +8,6 @@ import com.luckyseven.backend.domain.team.dto.TeamJoinRequest;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
 import com.luckyseven.backend.domain.team.dto.TeamListResponse;
 import com.luckyseven.backend.domain.team.dto.TeamMemberDto;
-
 import com.luckyseven.backend.domain.team.service.TeamMemberService;
 import com.luckyseven.backend.domain.team.service.TeamService;
 import com.luckyseven.backend.domain.team.service.TempMemberService;
@@ -115,7 +112,7 @@ public class TeamController {
 
     return ResponseEntity.ok(response);
   }
-  @GetMapping("/my-teams")
+  @GetMapping("/myTeams")
   @Operation(
       summary = "내 팀 목록 조회",
       description = "로그인한 사용자가 속한 모든 팀 목록을 조회합니다"
