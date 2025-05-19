@@ -174,7 +174,7 @@ export default function ExpenseList({ teamId = 1 }) {
         <div className="actions">
 
   <div className="header-actions">
-    <button className="btn btn-outlined">예산 수정</button>
+    {/* <button className="btn btn-outlined">예산 수정</button> */}
     <button className="btn btn-filled" onClick={() => setShowAddDialog(true)}>지출 추가</button>
   </div>
 

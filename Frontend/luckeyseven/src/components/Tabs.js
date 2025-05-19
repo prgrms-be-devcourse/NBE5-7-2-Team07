@@ -13,9 +13,9 @@ const Tabs = ({ activeTab, setActiveTab }) => {
 
     switch (tab) {
       case 'Expenses':
-        return `/team/${teamId}/expenses`;
+        return `/teams/${teamId}/expenses`;
       case 'Settlement':
-        return `/team/${teamId}/settlement`;
+        return `/teams/${teamId}/settlement`;
       default:
         return '#'; // Overview and Members will still use setActiveTab
     }

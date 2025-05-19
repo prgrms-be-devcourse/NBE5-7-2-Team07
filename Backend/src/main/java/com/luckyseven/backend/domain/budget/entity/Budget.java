@@ -38,17 +38,16 @@ public class Budget extends BaseEntity {
   @Column(nullable = false)
   private Long setBy;
 
-  @Setter
   @Column(nullable = false)
   private BigDecimal balance;
-  @Setter
+
   private BigDecimal foreignBalance;
 
+  @Setter
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 3)
   private CurrencyCode foreignCurrency;
 
-  @Setter
   private BigDecimal avgExchangeRate;
 
   @Builder

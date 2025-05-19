@@ -1,125 +1,106 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState } from 'react';
+import axios from 'axios';
+import '../styles/BudgetDialog.css';
 
-export default function AddBudgetDialog({ budget, onSubmit, onClose }) {
-  const { teamId } = useParams();
-
+const AddBudgetDialog = ({ teamId, closeDialog, onBudgetUpdate }) => {
   const [additionalBudget, setAdditionalBudget] = useState(0);
-  const [isExchanged, setIsExchanged] = useState(!!budget.avgExchangeRate);
-  const [exchangeRate, setExchangeRate] = useState(budget.avgExchangeRate || "");
+  const [isExchanged, setIsExchanged] = useState(false);
+  const [exchangeRate, setExchangeRate] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const resetForm = () => {
+    setAdditionalBudget(0);
+    setIsExchanged(false);
+    setExchangeRate('');
+  };
+
+  const handleClose = () => {
+    resetForm();
+    closeDialog();
+  };
 
   const handleSubmit = async () => {
-    const payload = {
-      additionalBudget: parseFloat(additionalBudget),
-      isExchanged,
-      exchangeRate: isExchanged ? parseFloat(exchangeRate) : null,
-    };
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     try {
-      const res = await fetch(`/api/teams/${teamId}/budget`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+      const response = await axios.patch(`/api/teams/${teamId}/budget`, {
+        additionalBudget,
+        isExchanged,
+        exchangeRate: isExchanged ? exchangeRate : null,
       });
-
-      if (!res.ok) {
-        if (res.status === 404) {
-          alert("예산 정보를 찾을 수 없습니다.");
-        } else {
-          alert("예산 추가 중 오류가 발생했습니다.");
-        }
-        return;
+      console.log(response.data);
+      
+      if (onBudgetUpdate) {
+        onBudgetUpdate(response.data);
       }
-
-      const data = await res.json();
-      onSubmit(data);
-    } catch (err) {
-      console.error("예산 추가 실패:", err);
-      alert("서버와의 통신에 실패했습니다.");
+      
+      resetForm();
+      closeDialog();
+    } catch (error) {
+      console.error('Error adding budget:', error);
+      alert('예산 추가 중 오류가 발생했습니다: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed top-1/4 left-1/2 transform -translate-x-1/2 bg-white border border-gray-300 rounded-lg shadow-lg p-6 z-50 w-full max-w-md">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">예산 추가</h2>
-
-      <div className="space-y-4">
-        {/* 추가 예산 입력 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">추가 예산</label>
-          <input
-            type="number"
-            step="100"
-            value={additionalBudget}
-            onChange={(e) => setAdditionalBudget(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="예: 50000"
-          />
+    <div className="modal-overlay" onClick={handleClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <h2>예산 추가</h2>
+        <label>추가 예산 금액</label>
+        <input
+          type="number"
+          value={additionalBudget}
+          onChange={(e) => setAdditionalBudget(e.target.value)}
+          placeholder="추가할 예산 금액"
+          min = "0"
+          step = "100"
+        />
+        
+        <div className="toggle-buttons">
+          <label>환율 적용 여부</label>
+          <button 
+            className={isExchanged ? 'active' : ''} 
+            onClick={() => setIsExchanged(true)}
+          >
+            예
+          </button>
+          <button 
+            className={!isExchanged ? 'active' : ''} 
+            onClick={() => setIsExchanged(false)}
+          >
+            아니오
+          </button>
         </div>
-
-        {/* 환전 여부 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">환전 여부</label>
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={() => setIsExchanged(true)}
-              className={`flex-1 py-2 rounded-lg border transition ${
-                isExchanged
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "text-blue-600 border-blue-600 hover:bg-blue-50"
-              }`}
-            >
-              O
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsExchanged(false)}
-              className={`flex-1 py-2 rounded-lg border transition ${
-                !isExchanged
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "text-blue-600 border-blue-600 hover:bg-blue-50"
-              }`}
-            >
-              X
-            </button>
-          </div>
-        </div>
-
-        {/* 환율 입력 */}
+        
         {isExchanged && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700">환율</label>
+          <>
+            <label>환율</label>
             <input
               type="number"
               value={exchangeRate}
               onChange={(e) => setExchangeRate(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="예: 1320.5"
+              placeholder="환율"
+              min = "0"
             />
-          </div>
+          </>
         )}
-      </div>
-
-      {/* 버튼 */}
-      <div className="flex justify-end gap-2 mt-6">
-        <button
-          type="button"
-          onClick={onClose}
-          className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
-        >
-          취소
-        </button>
-        <button
-          type="button"
-          onClick={handleSubmit}
-          className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
-        >
-          저장
-        </button>
+        
+        <div className="modal-buttons">
+          <button onClick={handleClose}>취소</button>
+          <button 
+            className="primary" 
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? '처리 중...' : '예산 추가'}
+          </button>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default AddBudgetDialog;

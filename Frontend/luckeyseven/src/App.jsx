@@ -51,10 +51,7 @@ function App() {
                 }
             />
             <Route path="/team-setup" element={<TeamSetup/>}/>
-            {/*settlement 임시 페이지 import 삭제로 인한 warning. 병합된 페이지로 변경 예정*/}
-            <Route path="/team/:teamId/settlement" element={<SettlementPage/>}/>
-            {/*expenses 임시 페이지 import 삭제로 인한 warning. 병합된 페이지로 변경 예정*/}
-            <Route path="/team/:teamId/expenses" element={<ExpensesPage/>}/>
+            
             {/* Settlement 관련 라우트 */}
             <Route
                 path="/settlement"

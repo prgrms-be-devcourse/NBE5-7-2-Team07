@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from 'axios';
 import { useParams } from "react-router-dom";
 import SetBudgetDialog from "./components/set-budget-dialog";
 import AddBudgetDialog from "./components/add-budget-dialog";
-import EditBudgetDialog from "./components/edit-budget-dialog";
+import PageHeaderControls from "../../components/PageHeaderControls";
+import { setBudgetInitialized } from "../../service/ApiService";
 
 export function BudgetPage() {
   const { teamId } = useParams();
@@ -36,6 +38,7 @@ export function BudgetPage() {
 
       const updatedBudget = await res.json();
       setBudget(updatedBudget);
+      setBudgetInitialized(true); // ApiService의 예산 초기화 상태 업데이트
       setDialogType(null);
     } catch (err) {
       alert("서버와 통신 중 오류가 발생했습니다.");
@@ -56,8 +59,11 @@ export function BudgetPage() {
 
       if (res.status === 204) {
         alert("예산이 성공적으로 삭제되었습니다.");
-        setBudget(null);
+        setBudget(null); // 예산 삭제 후 상태 초기화
+        setBudgetInitialized(false); // ApiService의 예산 초기화 상태 업데이트
         setDialogType(null);
+        // 예산 삭제 후 예산 리스트를 새로 불러오기
+        await fetchBudget();
       } else if (res.status === 404) {
         alert("예산 정보를 찾을 수 없습니다.");
       } else {
@@ -69,103 +75,94 @@ export function BudgetPage() {
     }
   };
 
-  useEffect(() => {
-    const fetchBudget = async () => {
-      try {
-        const res = await fetch(`/api/teams/${teamId}/budget`, {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-        });
+  const fetchBudget = async () => {
+    try {
+      setLoading(true);
+      
+      const res = await axios.get(`/api/teams/${teamId}/budget`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        }
+      });
 
-        if (!res.ok) throw new Error("서버 응답 오류");
-
-        const data = await res.json();
-        setBudget(data);
-      } catch (err) {
-        console.error("예산 정보를 불러오는 데 실패했습니다:", err);
-      } finally {
-        setLoading(false);
+      if (res.status === 200) {
+        setBudget(res.data);
+        setBudgetInitialized(true); // ApiService의 예산 초기화 상태 업데이트
       }
-    };
+    } catch (err) {
+      console.error("예산 정보를 불러오는 데 실패했습니다:", err);
+      
+      // 404 에러인 경우 예산이 없는 것으로 처리
+      if (err.response && err.response.status === 404) {
+        setBudget(null);
+        setBudgetInitialized(false); // ApiService의 예산 초기화 상태 업데이트
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // 예산 업데이트 처리 함수
+  const handleBudgetUpdate = (updatedBudget) => {
+    setBudget(updatedBudget);
+    setBudgetInitialized(true); // ApiService의 예산 초기화 상태 업데이트
+    setDialogType(null);
+  };
+
+  useEffect(() => {
     fetchBudget();
   }, [teamId, token]);
 
   if (loading) return <p className="text-center mt-10 text-gray-600">불러오는 중...</p>;
-  if (!budget) return <p className="text-center mt-10 text-red-500">예산 정보를 찾을 수 없습니다.</p>;
+
+  // Pass pageHeaderData to PageHeaderControls
+  const pageHeaderData = {
+    teamName: budget?.team?.name || `팀 ${teamId}`,
+    teamId,
+    openDialog: setDialogType
+  };
 
   return (
     <div className="max-w-2xl mx-auto mt-10 p-6 bg-white shadow-md rounded-lg space-y-6">
+      <PageHeaderControls pageHeaderData={pageHeaderData} />
+
       <h1 className="text-2xl font-bold text-gray-800">
         [{budget?.team?.name || `팀 ${teamId}`}] 예산
       </h1>
 
-      <div className="space-y-2 text-gray-700">
-        <p>총 예산: <span className="font-medium">{budget?.totalAmount?.toLocaleString() || 0} KRW</span></p>
-        <p>원화 잔고: <span className="font-medium">{budget?.balance?.toLocaleString() || 0} KRW</span></p>
-        <p>외화 잔고: <span className="font-medium">{budget?.foreignBalance?.toLocaleString() || 0} {budget?.foreignCurrency || 'KRW'}</span></p>
-        <p>평균 환율: <span className="font-medium">{budget?.avgExchangeRate || 0}</span></p>
-      </div>
-
-      <div className="flex flex-wrap gap-3 mt-4">
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-          onClick={() => setDialogType("set")}
-        >
-          예산 설정
-        </button>
-        <button
-          className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600"
-          onClick={() => setDialogType("edit")}
-        >
-          예산 수정
-        </button>
-        <button
-          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-          onClick={() => setDialogType("add")}
-        >
-          예산 추가
-        </button>
-        <button
-          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 ml-auto"
-          onClick={handleDelete}
-        >
-          예산 삭제
-        </button>
-      </div>
+      {budget ? (
+        <div className="space-y-2 text-gray-700">
+          <p>총 예산: <span className="font-medium">{budget?.totalAmount?.toLocaleString() || 0} KRW</span></p>
+          <p>원화 잔고: <span className="font-medium">{budget?.balance?.toLocaleString() || 0} KRW</span></p>
+          <p>외화 잔고: <span className="font-medium">{budget?.foreignBalance?.toLocaleString() || 0} {budget?.foreignCurrency || 'KRW'}</span></p>
+          <p>평균 환율: <span className="font-medium">{budget?.avgExchangeRate || 0}</span></p>
+        </div>
+      ) : (
+        <div className="text-center p-4 bg-gray-100 rounded-lg">
+          <p className="text-gray-600">아직 설정된 예산이 없습니다. 예산을 설정해주세요.</p>
+          <button 
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+            onClick={() => setDialogType('set')}
+          >
+            예산 설정하기
+          </button>
+        </div>
+      )}
 
       {/* Dialogs */}
       {dialogType === "set" && (
-        <SetBudgetDialog
-          onSubmit={(payload) => {
-            setBudget({
-              ...budget,
-              totalAmount: payload.balance,
-              balance: payload.balance,
-              foreignCurrency: payload.foreignCurrency,
-              avgExchangeRate: payload.avgExchangeRate,
-              foreignBalance: payload.foreignBalance,
-            });
-            setDialogType(null);
-          }}
-          onClose={handleClose}
-        />
-      )}
-
-      {dialogType === "edit" && (
-        <EditBudgetDialog
-          budget={budget}
-          onSubmit={handleUpdate}
-          onClose={handleClose}
+        <SetBudgetDialog 
+          teamId={teamId} 
+          closeDialog={handleClose} 
+          onBudgetUpdate={handleBudgetUpdate}
         />
       )}
 
       {dialogType === "add" && (
-        <AddBudgetDialog
-          budget={budget}
-          onSubmit={handleUpdate}
-          onClose={handleClose}
+        <AddBudgetDialog 
+          teamId={teamId} 
+          closeDialog={handleClose}
+          onBudgetUpdate={handleBudgetUpdate} 
         />
       )}
     </div>

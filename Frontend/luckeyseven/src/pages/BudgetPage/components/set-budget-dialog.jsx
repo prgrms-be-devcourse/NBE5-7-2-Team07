@@ -1,154 +1,186 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import '../styles/BudgetDialog.css';
 
-export default function SetBudgetDialog({ onSubmit, onClose }) {
-  const { teamId } = useParams();
-
-  const [totalAmount, setTotalAmount] = useState("");
-  const [foreignCurrency, setForeignCurrency] = useState("KRW");
+const SetBudgetDialog = ({ teamId, closeDialog, onBudgetUpdate }) => {
+  const [totalAmount, setTotalAmount] = useState(0);
   const [isExchanged, setIsExchanged] = useState(false);
-  const [exchangeRate, setExchangeRate] = useState("");
+  const [foreignCurrency, setForeignCurrency] = useState('KRW');
+  const [exchangeRate, setExchangeRate] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
+  const resetForm = () => {
+    setTotalAmount(0);
+    setIsExchanged(false);
+    setForeignCurrency('USD');
+    setExchangeRate('');
+    setError('');
+  };
+
+  const handleClose = () => {
+    resetForm();
+    closeDialog();
+  };
+
+  // 기존 예산 확인 및 삭제 후 새로 설정하는 함수
   const handleSubmit = async () => {
-    const payload = {
-      totalAmount: parseFloat(totalAmount || "0"),
-      isExchanged,
-      exchangeRate: isExchanged ? parseFloat(exchangeRate || "0") : null,
-      foreignCurrency,
-    };
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setError('');
+
+    // 입력값 유효성 검사
+    if (totalAmount <= 0) {
+      setError('예산 금액은 0보다 커야 합니다.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (isExchanged && (!exchangeRate || exchangeRate <= 0)) {
+      setError('유효한 환율을 입력해주세요.');
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
-      const res = await fetch(`/api/teams/${teamId}/budget`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        if (res.status === 409) {
-          alert("이미 예산이 설정되어 있습니다.");
-        } else {
-          alert("예산 설정 중 오류가 발생했습니다.");
+      // 1. 먼저 기존 예산 확인
+      let existingBudget = false;
+      try {
+        const checkResponse = await axios.get(`/api/teams/${teamId}/budget`);
+        if (checkResponse.status === 200) {
+          existingBudget = true;
         }
-        return;
+      } catch (checkError) {
+        // 404면 예산이 없는 것, 다른 에러는 무시
+        if (checkError.response && checkError.response.status !== 404) {
+          console.warn('Budget check error:', checkError);
+        }
       }
 
-      const data = await res.json();
-      onSubmit(data);
+      // 2. 기존 예산이 있으면 삭제
+      if (existingBudget) {
+        try {
+          await axios.delete(`/api/teams/${teamId}/budget`);
+          console.log('기존 예산 삭제 완료');
+        } catch (deleteError) {
+          console.error('기존 예산 삭제 실패:', deleteError);
+          setError('기존 예산 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // 3. 새 예산 설정
+      const response = await axios.post(`/api/teams/${teamId}/budget`, {
+        totalAmount,
+        isExchanged,
+        foreignCurrency,
+        exchangeRate: isExchanged ? exchangeRate : null,
+      });
+      
+      console.log('Budget setup response:', response.data);
+      
+      if (onBudgetUpdate) {
+        onBudgetUpdate(response.data);
+      }
+      
+      resetForm();
+      closeDialog(); // 다이얼로그 닫기
     } catch (error) {
-      console.error("예산 생성 실패:", error);
-      alert("서버 연결에 실패했습니다.");
+      console.error('Error setting budget:', error);
+      
+      if (error.response) {
+        if (error.response.status === 409) {
+          // 409 Conflict 처리 - 이미 예산이 존재하는 경우
+          setError('이미 예산이 설정되어 있습니다. 예산 수정 기능을 이용해주세요.');
+        } else {
+          setError('예산 설정 중 오류가 발생했습니다: ' + (error.response.data?.message || error.message));
+        }
+      } else {
+        setError('서버와 통신 중 오류가 발생했습니다.');
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-full max-w-md p-6 bg-white rounded-2xl shadow-lg">
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">예산 설정</h2>
-
-        <div className="space-y-4">
-          {/* 총 예산 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">총 예산</label>
+    <div className="modal-overlay" onClick={handleClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <h2>예산 설정</h2>
+        
+        {error && <div className="error-message">{error}</div>}
+        
+        <label>예산 금액</label>
+        <input
+          type="number"
+          value={totalAmount}
+          onChange={(e) => setTotalAmount(e.target.value)}
+          placeholder="예산 금액"
+          min = "0"
+          step = "100"
+        />
+        <label>통화 코드</label>
+        <select value={foreignCurrency} onChange={(e) => setForeignCurrency(e.target.value)}>
+          <option value="USD">USD - 미국 달러</option>
+          <option value="EUR">EUR - 유로</option>
+          <option value="KRW">KRW - 대한민국 원</option>
+          <option value="JPY">JPY - 일본 엔화</option>
+          <option value="CNY">CNY - 중국 위안</option>
+          <option value="GBP">GBP - 영국 파운드</option>
+          <option value="AUD">AUD - 호주 달러</option>
+          <option value="CAD">CAD - 캐나다 달러</option>
+          <option value="CHF">CHF - 스위스 프랑</option>
+          <option value="INR">INR - 인도 루피</option>
+          <option value="SGD">SGD - 싱가포르 달러</option>
+          <option value="THB">THB - 태국 바트</option>
+          <option value="HKD">HKD - 홍콩 달러</option>
+          <option value="RUB">RUB - 러시아 루블</option>
+          <option value="BRL">BRL - 브라질 헤알</option>
+        </select>
+        
+        <div className="toggle-buttons">
+          <label>환율 적용 여부</label>
+          <button 
+            className={isExchanged ? 'active' : ''} 
+            onClick={() => setIsExchanged(true)}
+          >
+            예
+          </button>
+          <button 
+            className={!isExchanged ? 'active' : ''} 
+            onClick={() => setIsExchanged(false)}
+          >
+            아니오
+          </button>
+        </div>
+        
+        {isExchanged && (
+          <>
+            <label>환율</label>
             <input
               type="number"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="예: 100000"
-              step="100"
-              value={totalAmount}
-              onChange={(e) => setTotalAmount(e.target.value)}
+              value={exchangeRate}
+              onChange={(e) => setExchangeRate(e.target.value)}
+              placeholder="환율"
+              min = "0"
             />
-          </div>
-
-          {/* 통화 선택 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">통화</label>
-            <select
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={foreignCurrency}
-              onChange={(e) => setForeignCurrency(e.target.value)}
-            >
-              <option value="USD">USD - 미국 달러</option>
-              <option value="EUR">EUR - 유로</option>
-              <option value="KRW">KRW - 대한민국 원</option>
-              <option value="JPY">JPY - 일본 엔화</option>
-              <option value="CNY">CNY - 중국 위안</option>
-              <option value="GBP">GBP - 영국 파운드</option>
-              <option value="AUD">AUD - 호주 달러</option>
-              <option value="CAD">CAD - 캐나다 달러</option>
-              <option value="CHF">CHF - 스위스 프랑</option>
-              <option value="INR">INR - 인도 루피</option>
-              <option value="SGD">SGD - 싱가포르 달러</option>
-              <option value="THB">THB - 태국 바트</option>
-              <option value="HKD">HKD - 홍콩 달러</option>
-              <option value="RUB">RUB - 러시아 루블</option>
-              <option value="BRL">BRL - 브라질 헤알</option>
-            </select>
-          </div>
-
-          {/* 환전 여부 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">환전 여부</label>
-            <div className="flex gap-4">
-              <button
-                className={`flex-1 py-2 rounded-lg border font-medium transition ${
-                  isExchanged
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-white text-blue-600 border-blue-600"
-                }`}
-                onClick={() => setIsExchanged(true)}
-                type="button"
-              >
-                O
-              </button>
-              <button
-                className={`flex-1 py-2 rounded-lg border font-medium transition ${
-                  !isExchanged
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-white text-blue-600 border-blue-600"
-                }`}
-                onClick={() => setIsExchanged(false)}
-                type="button"
-              >
-                X
-              </button>
-            </div>
-          </div>
-
-          {/* 환율 입력 */}
-          {isExchanged && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700">환율</label>
-              <input
-                type="number"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="예: 1393.7"
-                value={exchangeRate}
-                onChange={(e) => setExchangeRate(e.target.value)}
-              />
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-end gap-2 mt-6">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
-          >
-            취소
-          </button>
-          <button
-            type="button"
+          </>
+        )}
+        
+        <div className="modal-buttons">
+          <button onClick={handleClose}>취소</button>
+          <button 
+            className="primary" 
             onClick={handleSubmit}
-            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+            disabled={isSubmitting}
           >
-            저장
+            {isSubmitting ? '처리 중...' : '예산 설정'}
           </button>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default SetBudgetDialog;
