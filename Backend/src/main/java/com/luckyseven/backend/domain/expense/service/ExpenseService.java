@@ -23,6 +23,8 @@ import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,7 @@ public class ExpenseService {
   private final SettlementService settlementService;
 
   @Transactional
+  @CacheEvict(value = "recentExpenses", allEntries = true)
   public CreateExpenseResponse saveExpense(Long teamId, ExpenseRequest request) {
 
     Team team = findTeamWithBudgetOrThrow(teamId);
@@ -66,18 +69,23 @@ public class ExpenseService {
     return ExpenseMapper.toExpenseResponse(expense);
   }
 
+  // teamId별로 최근 10건 조회 결과를 캐시에 저장
   @Transactional(readOnly = true)
+  @Cacheable(
+      value = "recentExpenses",
+      key = "T(java.util.Objects).hash(#teamId, #pageable.pageNumber, #pageable.pageSize, #pageable.sort.toString())"
+  )
   public PageResponse<ExpenseResponse> getListExpense(Long teamId, Pageable pageable) {
-
     validateTeamExists(teamId);
 
-    Page<Expense> expensePage = expenseRepository.findByTeamId(teamId, pageable);
-
-    return ExpenseMapper.toPageResponse(expensePage);
+    Page<ExpenseResponse> page =
+        expenseRepository.findResponsesByTeamId(teamId, pageable);
+    return ExpenseMapper.toPageResponse(page);
   }
 
 
   @Transactional
+  @CacheEvict(value = "recentExpenses", allEntries = true)
   public CreateExpenseResponse updateExpense(Long expenseId, ExpenseUpdateRequest request) {
     Expense expense = findExpenseWithTeamBudget(expenseId);
     BigDecimal originalAmount = expense.getAmount();
@@ -96,6 +104,7 @@ public class ExpenseService {
   }
 
   @Transactional
+  @CacheEvict(value = "recentExpenses", allEntries = true)
   public ExpenseBalanceResponse deleteExpense(Long expenseId) {
     Expense expense = findExpenseWithTeamBudget(expenseId);
     Budget budget = expense.getTeam().getBudget();
@@ -141,3 +150,4 @@ public class ExpenseService {
     }
   }
 }
+
