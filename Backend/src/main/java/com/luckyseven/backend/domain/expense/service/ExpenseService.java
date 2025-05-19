@@ -1,7 +1,6 @@
 package com.luckyseven.backend.domain.expense.service;
 
 import static com.luckyseven.backend.sharedkernel.exception.ExceptionCode.EXPENSE_NOT_FOUND;
-import static com.luckyseven.backend.sharedkernel.exception.ExceptionCode.EXPENSE_PAYER_NOT_FOUND;
 import static com.luckyseven.backend.sharedkernel.exception.ExceptionCode.INSUFFICIENT_BALANCE;
 import static com.luckyseven.backend.sharedkernel.exception.ExceptionCode.TEAM_NOT_FOUND;
 
@@ -15,31 +14,35 @@ import com.luckyseven.backend.domain.expense.entity.Expense;
 import com.luckyseven.backend.domain.expense.mapper.ExpenseMapper;
 import com.luckyseven.backend.domain.expense.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.member.entity.Member;
-import com.luckyseven.backend.domain.member.repository.MemberRepository;
+import com.luckyseven.backend.domain.member.service.MemberService;
+import com.luckyseven.backend.domain.settlements.app.SettlementService;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
 import com.luckyseven.backend.sharedkernel.dto.PageResponse;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ExpenseService {
 
   private final ExpenseRepository expenseRepository;
-
-  // TODO: TEMP 엔티티 수정
   private final TeamRepository teamRepository;
-  private final MemberRepository memberRepository;
+  private final MemberService memberService;
+  private final SettlementService settlementService;
 
   @Transactional
   public CreateExpenseResponse saveExpense(Long teamId, ExpenseRequest request) {
+
     Team team = findTeamWithBudgetOrThrow(teamId);
+
     Member payer = findPayerOrThrow(request.payerId());
 
     Budget budget = team.getBudget();
@@ -48,11 +51,14 @@ public class ExpenseService {
     Expense expense = ExpenseMapper.fromExpenseRequest(request, team, payer);
     Expense saved = expenseRepository.save(expense);
 
+    // TODO: 낙관적 락(Lock) 적용 검토
     budget.updateBalance(budget.getBalance().subtract(request.amount()));
 
-    // TODO: 정산 저장 로직 추가
+    createAllSettlements(request, payer, saved);
+
     return ExpenseMapper.toCreateExpenseResponse(saved, budget);
   }
+
 
   @Transactional(readOnly = true)
   public ExpenseResponse getExpense(Long expenseId) {
@@ -100,6 +106,10 @@ public class ExpenseService {
     return ExpenseMapper.toExpenseBalanceResponse(budget);
   }
 
+  private void createAllSettlements(ExpenseRequest request, Member payer, Expense expense) {
+    settlementService.createAllSettlements(request, payer, expense);
+  }
+
   private void validateTeamExists(Long teamId) {
     if (!teamRepository.existsById(teamId)) {
       throw new CustomLogicException(TEAM_NOT_FOUND);
@@ -117,8 +127,7 @@ public class ExpenseService {
   }
 
   private Member findPayerOrThrow(Long memberId) {
-    return memberRepository.findById(memberId)
-        .orElseThrow(() -> new CustomLogicException(EXPENSE_PAYER_NOT_FOUND));
+    return memberService.findMemberOrThrow(memberId);
   }
 
   public Expense findExpenseOrThrow(Long expenseId) {
