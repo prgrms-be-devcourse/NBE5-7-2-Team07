@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+  deleteExpense,
   getExpense,
-  updateExpense,
-  deleteExpense
+  updateExpense
 } from '../../service/ExpenseService';
 import '../../components/styles/expenseDetailDialog.css';
 
@@ -47,7 +47,9 @@ export default function ExpenseDetailDialog({
 
   // 1) 상세 데이터 로드
   useEffect(() => {
-    if (!expenseId) return;
+    if (!expenseId) {
+      return;
+    }
     (async () => {
       try {
         const data = await getExpense(expenseId);
@@ -64,12 +66,14 @@ export default function ExpenseDetailDialog({
     })();
   }, [expenseId, onClose]);
 
-  if (!detail) return null;
+  if (!detail) {
+    return null;
+  }
 
   const fmtDate = dt => new Date(dt).toLocaleString();
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const {name, value} = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: name === 'amount' ? Number(value) : value
@@ -86,16 +90,16 @@ export default function ExpenseDetailDialog({
       };
       const updated = await updateExpense(detail.id, req);
       onUpdate(
-        {
-          ...detail,
-          ...req,
-          amount: updated.amount,
-          createdAt: updated.createdAt,
-          updatedAt: updated.updatedAt
-        },
-        { balance: updated.balance, foreignBalance: updated.foreignBalance }
+          {
+            ...detail,
+            ...req,
+            amount: updated.amount,
+            createdAt: updated.createdAt,
+            updatedAt: updated.updatedAt
+          },
+          {balance: updated.balance, foreignBalance: updated.foreignBalance}
       );
-      setDetail(prev => ({ ...prev, ...req }));
+      setDetail(prev => ({...prev, ...req}));
       setIsEditing(false);
       onClose();
     } catch (err) {
@@ -106,10 +110,13 @@ export default function ExpenseDetailDialog({
 
   // 삭제 처리
   const handleDelete = async () => {
-    if (!window.confirm('정말 이 지출을 삭제하시겠어요?')) return;
+    if (!window.confirm('정말 이 지출을 삭제하시겠어요?')) {
+      return;
+    }
     try {
       const resp = await deleteExpense(detail.id);
-      onDelete(detail.id, { balance: resp.balance, foreignBalance: resp.foreignBalance });
+      onDelete(detail.id,
+          {balance: resp.balance, foreignBalance: resp.foreignBalance});
       onClose();
     } catch (err) {
       const msg = err.response?.data?.message || '삭제에 실패했습니다.';
@@ -127,75 +134,82 @@ export default function ExpenseDetailDialog({
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal">
-        <header>
-          <h3>{isEditing ? '지출 수정' : '지출 상세'}</h3>
-          <button className="close-btn" onClick={onClose}>×</button>
+      <div className="modal-overlay">
+        <div className="modal">
+          <header>
+            <h3>{isEditing ? '지출 수정' : '지출 상세'}</h3>
+            <button className="close-btn" onClick={onClose}>×</button>
           </header>
 
-        <div className="detail-content">
-          {isEditing ? (
-            <>
-              <div className="field">
-                <label>설명</label>
-                <input
-                  type="text"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="field">
-                <label>금액 (₩)</label>
-                <input
-                  type="number"
-                  name="amount"
-                  step="100"
-                  value={formData.amount}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="field">
-                <label>카테고리</label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                >
-                  {Object.entries(CATEGORY_LABELS).map(([k, l]) => (
-                    <option key={k} value={k}>{l}</option>
-                  ))}
-                </select>
-              </div>
-            </>
-          ) : (
-            <>
-              <p><strong>설명</strong> {detail.description}</p>
-              <p><strong>지출 금액</strong> <span className="amount">{detail.amount.toLocaleString()}원</span></p>
-              <p><strong>카테고리</strong>{' '}<span className="category"data-category={detail.category}>{CATEGORY_LABELS[detail.category]}</span></p>
-              <p><strong>결제 수단</strong>{' '}<span className="payment" data-payment={detail.paymentMethod}>{PAYMENT_LABELS[detail.paymentMethod]}</span></p>
-              <p><strong>결제자</strong> {detail.payerNickname}</p>
-              <p><strong>결제일</strong> {fmtDate(detail.createdAt)}</p>
-              <p><strong>수정일</strong> {fmtDate(detail.updatedAt)}</p>
-            </>
-          )}
-        </div>
+          <div className="detail-content">
+            {isEditing ? (
+                <>
+                  <div className="field">
+                    <label>설명</label>
+                    <input
+                        type="text"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleChange}
+                    />
+                  </div>
+                  <div className="field">
+                    <label>금액 (₩)</label>
+                    <input
+                        type="number"
+                        name="amount"
+                        step="100"
+                        value={formData.amount}
+                        onChange={handleChange}
+                    />
+                  </div>
+                  <div className="field">
+                    <label>카테고리</label>
+                    <select
+                        name="category"
+                        value={formData.category}
+                        onChange={handleChange}
+                    >
+                      {Object.entries(CATEGORY_LABELS).map(([k, l]) => (
+                          <option key={k} value={k}>{l}</option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+            ) : (
+                <>
+                  <p><strong>설명</strong> {detail.description}</p>
+                  <p><strong>지출 금액</strong> <span
+                      className="amount">{detail.amount.toLocaleString()}원</span>
+                  </p>
+                  <p><strong>카테고리</strong>{' '}<span className="category"
+                                                     data-category={detail.category}>{CATEGORY_LABELS[detail.category]}</span>
+                  </p>
+                  <p><strong>결제 수단</strong>{' '}<span className="payment"
+                                                      data-payment={detail.paymentMethod}>{PAYMENT_LABELS[detail.paymentMethod]}</span>
+                  </p>
+                  <p><strong>결제자</strong> {detail.payerNickname}</p>
+                  <p><strong>결제일</strong> {fmtDate(detail.createdAt)}</p>
+                  <p><strong>수정일</strong> {fmtDate(detail.updatedAt)}</p>
+                </>
+            )}
+          </div>
 
-        <div className="modal-actions">
-          {isEditing ? (
-            <>
-              <button onClick={handleCancel}>취소</button>
-              <button className="save-btn" onClick={handleSave}>수정</button>
-            </>
-          ) : (
-            <>
-              <button onClick={() => setIsEditing(true)}>수정</button>
-              <button className="delete-btn" onClick={handleDelete}>삭제</button>
-            </>
-          )}
+          <div className="modal-actions">
+            {isEditing ? (
+                <>
+                  <button onClick={handleCancel}>취소</button>
+                  <button className="save-btn" onClick={handleSave}>수정</button>
+                </>
+            ) : (
+                <>
+                  <button onClick={() => setIsEditing(true)}>수정</button>
+                  <button className="delete-btn" onClick={handleDelete}>삭제
+                  </button>
+                </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
   );
 }
