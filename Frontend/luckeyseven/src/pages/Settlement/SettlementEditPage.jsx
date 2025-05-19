@@ -1,14 +1,16 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useParams } from "react-router-dom"
-import { SettlementForm } from "../../components/settlement/settlement-form"
-import { getSettlementById, getUsers, getExpenses } from "../../service/settlementService"
-import { useToast } from "../../context/ToastContext"
+import {useEffect, useState} from "react"
+import {useParams} from "react-router-dom"
+import {SettlementForm} from "../../components/settlement/settlement-form"
+import {getSettlementById, getUsers} from "../../service/settlementService"
+import {useToast} from "../../context/ToastContext"
+import {getAllExpense} from "../../service/ExpenseService";
 
 export function SettlementEditPage() {
-  const { settlementId } = useParams()
-  const { addToast } = useToast()
+  const {teamId} = useParams()
+  const {settlementId} = useParams()
+  const {addToast} = useToast()
   const [settlement, setSettlement] = useState(null)
   const [users, setUsers] = useState([])
   const [expenses, setExpenses] = useState([])
@@ -21,8 +23,8 @@ export function SettlementEditPage() {
         setIsLoading(true)
         const [settlementData, usersData, expensesData] = await Promise.all([
           getSettlementById(settlementId),
-          getUsers(),
-          getExpenses(),
+          getUsers(teamId),
+          getAllExpense(teamId),
         ])
         setSettlement(settlementData)
         setUsers(usersData)
@@ -45,29 +47,30 @@ export function SettlementEditPage() {
 
   if (isLoading) {
     return (
-      <div className="container py-8">
-        <div className="flex justify-center items-center h-64">
-          <p>로딩 중...</p>
+        <div className="container py-8">
+          <div className="flex justify-center items-center h-64">
+            <p>로딩 중...</p>
+          </div>
         </div>
-      </div>
     )
   }
 
   if (error || !settlement) {
     return (
-      <div className="container py-8">
-        <div className="flex flex-col justify-center items-center h-64">
-          <p className="text-lg font-medium text-error">오류가 발생했습니다.</p>
-          <p className="text-muted">{error || "정산 내역을 찾을 수 없습니다."}</p>
+        <div className="container py-8">
+          <div className="flex flex-col justify-center items-center h-64">
+            <p className="text-lg font-medium text-error">오류가 발생했습니다.</p>
+            <p className="text-muted">{error || "정산 내역을 찾을 수 없습니다."}</p>
+          </div>
         </div>
-      </div>
     )
   }
 
   return (
-    <div className="container py-8">
-      <h1 className="text-2xl font-bold mb-6">정산 내역 수정</h1>
-      <SettlementForm settlement={settlement} users={users} expenses={expenses} isEditing={true} />
-    </div>
+      <div className="container py-8">
+        <h1 className="text-2xl font-bold mb-6">정산 내역 수정</h1>
+        <SettlementForm settlement={settlement} users={users}
+                        expenses={expenses} isEditing={true}/>
+      </div>
   )
 }
