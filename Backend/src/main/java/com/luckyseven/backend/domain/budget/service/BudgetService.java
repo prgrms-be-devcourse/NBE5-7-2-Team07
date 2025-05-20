@@ -75,7 +75,14 @@ public class BudgetService {
 
   @Transactional
   public void deleteByTeamId(Long teamId) {
+    Team team = teamRepository.findById(teamId)
+        .orElseThrow(() -> new EntityNotFoundException("팀을 찾을 수 없습니다: " + teamId));
+
+
     Budget budget = budgetValidator.validateBudgetExist(teamId);
+
+    team.setBudget(null);
+    teamRepository.save(team);
     budgetRepository.delete(budget);
   }
 
