@@ -81,7 +81,7 @@ public class Settlement extends BaseEntity {
     }
   }
 
-  public void setSettled() {
-    this.isSettled = true;
+  public void convertSettled() {
+    this.isSettled = !this.isSettled;
   }
 }

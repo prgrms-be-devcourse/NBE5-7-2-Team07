@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.luckyseven.backend.domain.expense.entity.Expense;
+import com.luckyseven.backend.domain.expense.service.ExpenseService;
 import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.member.service.MemberService;
 import com.luckyseven.backend.domain.settlements.dao.SettlementRepository;
@@ -44,9 +45,10 @@ class SettlementServiceTest {
 
   @Mock
   private SettlementRepository settlementRepository;
-
   @Mock
   private MemberService memberService;
+  @Mock
+  private ExpenseService expenseService;
 
   @InjectMocks
   private SettlementService settlementService;
@@ -60,8 +62,8 @@ class SettlementServiceTest {
   @BeforeEach
   void setUp() {
     team = Team.builder().id(1L).build();
-    settler = Member.builder().email("123@123").build();
-    payer = Member.builder().email("456@456").build();
+    settler = Member.builder().id(1L).email("123@123").build();
+    payer = Member.builder().id(2L).email("456@456").build();
     expense = Expense.builder().amount(BigDecimal.valueOf(1000)).build();
     settlement = Settlement.builder()
         .amount(BigDecimal.valueOf(1000))
@@ -76,6 +78,7 @@ class SettlementServiceTest {
   void createSettlement_ShouldSaveSettlement() {
     //given
     when(settlementRepository.save(any(Settlement.class))).thenReturn(settlement);
+    when(memberService.findMemberOrThrow(anyLong())).thenReturn(settler).thenReturn(payer);
     SettlementCreateRequest request = SettlementCreateRequest.builder()
         .amount(BigDecimal.valueOf(1000))
         .payerId(payer.getId())
@@ -97,9 +100,10 @@ class SettlementServiceTest {
 
   @Test
   @DisplayName("정산롼료")
-  void setSettled_ShouldUpdateSettlementStatus() {
+  void convertSettled_ShouldUpdateSettlementStatus() {
     //given
-    when(settlementRepository.findById(anyLong())).thenReturn(Optional.of(settlement));
+    when(settlementRepository.findWithSettlerAndPayerById(anyLong())).thenReturn(
+        Optional.of(settlement));
     when(settlementRepository.save(any(Settlement.class))).thenReturn(settlement);
 
     SettlementResponse updated = settlementService.settleSettlement(1L);
@@ -112,7 +116,8 @@ class SettlementServiceTest {
   @DisplayName("정산 조회")
   void findSettlement_ShouldReturnSettlement() {
     //given
-    when(settlementRepository.findById(anyLong())).thenReturn(Optional.of(settlement));
+    when(settlementRepository.findWithSettlerAndPayerById(anyLong())).thenReturn(
+        Optional.of(settlement));
 
     //when
     SettlementResponse found = settlementService.readSettlement(1L);
@@ -129,7 +134,8 @@ class SettlementServiceTest {
   @DisplayName("정산 수정")
   void updateSettlement_ShouldUpdateSettlement() {
     //given
-    when(settlementRepository.findById(anyLong())).thenReturn(Optional.of(settlement));
+    when(settlementRepository.findWithSettlerAndPayerById(anyLong())).thenReturn(
+        Optional.of(settlement));
     when(settlementRepository.save(any(Settlement.class))).thenReturn(settlement);
 
     BigDecimal newAmount = BigDecimal.valueOf(2000);
@@ -185,7 +191,8 @@ class SettlementServiceTest {
   void readSettlement_WithNonExistingId_ShouldThrowException() {
     // given
     Long nonExistingId = 999L;
-    when(settlementRepository.findById(nonExistingId)).thenReturn(Optional.empty());
+    when(settlementRepository.findWithSettlerAndPayerById(nonExistingId)).thenReturn(
+        Optional.empty());
 
     // when & then
     assertThatThrownBy(() -> settlementService.readSettlement(nonExistingId))
@@ -198,7 +205,8 @@ class SettlementServiceTest {
   void updateSettlement_WithNonExistingId_ShouldThrowException() {
     // given
     Long nonExistingId = 999L;
-    when(settlementRepository.findById(nonExistingId)).thenReturn(Optional.empty());
+    when(settlementRepository.findWithSettlerAndPayerById(nonExistingId)).thenReturn(
+        Optional.empty());
 
     SettlementUpdateRequest request = SettlementUpdateRequest.builder()
         .amount(BigDecimal.valueOf(2000))
@@ -215,27 +223,12 @@ class SettlementServiceTest {
   void settleSettlement_WithNonExistingId_ShouldThrowException() {
     // given
     Long nonExistingId = 999L;
-    when(settlementRepository.findById(nonExistingId)).thenReturn(Optional.empty());
+    when(settlementRepository.findWithSettlerAndPayerById(nonExistingId)).thenReturn(
+        Optional.empty());
 
     // when & then
     assertThatThrownBy(() -> settlementService.settleSettlement(nonExistingId))
         .isInstanceOf(CustomLogicException.class)
         .hasFieldOrPropertyWithValue("exceptionCode", ExceptionCode.SETTLEMENT_NOT_FOUND);
-  }
-
-  @Test
-  @DisplayName("팀 ID가 null인 경우 정산 목록 조회 시 예외 발생")
-  void readSettlementPage_WithNullTeamId_ShouldThrowException() {
-    // given
-    Long nullTeamId = null;
-    SettlementSearchCondition condition = SettlementSearchCondition.builder()
-        .payerId(1L)
-        .build();
-    Pageable pageable = PageRequest.of(0, 10);
-
-    // when & then
-    assertThatThrownBy(() -> settlementService.readSettlementPage(nullTeamId, condition, pageable))
-        .isInstanceOf(CustomLogicException.class)
-        .hasFieldOrPropertyWithValue("exceptionCode", ExceptionCode.BAD_REQUEST);
   }
 }

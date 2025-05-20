@@ -20,6 +20,7 @@ import com.luckyseven.backend.domain.budget.entity.CurrencyCode;
 import com.luckyseven.backend.domain.budget.service.BudgetService;
 import com.luckyseven.backend.domain.budget.validator.BudgetValidator;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,19 +52,11 @@ class BudgetControllerTests {
 
     // given
     Long teamId = 1L;
-    BudgetCreateRequest request = BudgetCreateRequest.builder()
-        .totalAmount(BigDecimal.valueOf(100000))
-        .foreignCurrency(CurrencyCode.USD)
-        .isExchanged(true)
-        .exchangeRate(BigDecimal.valueOf(1393.7))
-        .build();
-    BudgetCreateResponse response = BudgetCreateResponse.builder()
-        .id(1L)
-        .balance(BigDecimal.valueOf(100000))
-        .foreignBalance(BigDecimal.valueOf(71.75))
-        .avgExchangeRate(BigDecimal.valueOf(1393.7))
-        .build();
-
+    BudgetCreateRequest request = new BudgetCreateRequest(BigDecimal.valueOf(100000),
+        true, BigDecimal.valueOf(1393.7), CurrencyCode.USD);
+    BudgetCreateResponse response = new BudgetCreateResponse(1L, LocalDateTime.now(),
+        1L, BigDecimal.valueOf(100000), BigDecimal.valueOf(1393.7),
+        BigDecimal.valueOf(71.75));
     when(budgetService.save(teamId, 2L, request)).thenReturn(response);
 
     // when
@@ -86,15 +79,10 @@ class BudgetControllerTests {
 
     // given
     Long teamId = 1L;
-    BudgetReadResponse response = BudgetReadResponse.builder()
-        .id(1L)
-        .totalAmount(BigDecimal.valueOf(100000))
-        .setBy(1L)
-        .balance(BigDecimal.valueOf(100000))
-        .foreignCurrency(CurrencyCode.USD)
-        .foreignBalance(BigDecimal.valueOf(71.75))
-        .avgExchangeRate(BigDecimal.valueOf(1393.70))
-        .build();
+    BudgetReadResponse response = new BudgetReadResponse(1L, LocalDateTime.now(), 1L,
+        BigDecimal.valueOf(100000), BigDecimal.valueOf(100000), CurrencyCode.USD,
+        BigDecimal.valueOf(1393.70), BigDecimal.valueOf(71.75));
+
 
     when(budgetService.getByTeamId(teamId)).thenReturn(response);
 
@@ -113,16 +101,12 @@ class BudgetControllerTests {
 
     // given
     Long teamId = 1L;
-    BudgetUpdateRequest request = BudgetUpdateRequest.builder()
-        .totalAmount(BigDecimal.valueOf(150000))
-        .build();
-    BudgetUpdateResponse response = BudgetUpdateResponse.builder()
-        .id(1L)
-        .balance(BigDecimal.valueOf(150000))
-        .foreignBalance(BigDecimal.valueOf(107.63))
-        .foreignCurrency(CurrencyCode.USD)
-        .avgExchangeRate(BigDecimal.valueOf(1393.7))
-        .build();
+    BudgetUpdateRequest request = new BudgetUpdateRequest(BigDecimal.valueOf(150000),
+        false, null, null);
+
+    BudgetUpdateResponse response = new BudgetUpdateResponse(1L, LocalDateTime.now(),
+        1L, BigDecimal.valueOf(150000), CurrencyCode.USD, BigDecimal.valueOf(1393.7),
+        BigDecimal.valueOf(107.63));
 
     when(budgetService.updateByTeamId(teamId, 2L, request)).thenReturn(response);
 

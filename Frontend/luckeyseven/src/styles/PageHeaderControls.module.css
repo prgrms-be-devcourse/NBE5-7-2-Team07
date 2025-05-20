@@ -25,20 +25,70 @@
 }
 
 .buttonSecondary {
-  margin-right: 0.625rem;
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
   padding: 0.625rem 0.9375rem;
   border: 1px solid #ccc;
   border-radius: 0.3125rem;
-  background-color: #f9f9f9;
+  background-color: var(--color-secondary-rgb);
+  cursor: pointer;
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
+}
+
+.buttonSecondary:hover {
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+  padding: 0.625rem 0.9375rem;
+  border: 1px solid #ccc;
+  border-radius: 0.3125rem;
+  background-color: var(--color-secondary);
   cursor: pointer;
   font-size: clamp(0.75rem, 2vw, 0.875rem);
 }
 
 .buttonPrimary {
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
   padding: 0.625rem 0.9375rem;
   border: none;
   border-radius: 0.3125rem;
   background-color: var(--color-primary);
+  color: white;
+  cursor: pointer;
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
+}
+
+.buttonPrimary:hover {
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+  padding: 0.625rem 0.9375rem;
+  border: none;
+  border-radius: 0.3125rem;
+  background-color: var(--color-primary-hover);
+  color: white;
+  cursor: pointer;
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
+}
+
+.buttonDanger {
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+  padding: 0.625rem 0.9375rem;
+  border: none;
+  border-radius: 0.3125rem;
+  background-color: var(--color-destructive);
+  color: white;
+  cursor: pointer;
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
+}
+
+.buttonDanger:hover {
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+  padding: 0.625rem 0.9375rem;
+  border: none;
+  border-radius: 0.3125rem;
+  background-color: rgba(var(--color-destructive-rgb), 0.9);
   color: white;
   cursor: pointer;
   font-size: clamp(0.75rem, 2vw, 0.875rem);

@@ -19,7 +19,6 @@ import com.luckyseven.backend.domain.team.repository.TeamRepository;
 import com.luckyseven.backend.domain.team.util.TeamMapper;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -67,20 +66,20 @@ public class TeamService {
     // 리더를 TeamMember 에 추가
     teamMemberRepository.save(teamMember);
 
-    // <TODO> 예산 생성(임시로 구현)
-    Budget budget = Budget.builder()
-        .foreignCurrency(com.luckyseven.backend.domain.budget.entity.CurrencyCode.KRW) // Set default currency to KRW
-        .balance(BigDecimal.ZERO)
-        .foreignBalance(BigDecimal.ZERO)
-        .totalAmount(BigDecimal.ZERO)
-        .avgExchangeRate(BigDecimal.ONE)
-        .setBy(memberId) // Set the creator as the setter
-        .build();
-
-    // Team이 Budget의 주인이므로, Team 에서 Budget set
-    Budget savedBudget = budgetRepository.save(budget);
-    savedTeam.setBudget(savedBudget);
-    savedBudget.setTeam(savedTeam);
+//    // <TODO> 예산 생성(임시로 구현)
+//    Budget budget = Budget.builder()
+//        .foreignCurrency(com.luckyseven.backend.domain.budget.entity.CurrencyCode.KRW) // Set default currency to KRW
+//        .balance(BigDecimal.ZERO)
+//        .foreignBalance(BigDecimal.ZERO)
+//        .totalAmount(BigDecimal.ZERO)
+//        .avgExchangeRate(BigDecimal.ONE)
+//        .setBy(memberId) // Set the creator as the setter
+//        .build();
+//
+//    // Team이 Budget의 주인이므로, Team 에서 Budget set
+//    Budget savedBudget = budgetRepository.save(budget);
+//    savedTeam.setBudget(savedBudget);
+//    savedBudget.setTeam(savedTeam);
 
     savedTeam.addTeamMember(teamMember);
     return TeamMapper.toTeamCreateResponse(savedTeam);
@@ -164,9 +163,12 @@ public class TeamService {
         .orElseThrow(() -> new CustomLogicException(ExceptionCode.TEAM_NOT_FOUND,
             "ID가 [%d]인 팀을 찾을 수 없습니다", teamId));
 
-    Budget budget = budgetRepository.findByTeamId(teamId)
-        .orElseThrow(() -> new CustomLogicException(ExceptionCode.BUDGET_NOT_FOUND,
-            "팀 ID [%d]의 예산 정보가 없습니다", teamId));
+//    Budget budget = budgetRepository.findByTeamId(teamId)
+//        .orElseThrow(() -> new CustomLogicException(ExceptionCode.BUDGET_NOT_FOUND,
+//            "팀 ID [%d]의 예산 정보가 없습니다", teamId));
+
+    // 예산이 없는 경우 null로 처리 (Optional 사용)
+    Budget budget = budgetRepository.findByTeamId(teamId).orElse(null);
 
     Pageable pageable = PageRequest.of(0, 5, Sort.by("createdAt").descending());
     Page<Expense> expensePage = expenseRepository.findByTeamId(teamId, pageable);
