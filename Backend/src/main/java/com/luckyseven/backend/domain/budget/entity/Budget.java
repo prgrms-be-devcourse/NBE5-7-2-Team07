@@ -168,4 +168,5 @@ public class Budget extends BaseEntity {
       throw new CustomLogicException(INSUFFICIENT_BALANCE);
     }
   }
+
 }
