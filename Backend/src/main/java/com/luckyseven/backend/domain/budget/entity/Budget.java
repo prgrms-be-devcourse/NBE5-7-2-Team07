@@ -1,7 +1,10 @@
 package com.luckyseven.backend.domain.budget.entity;
 
+import static com.luckyseven.backend.sharedkernel.exception.ExceptionCode.INSUFFICIENT_BALANCE;
+
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
+import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -131,9 +134,21 @@ public class Budget extends BaseEntity {
 
     return this;
   }
-  public void updateBalance(BigDecimal balance) {
-    if (balance != null) {
-      this.balance = balance;
+
+  public void debit(BigDecimal amount) {
+    if (amount == null) {
+      throw new CustomLogicException(INSUFFICIENT_BALANCE);
     }
+    if (balance.compareTo(amount) < 0) {
+      throw new CustomLogicException(INSUFFICIENT_BALANCE);
+    }
+    this.balance = this.balance.subtract(amount);
+  }
+
+  public void credit(BigDecimal amount) {
+    if (amount == null) {
+      return;
+    }
+    this.balance = this.balance.add(amount);
   }
 }

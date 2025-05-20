@@ -58,6 +58,9 @@ class ExpenseServiceTest {
 
   @Mock
   private SettlementService settlementService;
+  
+  @Mock
+  private CacheEvictService cacheEvictService;
 
   @Mock
   private SettlementRepository settlementRepository;
