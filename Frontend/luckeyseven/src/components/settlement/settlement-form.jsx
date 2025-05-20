@@ -20,11 +20,11 @@ export function SettlementForm({
   const [isLoading, setIsLoading] = useState(false)
 
   const [formData, setFormData] = useState({
-    payerId: "",
-    settlerId: "",
-    expenseId: "",
-    amount: "",
-    isSettled: false,
+    payerId: isEditing ? settlement.payerId : "",
+    settlerId: isEditing ? settlement.settlerId : "",
+    expenseId: isEditing ? settlement.expenseId : "",
+    amount: isEditing ? settlement.amount.toString() : "",
+    isSettled: isEditing ? settlement.isSettled : false
   })
 
   // 수정 모드일 경우 초기 데이터 설정
@@ -64,7 +64,6 @@ export function SettlementForm({
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
     if (!formData.payerId || !formData.settlerId || !formData.expenseId
         || !formData.amount) {
       addToast({

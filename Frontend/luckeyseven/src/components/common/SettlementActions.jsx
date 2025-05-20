@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
-import { updateSettlement } from "../../service/settlementService"
-import { useToast } from "../../context/ToastContext"
+import {useState} from "react"
+import {updateSettlement} from "../../service/settlementService"
+import {useToast} from "../../context/ToastContext"
 
-export function SettlementActions({ settlement, onUpdate, inline = false }) {
-  const { addToast } = useToast()
+export function SettlementActions({settlement, onUpdate, inline = false}) {
+  const {addToast} = useToast()
   const [isLoading, setIsLoading] = useState(false)
 
   const handleMarkAsSettled = async (e) => {
@@ -14,7 +14,9 @@ export function SettlementActions({ settlement, onUpdate, inline = false }) {
       e.stopPropagation()
     }
 
-    if (settlement.isSettled) return
+    if (settlement.isSettled) {
+      return
+    }
 
     try {
       setIsLoading(true)
@@ -50,11 +52,14 @@ export function SettlementActions({ settlement, onUpdate, inline = false }) {
       e.stopPropagation()
     }
 
-    if (!settlement.isSettled) return
+    if (!settlement.isSettled) {
+      return
+    }
 
     try {
       setIsLoading(true)
-      const updatedSettlement = await updateSettlement(settlement.id, { isSettled: false })
+      const updatedSettlement = await updateSettlement(settlement.id,
+          {}, true)
 
       addToast({
         title: "정산 완료 취소",
@@ -83,16 +88,18 @@ export function SettlementActions({ settlement, onUpdate, inline = false }) {
   const btnClass = inline ? "btn-sm" : ""
 
   return (
-    <div className="flex space-x-2">
-      {settlement.isSettled ? (
-        <button className={`btn btn-outline ${btnClass}`} onClick={handleCancelSettlement} disabled={isLoading}>
-          {isLoading ? "처리 중..." : "정산 완료 취소"}
-        </button>
-      ) : (
-        <button className={`btn btn-primary ${btnClass}`} onClick={handleMarkAsSettled} disabled={isLoading}>
-          {isLoading ? "처리 중..." : "정산 완료 처리"}
-        </button>
-      )}
-    </div>
+      <div className="flex space-x-2">
+        {settlement.isSettled ? (
+            <button className={`btn btn-outline ${btnClass}`}
+                    onClick={handleCancelSettlement} disabled={isLoading}>
+              {isLoading ? "처리 중..." : "정산 완료 취소"}
+            </button>
+        ) : (
+            <button className={`btn btn-primary ${btnClass}`}
+                    onClick={handleMarkAsSettled} disabled={isLoading}>
+              {isLoading ? "처리 중..." : "정산 완료 처리"}
+            </button>
+        )}
+      </div>
   )
 }

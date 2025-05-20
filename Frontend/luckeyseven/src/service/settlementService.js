@@ -52,7 +52,7 @@ export const updateSettlement = async (id, settlementData,
       return response.data;
     } else {
       // 전체 정산 정보 업데이트
-      const response = await privateApi.put(`/api/settlements/${id}`,
+      const response = await privateApi.patch(`/api/settlements/${id}`,
           settlementData);
       return response.data;
     }

@@ -16,8 +16,9 @@ export function SettlementDetail({settlement: initialSettlement}) {
   }
 
   const handleEdit = () => {
-    navigate(`/settlements/${settlement.id}/edit`)
+    navigate(`/teams/${settlement.teamId}/settlements/${settlement.id}/edit`)
   }
+  console.info("팀아이디", settlement.teamId)
 
   return (
       <div className="card">

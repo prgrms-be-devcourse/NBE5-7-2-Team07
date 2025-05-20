@@ -6,7 +6,6 @@ import {useLocation, useNavigate} from "react-router-dom"
 export function SettlementFilter({users, expenses, initialFilters, teamId}) {
   const navigate = useNavigate()
   const location = useLocation()
-  console.info("필터", users, expenses, initialFilters, teamId, location.search,)
 
   const [filters, setFilters] = useState({
     payerId: initialFilters.payerId || "",
