@@ -47,7 +47,7 @@ export const updateSettlement = async (id, settlementData,
   try {
     // settledOnly가 true인 경우 정산 완료 처리만 수행
     if (settledOnly) {
-      const response = await privateApi.patch(`/api/settlements/${id}`,
+      const response = await privateApi.patch(`/api/settlements/${id}`, {},
           {params: {settledOnly: true}});
       return response.data;
     } else {
