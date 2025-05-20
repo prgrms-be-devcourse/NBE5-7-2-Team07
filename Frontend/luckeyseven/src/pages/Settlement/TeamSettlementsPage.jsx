@@ -7,9 +7,11 @@ import {SettlementFilter} from "../../components/settlement/settlement-filter"
 import {getListSettlements, getUsers} from "../../service/settlementService"
 import {useToast} from "../../context/ToastContext"
 import {getAllExpense} from "../../service/ExpenseService";
+import {useRecoilValue} from "recoil";
+import {currentTeamIdState} from "../../recoil/atoms/teamAtoms";
 
 export function TeamSettlementsPage() {
-  const {teamId} = useParams()
+  const teamId = useRecoilValue(currentTeamIdState);
   const location = useLocation()
   const navigate = useNavigate()
   const {addToast} = useToast()
