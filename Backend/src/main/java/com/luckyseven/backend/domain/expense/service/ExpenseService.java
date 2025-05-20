@@ -10,6 +10,7 @@ import com.luckyseven.backend.domain.expense.dto.ExpenseRequest;
 import com.luckyseven.backend.domain.expense.dto.ExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseUpdateRequest;
 import com.luckyseven.backend.domain.expense.entity.Expense;
+import com.luckyseven.backend.domain.expense.enums.PaymentMethod;
 import com.luckyseven.backend.domain.expense.mapper.ExpenseMapper;
 import com.luckyseven.backend.domain.expense.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.member.entity.Member;
@@ -43,15 +44,21 @@ public class ExpenseService {
   @Transactional
   public CreateExpenseResponse saveExpense(Long teamId, ExpenseRequest request) {
     Team team = findTeamOrThrow(teamId);
-    Member payer = findMemberOrThrow(request);
+    Member payer = memberService.findMemberOrThrow(request.payerId());
     Budget budget = team.getBudget();
 
-    budget.debit(request.amount());
-    Expense saved = expenseRepository.save(
-        ExpenseMapper.fromExpenseRequest(request, team, payer)
-    );
-    settlementService.createAllSettlements(request, payer, saved);
+    if (request.paymentMethod() == PaymentMethod.CASH) {
+      // 외화 결제: 외화 및 원화 잔액 차감
+      budget.debitForeign(request.amount());
+    } else {
+      // 카드 결제: 원화 잔액 차감
+      budget.debitKrw(request.amount());
+    }
 
+    Expense expense = ExpenseMapper.fromExpenseRequest(request, team, payer);
+    Expense saved = expenseRepository.save(expense);
+
+    settlementService.createAllSettlements(request, payer, saved);
     evictRecentExpensesForTeam(teamId);
     return ExpenseMapper.toCreateExpenseResponse(saved, budget);
   }
@@ -73,12 +80,17 @@ public class ExpenseService {
   @Transactional
   public CreateExpenseResponse updateExpense(Long expenseId, ExpenseUpdateRequest request) {
     Expense expense = findExpenseOrThrow(expenseId);
-    BigDecimal delta = request.amount().subtract(expense.getAmount());
+    BigDecimal originalAmount = expense.getAmount();
+    BigDecimal newAmount = request.amount();
+    BigDecimal delta = newAmount.subtract(originalAmount);
+
     Budget budget = expense.getTeam().getBudget();
+    if (delta.compareTo(BigDecimal.ZERO) > 0) {
+      // 지출 금액이 늘어난 경우 늘어난 부분만큼 원화 차감
+      budget.debitKrw(delta);
+    }
 
-    adjustBudget(delta, budget);
-    expense.update(request.description(), request.amount(), request.category());
-
+    expense.update(request.description(), newAmount, request.category());
     evictRecentExpensesForTeam(expense.getTeam().getId());
     return ExpenseMapper.toCreateExpenseResponse(expense, budget);
   }
@@ -87,24 +99,14 @@ public class ExpenseService {
   public ExpenseBalanceResponse deleteExpense(Long expenseId) {
     Expense expense = findExpenseOrThrow(expenseId);
     Long teamId = expense.getTeam().getId();
-
     Budget budget = expense.getTeam().getBudget();
-    budget.credit(expense.getAmount());
+
+    // 지출 삭제 시 원화 환불
+    budget.creditKrw(expense.getAmount());
     expenseRepository.delete(expense);
 
     evictRecentExpensesForTeam(teamId);
     return ExpenseMapper.toExpenseBalanceResponse(budget);
-  }
-
-  private void adjustBudget(BigDecimal delta, Budget budget) {
-    if (delta == null || delta.compareTo(BigDecimal.ZERO) == 0) {
-      return;
-    }
-    if (delta.compareTo(BigDecimal.ZERO) > 0) {
-      budget.debit(delta);
-    } else {
-      budget.credit(delta.abs());
-    }
   }
 
   private void evictRecentExpensesForTeam(Long teamId) {
@@ -132,7 +134,4 @@ public class ExpenseService {
         .orElseThrow(() -> new CustomLogicException(TEAM_NOT_FOUND));
   }
 
-  private Member findMemberOrThrow(ExpenseRequest request) {
-    return memberService.findMemberOrThrow(request.payerId());
-  }
 }

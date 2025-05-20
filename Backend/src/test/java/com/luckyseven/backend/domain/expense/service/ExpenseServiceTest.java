@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.luckyseven.backend.domain.budget.entity.Budget;
+import com.luckyseven.backend.domain.budget.entity.CurrencyCode;
 import com.luckyseven.backend.domain.expense.dto.CreateExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseBalanceResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseRequest;
@@ -79,7 +80,9 @@ class ExpenseServiceTest {
   void setUp() {
     budget = Budget.builder()
         .balance(new BigDecimal("100000.00"))
-        .foreignBalance(new BigDecimal("50.00"))
+        .foreignBalance(new BigDecimal("100000.00"))
+        .foreignCurrency(CurrencyCode.USD)
+        .avgExchangeRate(new BigDecimal("1.00"))
         .build();
     payer = Member.builder()
         .email("dldldldl@naver.com")
@@ -124,7 +127,7 @@ class ExpenseServiceTest {
           .payerId(1L)
           .settlerId(List.of(10L, 20L))
           .description("럭키비키즈 점심 식사")
-          .amount(new BigDecimal("50000.00"))
+          .amount(new BigDecimal("10000.00"))
           .category(ExpenseCategory.MEAL)
           .paymentMethod(PaymentMethod.CASH)
           .build();
