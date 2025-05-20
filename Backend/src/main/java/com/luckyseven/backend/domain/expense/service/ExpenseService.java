@@ -42,8 +42,7 @@ public class ExpenseService {
   @Transactional
   @CacheEvict(value = "recentExpenses", allEntries = true)
   public CreateExpenseResponse saveExpense(Long teamId, ExpenseRequest request) {
-    Team team = teamRepository.findTeamWithBudget(teamId)
-        .orElseThrow(() -> new CustomLogicException(TEAM_NOT_FOUND));
+    Team team = findTeamOrThrow(teamId);
 
     Member payer = memberService.findMemberOrThrow(request.payerId());
     Budget budget = team.getBudget();
@@ -67,6 +66,7 @@ public class ExpenseService {
   }
 
   // TODO: 캐시 튜닝 필요
+
   @Transactional(readOnly = true)
   @Cacheable(
       value = "recentExpenses",
@@ -123,5 +123,10 @@ public class ExpenseService {
     if (balance.compareTo(amount) < 0) {
       throw new CustomLogicException(INSUFFICIENT_BALANCE);
     }
+  }
+
+  private Team findTeamOrThrow(Long teamId) {
+    return teamRepository.findTeamWithBudget(teamId)
+        .orElseThrow(() -> new CustomLogicException(TEAM_NOT_FOUND));
   }
 }
