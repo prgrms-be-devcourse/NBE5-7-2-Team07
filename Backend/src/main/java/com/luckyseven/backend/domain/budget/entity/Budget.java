@@ -123,6 +123,10 @@ public class Budget extends BaseEntity {
     }
   }
 
+  public void setForeignBalance(BigDecimal amount) {
+    this.foreignBalance = amount;
+  }
+
   public Budget setTeam(Team team) {
     // 기존 연결 해제
     if (this.team != null) {
