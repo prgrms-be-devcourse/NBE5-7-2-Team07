@@ -8,7 +8,6 @@ import {
 import Login from "./pages/Login/Login"
 import Signup from "./pages/Login/Signup"
 import Home from "./pages/Home"
-import {HomePage as SettlementHomePage} from "./pages/Settlement/HomePage"
 import {TeamSettlementsPage} from "./pages/Settlement/TeamSettlementsPage"
 import {SettlementNewPage} from "./pages/Settlement/SettlementNewPage"
 import {SettlementEditPage} from "./pages/Settlement/SettlementEditPage"
@@ -51,14 +50,6 @@ function App() {
             <Route path="/team-setup" element={<TeamSetup/>}/>
 
             {/* Settlement 관련 라우트 */}
-            <Route
-                path="/settlement"
-                element={
-                  <ProtectedRoute>
-                    <SettlementHomePage/>
-                  </ProtectedRoute>
-                }
-            />
             <Route
                 path="/teams/:teamId/settlements"
                 element={
