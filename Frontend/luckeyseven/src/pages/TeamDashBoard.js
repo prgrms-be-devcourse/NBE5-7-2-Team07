@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
 import { currentTeamIdState } from '../recoil/atoms/teamAtoms';
-import { getTeamDashboard, getTeamMembers } from '../service/ApiService';
+import { getTeamDashboard, getTeamMembers } from '../service/TeamService';
 import axios from 'axios';
 import styles from '../styles/App.module.css';
 import Header from '../components/Header';
