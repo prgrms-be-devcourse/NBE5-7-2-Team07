@@ -1,6 +1,5 @@
 import {privateApi} from "./ApiService";
 
-// 모든 정산 내역 조회
 export const getListSettlements = async (teamId, page = 0, size = 10,
     sort = 'createdAt,DESC', filters = {}) => {
   try {

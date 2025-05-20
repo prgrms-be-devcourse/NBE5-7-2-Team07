@@ -57,16 +57,13 @@ export function TeamSettlementsPage() {
     const fetchData = async () => {
       try {
         setIsLoading(true)
-
-        // 페이징 처리된 데이터 로드
-        const settlements = await getListSettlements(teamId, page, size, sort,
-            filters)
-        const users = await getUsers(teamId)
-        const expenses = await getAllExpense(teamId)
-
-        setSettlements(settlements.content)
-        setUsers(users.data)
-        setExpenses(expenses)
+        const settlementResponse = await getListSettlements(teamId, page, size,
+            sort, filters)
+        setSettlements(settlementResponse.content)
+        const usersResponse = await getUsers(teamId)
+        setUsers(usersResponse)
+        const expensesResponse = await getAllExpense(teamId)
+        setExpenses(expensesResponse)
 
         // 페이징 메타데이터 설정
         setTotalPages(settlements.totalPages)
