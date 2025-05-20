@@ -86,8 +86,11 @@ public class ExpenseService {
 
     Budget budget = expense.getTeam().getBudget();
     if (delta.compareTo(BigDecimal.ZERO) > 0) {
-      // 지출 금액이 늘어난 경우 늘어난 부분만큼 원화 차감
+      // 금액 증가 시 원화 잔액 차감
       budget.debitKrw(delta);
+    } else if (delta.compareTo(BigDecimal.ZERO) < 0) {
+      // 금액 감소 시 줄어든 만큼 원화 환불
+      budget.creditKrw(delta.abs());
     }
 
     expense.update(request.description(), newAmount, request.category());
