@@ -11,7 +11,9 @@ import {useRecoilValue} from "recoil";
 import {currentTeamIdState} from "../../recoil/atoms/teamAtoms";
 
 export function TeamSettlementsPage() {
-  const teamId = useRecoilValue(currentTeamIdState);
+  const recoilTeamId = useRecoilValue(currentTeamIdState)
+  const paramTeamId = useParams().teamId
+  const teamId = recoilTeamId || paramTeamId
   const location = useLocation()
   const navigate = useNavigate()
   const {addToast} = useToast()
@@ -59,20 +61,18 @@ export function TeamSettlementsPage() {
     const fetchData = async () => {
       try {
         setIsLoading(true)
-
-        // 페이징 처리된 데이터 로드
-        const settlements = await getListSettlements(teamId, page, size, sort,
-            filters)
-        const users = await getUsers(teamId)
-        const expenses = await getAllExpense(teamId)
-
-        setSettlements(settlements.content)
-        setUsers(users.data)
-        setExpenses(expenses)
+        const settlementResponse = await getListSettlements(teamId, page, size,
+            sort, filters)
+        setSettlements(settlementResponse)
+        const usersResponse = await getUsers(teamId)
+        setUsers(usersResponse)
+        const expensesResponse = await getAllExpense(teamId)
+        setExpenses(expensesResponse)
 
         // 페이징 메타데이터 설정
-        setTotalPages(settlements.totalPages)
-        setTotalElements(settlements.totalElements)
+        setTotalPages(settlementResponse.totalPages)
+        setTotalElements(settlementResponse.totalElements)
+        console.info(settlements)
       } catch (error) {
         console.error("팀 정산 내역 조회 오류:", error)
         setError(error.message)
@@ -124,7 +124,7 @@ export function TeamSettlementsPage() {
                             initialFilters={filters} teamId={teamId}/>
         </div>
 
-        <SettlementList settlements={settlements}/>
+        <SettlementList settlements={settlements.content}/>
 
         {/* 페이지네이션 컴포넌트 */}
         <div className="flex justify-between items-center mt-6">
