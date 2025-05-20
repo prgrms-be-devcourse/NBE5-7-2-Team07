@@ -17,6 +17,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@Transactional
 public class JwtTokenizer {
 
   private final RefreshTokenRepository refreshTokenRepository;
@@ -141,10 +143,12 @@ public class JwtTokenizer {
   }
 
 
+  @Transactional
   public String validateRefreshToken(String refreshToken, HttpServletResponse response) {
     if (blackListTokenRepository.existsByTokenValue(refreshToken)) {
       throw new CustomLogicException(ExceptionCode.JWT_BLACKLISTED_TOKEN);
     }
+    refreshTokenRepository.deleteByTokenValue(refreshToken);
     Claims claims = parseRefreshToken(refreshToken);
     Long memberId = Long.parseLong(claims.getSubject());
     MemberDetails user = customMemberDetailsService.loadUserById(memberId);
@@ -154,7 +158,20 @@ public class JwtTokenizer {
             .expirationTime(claims.getExpiration().toInstant())
             .build()
     );
+
     return reissueTokenPair(response, user);
+  }
+
+  public void LogoutRefreshToken(String refreshToken) {
+    blackListTokenRepository.save(
+        BlackListToken.builder()
+            .tokenValue(refreshToken)
+            .expirationTime(
+                parseRefreshToken(refreshToken).getExpiration().toInstant())
+            .build()
+    );
+    refreshTokenRepository.deleteByTokenValue(refreshToken);
+
   }
 
 }
