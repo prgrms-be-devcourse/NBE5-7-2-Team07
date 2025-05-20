@@ -68,6 +68,8 @@ a {
   transition-property: color, background-color, border-color;
   transition-duration: 150ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  margin-left: 5px;
+  margin-right: 5px;
 }
 
 .btn:focus-visible {
