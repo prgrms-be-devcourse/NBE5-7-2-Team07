@@ -6,9 +6,13 @@ import {getUsers} from "../../service/settlementService"
 import {useToast} from "../../context/ToastContext"
 import {getAllExpense} from "../../service/ExpenseService";
 import {useParams} from "react-router-dom";
+import {useRecoilValue} from "recoil";
+import {currentTeamIdState} from "../../recoil/atoms/teamAtoms";
 
 export function SettlementNewPage() {
-  const {teamId} = useParams()
+  const recoilTeamId = useRecoilValue(currentTeamIdState)
+  const paramTeamId = useParams().teamId
+  const teamId = recoilTeamId || paramTeamId
   const {addToast} = useToast()
   const [users, setUsers] = useState([])
   const [expenses, setExpenses] = useState([])
