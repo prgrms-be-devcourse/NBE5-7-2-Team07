@@ -1,5 +1,6 @@
 package com.luckyseven.backend.domain.budget.entity;
 
+import com.luckyseven.backend.domain.budget.dto.BudgetUpdateRequest;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -66,7 +67,13 @@ public class Budget extends BaseEntity {
 
   public void setTotalAmount(BigDecimal totalAmount) {
     this.totalAmount = totalAmount;
-    this.balance = totalAmount;
+  }
+
+  public void addBalance(BudgetUpdateRequest request) {
+    if (request.additionalBudget() == null) {
+      return;
+    }
+    this.balance = this.balance.add(request.additionalBudget());
   }
 
   public void setExchangeInfo(boolean isExchanged, BigDecimal amount, BigDecimal exchangeRate) {
@@ -77,8 +84,6 @@ public class Budget extends BaseEntity {
     }
 
     updateForeignBalance(amount, exchangeRate);
-    this.avgExchangeRate = exchangeRate;
-
   }
 
   public void updateExchangeInfo(boolean isExchanged, BigDecimal amount, BigDecimal exchangeRate) {
@@ -86,20 +91,23 @@ public class Budget extends BaseEntity {
       return;
     }
 
-    updateForeignBalance(amount, exchangeRate);
     updateAvgExchangeRate(amount, exchangeRate);
+    updateForeignBalance(amount, exchangeRate);
 
   }
 
   // 예산 추가 후 외화잔고 및 평균환율 수정
   private void updateAvgExchangeRate(BigDecimal amount, BigDecimal exchangeRate) {
-    if (this.avgExchangeRate == null) {
+    if (this.avgExchangeRate == null || this.avgExchangeRate.compareTo(BigDecimal.ZERO) == 0) {
       avgExchangeRate = exchangeRate;
       return;
     }
-    this.avgExchangeRate = (this.balance.multiply(this.avgExchangeRate)
-        .add(amount.multiply(exchangeRate)))
-        .divide(this.balance.add(amount), 2, RoundingMode.HALF_UP);
+    BigDecimal foreignAmount = amount.divide(exchangeRate, 10,
+        RoundingMode.HALF_UP); // 외화 환산, 충분한 정밀도 확보
+    BigDecimal totalCost = this.foreignBalance.multiply(this.avgExchangeRate).add(amount);
+    BigDecimal totalForeign = this.foreignBalance.add(foreignAmount);
+    this.avgExchangeRate = totalCost.divide(totalForeign, 2, RoundingMode.HALF_UP);
+
   }
 
   private void updateForeignBalance(BigDecimal amount, BigDecimal exchangeRate) {
@@ -131,6 +139,7 @@ public class Budget extends BaseEntity {
 
     return this;
   }
+
   public void updateBalance(BigDecimal balance) {
     if (balance != null) {
       this.balance = balance;

@@ -22,7 +22,6 @@ import com.luckyseven.backend.domain.team.repository.TeamRepository;
 import com.luckyseven.backend.sharedkernel.dto.PageResponse;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -51,8 +50,7 @@ public class ExpenseService {
 
     if (request.paymentMethod() == PaymentMethod.CASH) {
       BigDecimal foreignAmount = request.amount();
-      BigDecimal KRWAmount = foreignAmount.divide(budget.getAvgExchangeRate(), 2,
-          RoundingMode.HALF_UP);
+      BigDecimal KRWAmount = foreignAmount.multiply(budget.getAvgExchangeRate());
       validateSufficientBudget(KRWAmount, budget.getBalance());
       validateSufficientBudget(foreignAmount, budget.getForeignBalance());
       budget.updateBalance(budget.getBalance().subtract(KRWAmount));
