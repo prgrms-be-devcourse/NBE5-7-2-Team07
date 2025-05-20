@@ -5,9 +5,12 @@ import SetBudgetDialog from "./components/set-budget-dialog";
 import AddBudgetDialog from "./components/add-budget-dialog";
 import PageHeaderControls from "../../components/PageHeaderControls";
 import { setBudgetInitialized } from "../../service/ApiService";
+import {currentTeamIdState} from "../../recoil/atoms/teamAtoms";
+import {useRecoilValue} from "recoil";
 
 export function BudgetPage() {
-  const { teamId } = useParams();
+  // const { teamId } = useParams();
+  const teamId = useRecoilValue(currentTeamIdState); // 💡 Recoil에서 직접 불러옴 (새로운 TeamDashBoard 접근 안했다면 상태 변경이 안되어 있다.)
   const [dialogType, setDialogType] = useState(null); // 'set' | 'edit' | 'add' | null
   const [budget, setBudget] = useState(null);
   const [loading, setLoading] = useState(true);

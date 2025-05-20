@@ -2,10 +2,15 @@ import React from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styles from '../styles/PageHeaderControls.module.css';
+import {useRecoilValue} from "recoil";
+import {currentTeamIdState} from "../recoil/atoms/teamAtoms";
 
 const PageHeaderControls = ({ pageHeaderData }) => {
   const navigate = useNavigate();
-  const { teamName, teamId, openDialog } = pageHeaderData || {};
+
+  const teamId = useRecoilValue(currentTeamIdState); // 💡 Recoil에서 직접 불러옴
+
+  const { teamName, openDialog } = pageHeaderData || {};
 
   const handleSetBudget = () => {
     if (typeof openDialog === 'function') {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
 import { currentTeamIdState } from '../recoil/atoms/teamAtoms';
-import { getTeamDashboard, getTeamMembers } from '../service/ApiService';
+import { getTeamDashboard, getTeamMembers } from '../service/TeamService';
 import axios from 'axios';
 import styles from '../styles/App.module.css';
 import Header from '../components/Header';
@@ -27,7 +27,6 @@ function TeamDashBoard() {
   const [dialogType, setDialogType] = useState(null); // 'set', 'edit', 'add', or null
   const [pageHeaderData, setPageHeaderData] = useState({
     teamName: '',
-    teamId: null,
     openDialog: setDialogType // Pass the dialog opener function
   });
   const [membersData, setMembersData] = useState({
@@ -108,7 +107,6 @@ function TeamDashBoard() {
           console.log("teamName:", teamName);
           setPageHeaderData({
             teamName,
-            teamId,
             openDialog: setDialogType // Make sure this is included when updating state
           });
         } catch (error) { 
