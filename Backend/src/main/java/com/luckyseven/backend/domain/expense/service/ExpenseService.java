@@ -11,6 +11,7 @@ import com.luckyseven.backend.domain.expense.dto.ExpenseRequest;
 import com.luckyseven.backend.domain.expense.dto.ExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseUpdateRequest;
 import com.luckyseven.backend.domain.expense.entity.Expense;
+import com.luckyseven.backend.domain.expense.enums.PaymentMethod;
 import com.luckyseven.backend.domain.expense.mapper.ExpenseMapper;
 import com.luckyseven.backend.domain.expense.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.member.entity.Member;
@@ -21,6 +22,7 @@ import com.luckyseven.backend.domain.team.repository.TeamRepository;
 import com.luckyseven.backend.sharedkernel.dto.PageResponse;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -46,13 +48,25 @@ public class ExpenseService {
     Member payer = findPayerOrThrow(request.payerId());
 
     Budget budget = team.getBudget();
-    validateSufficientBudget(request.amount(), budget.getBalance());
+
+    if (request.paymentMethod() == PaymentMethod.CASH) {
+      BigDecimal foreignAmount = request.amount();
+      BigDecimal KRWAmount = foreignAmount.divide(budget.getAvgExchangeRate(), 2,
+          RoundingMode.HALF_UP);
+      validateSufficientBudget(KRWAmount, budget.getBalance());
+      validateSufficientBudget(foreignAmount, budget.getForeignBalance());
+      budget.updateBalance(budget.getBalance().subtract(KRWAmount));
+      budget.setForeignBalance(budget.getForeignBalance().subtract(foreignAmount));
+
+    } else if (request.paymentMethod() == PaymentMethod.CARD) {
+      validateSufficientBudget(request.amount(), budget.getBalance());
+      budget.updateBalance(budget.getBalance().subtract(request.amount()));
+    }
 
     Expense expense = ExpenseMapper.fromExpenseRequest(request, team, payer);
     Expense saved = expenseRepository.save(expense);
 
     // TODO: 낙관적 락(Lock) 적용 검토
-    budget.updateBalance(budget.getBalance().subtract(request.amount()));
 
     createAllSettlements(request, payer, saved);
 
