@@ -279,12 +279,8 @@ a {
 
 .badge-outline {
   border-color: var(--color-border);
-  background-color: transparent;
-  color: var(--color-card-foreground);
-}
-
-.badge-outline:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(74, 173, 61, 0.77);
+  color: white;
 }
 
 /* 레이아웃 */
