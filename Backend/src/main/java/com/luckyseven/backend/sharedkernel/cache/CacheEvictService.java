@@ -1,4 +1,4 @@
-package com.luckyseven.backend.domain.expense.service;
+package com.luckyseven.backend.sharedkernel.cache;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.Cache;
