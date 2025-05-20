@@ -102,7 +102,7 @@ export default function Home() {
           <button onClick={handleLogout} className="btn btn-primary">
             로그아웃
           </button>
-          <button onClick={handleRefreshToken} className="btn btn-secondary" style={{marginTop: '10px'}}>
+          <button onClick={handleRefreshToken} className="btn btn-secondary">
             토큰 갱신 테스트
           </button>
         </div>
