@@ -11,6 +11,7 @@ import com.luckyseven.backend.domain.expense.dto.ExpenseRequest;
 import com.luckyseven.backend.domain.expense.dto.ExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseUpdateRequest;
 import com.luckyseven.backend.domain.expense.entity.Expense;
+import com.luckyseven.backend.domain.expense.enums.PaymentMethod;
 import com.luckyseven.backend.domain.expense.mapper.ExpenseMapper;
 import com.luckyseven.backend.domain.expense.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.member.entity.Member;
@@ -46,13 +47,24 @@ public class ExpenseService {
     Member payer = findPayerOrThrow(request.payerId());
 
     Budget budget = team.getBudget();
-    validateSufficientBudget(request.amount(), budget.getBalance());
+
+    if (request.paymentMethod() == PaymentMethod.CASH) {
+      BigDecimal foreignAmount = request.amount();
+      BigDecimal KRWAmount = foreignAmount.multiply(budget.getAvgExchangeRate());
+      validateSufficientBudget(KRWAmount, budget.getBalance());
+      validateSufficientBudget(foreignAmount, budget.getForeignBalance());
+      budget.updateBalance(budget.getBalance().subtract(KRWAmount));
+      budget.setForeignBalance(budget.getForeignBalance().subtract(foreignAmount));
+
+    } else if (request.paymentMethod() == PaymentMethod.CARD) {
+      validateSufficientBudget(request.amount(), budget.getBalance());
+      budget.updateBalance(budget.getBalance().subtract(request.amount()));
+    }
 
     Expense expense = ExpenseMapper.fromExpenseRequest(request, team, payer);
     Expense saved = expenseRepository.save(expense);
 
     // TODO: 낙관적 락(Lock) 적용 검토
-    budget.updateBalance(budget.getBalance().subtract(request.amount()));
 
     createAllSettlements(request, payer, saved);
 

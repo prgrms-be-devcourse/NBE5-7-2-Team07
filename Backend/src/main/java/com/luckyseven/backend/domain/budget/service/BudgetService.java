@@ -93,6 +93,7 @@ public class BudgetService {
           request.additionalBudget(),
           request.exchangeRate());
       budget.setTotalAmount(budget.getTotalAmount().add(request.additionalBudget()));
+      budget.addBalance(request);
     }
   }
 
