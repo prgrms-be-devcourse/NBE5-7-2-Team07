@@ -15,7 +15,7 @@ export default function Login() {
       const user = getCurrentUser();
       if (user) {
         console.log("이미 로그인됨, 홈으로 이동", user);
-        navigate('/', { replace: true });
+        navigate('/team-setup', { replace: true });
       }
     };
     
@@ -49,7 +49,7 @@ export default function Login() {
       
       // 로그인 후 홈으로 이동 (200ms 지연)
       setTimeout(() => {
-        navigate('/', { replace: true });
+        navigate('/team-setup', { replace: true });
       }, 200);
     } catch(err) {
       console.error("로그인 오류:", err);
