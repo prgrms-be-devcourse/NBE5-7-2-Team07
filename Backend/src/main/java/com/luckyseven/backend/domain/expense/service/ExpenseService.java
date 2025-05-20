@@ -17,6 +17,7 @@ import com.luckyseven.backend.domain.member.service.MemberService;
 import com.luckyseven.backend.domain.settlements.app.SettlementService;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
+import com.luckyseven.backend.sharedkernel.cache.CacheEvictService;
 import com.luckyseven.backend.sharedkernel.dto.PageResponse;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import java.math.BigDecimal;

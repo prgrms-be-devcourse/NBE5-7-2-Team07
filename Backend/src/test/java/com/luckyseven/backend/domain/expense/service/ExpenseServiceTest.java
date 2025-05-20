@@ -24,6 +24,7 @@ import com.luckyseven.backend.domain.settlements.app.SettlementService;
 import com.luckyseven.backend.domain.settlements.dao.SettlementRepository;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
+import com.luckyseven.backend.sharedkernel.cache.CacheEvictService;
 import com.luckyseven.backend.sharedkernel.dto.PageResponse;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
@@ -58,7 +59,7 @@ class ExpenseServiceTest {
 
   @Mock
   private SettlementService settlementService;
-  
+
   @Mock
   private CacheEvictService cacheEvictService;
 
