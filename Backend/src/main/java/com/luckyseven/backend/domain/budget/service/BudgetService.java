@@ -44,6 +44,7 @@ public class BudgetService {
         request.exchangeRate());
 
     budgetRepository.save(budget);
+    team.setBudget(budget);
 
     return budgetMapper.toCreateResponse(budget);
   }
