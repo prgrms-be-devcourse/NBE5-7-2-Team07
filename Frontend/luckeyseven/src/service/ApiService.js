@@ -107,15 +107,41 @@ export async function postRefreshToken() {
   try {
     const response = await privateApi.post(
       '/api/refresh',
-      {},
+      {}, // 빈 body
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true
-      },
+        withCredentials: true, // 쿠키가 함께 전송되도록 명시적으로 설정 (매우 중요)
+        
+        // 토큰이 있을 경우에만 헤더에 포함
+        ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {})
+      }
     );
-    console.log('postRefreshToken response:', response);
+    
+    console.log('토큰 갱신 응답 상태:', response.status);
+    console.log('토큰 갱신 응답 헤더:', JSON.stringify(response.headers));
+    
+    // 응답에서 새 토큰 확인 (헤더에서 가져오기)
+    const authHeader = response.headers?.authorization || response.headers?.['authorization'];
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const newToken = authHeader.substring(7);
+      console.log('응답 헤더에서 새 토큰 발견:', newToken.substring(0, 10) + "...");
+      
+      // response.data에 accessToken 추가
+      if (!response.data) {
+        response.data = {};
+      }
+      response.data.accessToken = newToken;
+      console.log('응답 데이터에 accessToken 추가됨:', newToken.substring(0, 10) + "...");
+      
+      // 새 토큰으로 헤더 즉시 업데이트
+      axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+      console.log('axios 기본 헤더에 새 토큰 설정됨');
+      
+      // localStorage에 accessToken 저장
+      localStorage.setItem('accessToken', newToken);
+      console.log('localStorage에 accessToken 저장됨');
+    } else {
+      console.warn('응답 헤더에서 Authorization 토큰을 찾을 수 없습니다.');
+    }
     return response;
   } catch (error) {
     console.error('postRefreshToken error:', error);
@@ -123,70 +149,3 @@ export async function postRefreshToken() {
     throw error;
   }
 }
-
-// Team API
-export const getTeamDashboard = async (teamId) => {
-  try {
-    const response = await privateApi.get(`/api/teams/${teamId}/dashboard`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching team dashboard:', error);
-    throw error;
-  }
-};
-
-export const getTeamMembers = async (teamId) => {
-  try {
-    const response = await privateApi.get(`/api/teams/${teamId}/members`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching team members:', error);
-    throw error;
-  }
-};
-
-export const createTeam = async (name, teamPassword) => {
-  try {
-    const response = await privateApi.post('/api/teams', {
-      name,
-      teamPassword,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error creating team:', error);
-    throw error;
-  }
-};
-
-export const joinTeam = async (teamCode, teamPassword) => {
-  try {
-    const response = await privateApi.post('/api/teams/members', {
-      teamCode,
-      teamPassword,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error joining team:', error);
-    throw error;
-  }
-};
-
-export async function getMyTeams() {
-  try {
-    const response = await privateApi.get('/api/teams/myTeams');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching my teams:', error);
-    throw error;
-  }
-}
-
-export const deleteTeam = async (teamId) => {
-  try {
-    const response = await privateApi.delete(`/api/teams/${teamId}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error deleting team:', error);
-    throw error;
-  }
-};

@@ -6,12 +6,13 @@ import {SettlementForm} from "../../components/settlement/settlement-form"
 import {getSettlementById, getUsers} from "../../service/settlementService"
 import {useToast} from "../../context/ToastContext"
 import {getAllExpense} from "../../service/ExpenseService";
-import {recoilPersist} from "recoil-persist";
 import {useRecoilValue} from "recoil";
 import {currentTeamIdState} from "../../recoil/atoms/teamAtoms";
 
 export function SettlementEditPage() {
-  const teamId = useRecoilValue(currentTeamIdState);
+  const recoilTeamId = useRecoilValue(currentTeamIdState)
+  const paramTeamId = useParams().teamId
+  const teamId = recoilTeamId || paramTeamId
   const {settlementId} = useParams()
   const {addToast} = useToast()
   const [settlement, setSettlement] = useState(null)

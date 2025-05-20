@@ -1,6 +1,5 @@
 import {privateApi} from "./ApiService";
 
-// 모든 정산 내역 조회
 export const getListSettlements = async (teamId, page = 0, size = 10,
     sort = 'createdAt,DESC', filters = {}) => {
   try {
@@ -48,12 +47,12 @@ export const updateSettlement = async (id, settlementData,
   try {
     // settledOnly가 true인 경우 정산 완료 처리만 수행
     if (settledOnly) {
-      const response = await privateApi.patch(`/api/settlements/${id}`,
+      const response = await privateApi.patch(`/api/settlements/${id}`, {},
           {params: {settledOnly: true}});
       return response.data;
     } else {
       // 전체 정산 정보 업데이트
-      const response = await privateApi.put(`/api/settlements/${id}`,
+      const response = await privateApi.patch(`/api/settlements/${id}`,
           settlementData);
       return response.data;
     }

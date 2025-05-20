@@ -16,8 +16,12 @@ public record SettlementResponse(
     BigDecimal amount,
     Boolean isSettled,
     Long settlerId,
+    String settlerNickname,
     Long payerId,
-    Long expenseId
+    String payerNickname,
+    Long expenseId,
+    String expenseDescription,
+    Long teamId
 ) {
 
 }

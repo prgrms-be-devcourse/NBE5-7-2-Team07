@@ -100,7 +100,7 @@ class SettlementServiceTest {
 
   @Test
   @DisplayName("정산롼료")
-  void setSettled_ShouldUpdateSettlementStatus() {
+  void convertSettled_ShouldUpdateSettlementStatus() {
     //given
     when(settlementRepository.findWithSettlerAndPayerById(anyLong())).thenReturn(
         Optional.of(settlement));

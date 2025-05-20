@@ -150,7 +150,7 @@ class SettlementRepositoryTest {
           .expense(i < 15 ? expense1 : expense2)
           .build();
       if (i % 2 == 0) {
-        settlement.setSettled();
+        settlement.convertSettled();
       }
       settlementRepository.save(settlement);
     }

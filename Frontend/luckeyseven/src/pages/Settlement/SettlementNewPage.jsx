@@ -10,7 +10,9 @@ import {useRecoilValue} from "recoil";
 import {currentTeamIdState} from "../../recoil/atoms/teamAtoms";
 
 export function SettlementNewPage() {
-  const teamId = useRecoilValue(currentTeamIdState);
+  const recoilTeamId = useRecoilValue(currentTeamIdState)
+  const paramTeamId = useParams().teamId
+  const teamId = recoilTeamId || paramTeamId
   const {addToast} = useToast()
   const [users, setUsers] = useState([])
   const [expenses, setExpenses] = useState([])
