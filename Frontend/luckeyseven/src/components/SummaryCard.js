@@ -7,7 +7,7 @@ const SummaryCard = ({ title, amount, currency, percentage, of }) => {
   return (
       <div className={styles.summaryCard}>
         <p className={styles.cardTitle}>{title}</p>
-        <h3 className={styles.cardAmount}>{currency}{amount.toLocaleString()}</h3>
+        <h3 className={styles.cardAmount}>{currency}{amount != null ? amount.toLocaleString() : '0'}</h3>
         {percentage && <p className={styles.cardPercentage}>{percentage}% {of}</p>}
       </div>
   );

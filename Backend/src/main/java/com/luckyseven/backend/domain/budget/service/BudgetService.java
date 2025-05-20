@@ -44,6 +44,7 @@ public class BudgetService {
         request.exchangeRate());
 
     budgetRepository.save(budget);
+    team.setBudget(budget);
 
     return budgetMapper.toCreateResponse(budget);
   }
@@ -74,7 +75,14 @@ public class BudgetService {
 
   @Transactional
   public void deleteByTeamId(Long teamId) {
+    Team team = teamRepository.findById(teamId)
+        .orElseThrow(() -> new EntityNotFoundException("팀을 찾을 수 없습니다: " + teamId));
+
+
     Budget budget = budgetValidator.validateBudgetExist(teamId);
+
+    team.setBudget(null);
+    teamRepository.save(team);
     budgetRepository.delete(budget);
   }
 
@@ -85,6 +93,7 @@ public class BudgetService {
           request.additionalBudget(),
           request.exchangeRate());
       budget.setTotalAmount(budget.getTotalAmount().add(request.additionalBudget()));
+      budget.addBalance(request);
     }
   }
 

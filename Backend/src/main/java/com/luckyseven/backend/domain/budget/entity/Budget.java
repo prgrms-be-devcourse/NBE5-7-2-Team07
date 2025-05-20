@@ -1,7 +1,7 @@
 package com.luckyseven.backend.domain.budget.entity;
 
 import static com.luckyseven.backend.sharedkernel.exception.ExceptionCode.INSUFFICIENT_BALANCE;
-
+import com.luckyseven.backend.domain.budget.dto.BudgetUpdateRequest;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
@@ -41,17 +41,16 @@ public class Budget extends BaseEntity {
   @Column(nullable = false)
   private Long setBy;
 
-  @Setter
   @Column(nullable = false)
   private BigDecimal balance;
-  @Setter
+
   private BigDecimal foreignBalance;
 
+  @Setter
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 3)
   private CurrencyCode foreignCurrency;
 
-  @Setter
   private BigDecimal avgExchangeRate;
 
   @Builder
@@ -69,7 +68,13 @@ public class Budget extends BaseEntity {
 
   public void setTotalAmount(BigDecimal totalAmount) {
     this.totalAmount = totalAmount;
-    this.balance = totalAmount;
+  }
+
+  public void addBalance(BudgetUpdateRequest request) {
+    if (request.additionalBudget() == null) {
+      return;
+    }
+    this.balance = this.balance.add(request.additionalBudget());
   }
 
   public void setExchangeInfo(boolean isExchanged, BigDecimal amount, BigDecimal exchangeRate) {
@@ -78,31 +83,26 @@ public class Budget extends BaseEntity {
       this.foreignBalance = null;
       return;
     }
-
     updateForeignBalance(amount, exchangeRate);
-    this.avgExchangeRate = exchangeRate;
-
   }
 
   public void updateExchangeInfo(boolean isExchanged, BigDecimal amount, BigDecimal exchangeRate) {
     if (!isExchanged) {
       return;
     }
-
-    updateForeignBalance(amount, exchangeRate);
     updateAvgExchangeRate(amount, exchangeRate);
-
+    updateForeignBalance(amount, exchangeRate);
   }
 
-  // 예산 추가 후 외화잔고 및 평균환율 수정
   private void updateAvgExchangeRate(BigDecimal amount, BigDecimal exchangeRate) {
-    if (this.avgExchangeRate == null) {
+    if (this.avgExchangeRate == null || this.avgExchangeRate.compareTo(BigDecimal.ZERO) == 0) {
       avgExchangeRate = exchangeRate;
       return;
     }
-    this.avgExchangeRate = (this.balance.multiply(this.avgExchangeRate)
-        .add(amount.multiply(exchangeRate)))
-        .divide(this.balance.add(amount), 2, RoundingMode.HALF_UP);
+    BigDecimal foreignAmount = amount.divide(exchangeRate, 10, RoundingMode.HALF_UP);
+    BigDecimal totalCost = this.foreignBalance.multiply(this.avgExchangeRate).add(amount);
+    BigDecimal totalForeign = this.foreignBalance.add(foreignAmount);
+    this.avgExchangeRate = totalCost.divide(totalForeign, 2, RoundingMode.HALF_UP);
   }
 
   private void updateForeignBalance(BigDecimal amount, BigDecimal exchangeRate) {
@@ -119,36 +119,31 @@ public class Budget extends BaseEntity {
     }
   }
 
+  public void setForeignBalance(BigDecimal amount) {
+    this.foreignBalance = amount;
+  }
+
   public Budget setTeam(Team team) {
-    // 기존 연결 해제
     if (this.team != null) {
       this.team.setBudget(null);
     }
-
     this.team = team;
-
-    // 새로운 연결 설정 (Team이 null이 아닌 경우)
     if (team != null && team.getBudget() != this) {
       team.setBudget(this);
     }
-
     return this;
   }
 
   public void debit(BigDecimal amount) {
-    if (amount == null) {
-      throw new CustomLogicException(INSUFFICIENT_BALANCE);
-    }
-    if (balance.compareTo(amount) < 0) {
+    if (amount == null || balance.compareTo(amount) < 0) {
       throw new CustomLogicException(INSUFFICIENT_BALANCE);
     }
     this.balance = this.balance.subtract(amount);
   }
 
   public void credit(BigDecimal amount) {
-    if (amount == null) {
-      return;
+    if (amount != null) {
+      this.balance = this.balance.add(amount);
     }
-    this.balance = this.balance.add(amount);
   }
 }

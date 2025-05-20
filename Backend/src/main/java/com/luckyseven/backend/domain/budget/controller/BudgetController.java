@@ -8,6 +8,7 @@ import com.luckyseven.backend.domain.budget.dto.BudgetUpdateResponse;
 import com.luckyseven.backend.domain.budget.service.BudgetService;
 import com.luckyseven.backend.domain.budget.validator.BudgetValidator;
 import com.luckyseven.backend.domain.member.entity.Member;
+import com.luckyseven.backend.domain.member.service.utill.MemberDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,11 +47,11 @@ public class BudgetController {
   @PostMapping("/{teamId}/budget")
   @ResponseStatus(HttpStatus.CREATED)
   public BudgetCreateResponse create(@PathVariable @Positive Long teamId,
-      @AuthenticationPrincipal Member loginMember,
+      @AuthenticationPrincipal MemberDetails memberDetails,
       @Valid @RequestBody BudgetCreateRequest request) {
     budgetValidator.validateRequest(request);
 
-    return budgetService.save(teamId, loginMember.getId(), request);
+    return budgetService.save(teamId, memberDetails.getId(), request);
   }
 
   @Operation(summary = "팀 예산 조회")
@@ -69,11 +70,11 @@ public class BudgetController {
   @PatchMapping("/{teamId}/budget")
   @ResponseStatus(HttpStatus.OK)
   public BudgetUpdateResponse update(@PathVariable @Positive Long teamId,
-      @AuthenticationPrincipal Member loginMember,
+      @AuthenticationPrincipal MemberDetails memberDetails,
       @Valid @RequestBody BudgetUpdateRequest request) {
     budgetValidator.validateRequest(request);
 
-    return budgetService.updateByTeamId(teamId, loginMember.getId(), request);
+    return budgetService.updateByTeamId(teamId, memberDetails.getId(), request);
   }
 
   @Operation(summary = "팀 예산 삭제")

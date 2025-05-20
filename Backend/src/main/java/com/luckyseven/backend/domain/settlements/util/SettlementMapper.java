@@ -20,8 +20,12 @@ public class SettlementMapper {
         .updatedAt(settlement.getUpdatedAt())
         .isSettled(settlement.getIsSettled())
         .settlerId(settlement.getSettler().getId())
+        .settlerNickname(settlement.getSettler().getNickname())
         .payerId(settlement.getPayer().getId())
+        .payerNickname(settlement.getPayer().getNickname())
         .expenseId(settlement.getExpense().getId())
+        .expenseDescription(settlement.getExpense().getDescription())
+        .teamId(settlement.getExpense().getTeam().getId())
         .build();
   }
 
