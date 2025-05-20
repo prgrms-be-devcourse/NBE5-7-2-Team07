@@ -137,7 +137,7 @@ public class SettlementService {
   @Transactional
   public SettlementResponse settleSettlement(Long id) {
     Settlement settlement = findSettlementOrThrow(id);
-    settlement.setSettled();
+    settlement.convertSettled();
     return SettlementMapper.toSettlementResponse(settlementRepository.save(settlement));
   }
 

@@ -8,7 +8,6 @@ import {
 import Login from "./pages/Login/Login"
 import Signup from "./pages/Login/Signup"
 import Home from "./pages/Home"
-import {HomePage as SettlementHomePage} from "./pages/Settlement/HomePage"
 import {TeamSettlementsPage} from "./pages/Settlement/TeamSettlementsPage"
 import {SettlementNewPage} from "./pages/Settlement/SettlementNewPage"
 import {SettlementEditPage} from "./pages/Settlement/SettlementEditPage"
@@ -19,8 +18,6 @@ import {getCurrentUser} from "./service/AuthService"
 import TeamDashBoard from "./pages/TeamDashBoard";
 import TeamSetup from "./pages/TeamSetup"
 import {ToastProvider} from "./context/ToastContext"
-import SettlementPage from "./pages/SettlementPage";
-import ExpensesPage from "./pages/ExpensesPage";
 
 // 보호된 라우트 컴포넌트
 const ProtectedRoute = ({children}) => {
@@ -29,7 +26,7 @@ const ProtectedRoute = ({children}) => {
   if (!user) {
     // 로그인되지 않은 경우 로그인 페이지로 리다이렉트
     return <Navigate to="/login" replace/>;
-  }
+  } 
 
   return children;
 };
@@ -51,19 +48,8 @@ function App() {
                 }
             />
             <Route path="/team-setup" element={<TeamSetup/>}/>
-            {/*settlement 임시 페이지 import 삭제로 인한 warning. 병합된 페이지로 변경 예정*/}
-            <Route path="/team/:teamId/settlement" element={<SettlementPage/>}/>
-            {/*expenses 임시 페이지 import 삭제로 인한 warning. 병합된 페이지로 변경 예정*/}
-            <Route path="/team/:teamId/expenses" element={<ExpensesPage/>}/>
+
             {/* Settlement 관련 라우트 */}
-            <Route
-                path="/settlement"
-                element={
-                  <ProtectedRoute>
-                    <SettlementHomePage/>
-                  </ProtectedRoute>
-                }
-            />
             <Route
                 path="/teams/:teamId/settlements"
                 element={
@@ -73,7 +59,7 @@ function App() {
                 }
             />
             <Route
-                path="/settlements/new"
+                path="/teams/:teamId/settlements/new"
                 element={
                   <ProtectedRoute>
                     <SettlementNewPage/>
@@ -89,7 +75,7 @@ function App() {
                 }
             />
             <Route
-                path="/settlements/:settlementId/edit"
+                path="/teams/:teamId/settlements/:settlementId/edit"
                 element={
                   <ProtectedRoute>
                     <SettlementEditPage/>

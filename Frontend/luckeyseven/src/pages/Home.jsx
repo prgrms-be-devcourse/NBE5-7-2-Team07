@@ -38,7 +38,7 @@ export default function Home() {
       const result = await logout();
       if (result.success) {
         // 서버 로그아웃 성공 또는 실패해도 클라이언트 측 로그아웃은 완료
-        navigate("/login");
+        navigate("/setup-team");
       } else {
         console.warn("서버 로그아웃 실패, 클라이언트 측 로그아웃은 완료됨");
         // 클라이언트 측은 로그아웃되었으므로 로그인 페이지로 이동
@@ -102,7 +102,7 @@ export default function Home() {
           <button onClick={handleLogout} className="btn btn-primary">
             로그아웃
           </button>
-          <button onClick={handleRefreshToken} className="btn btn-secondary" style={{marginTop: '10px'}}>
+          <button onClick={handleRefreshToken} className="btn btn-secondary">
             토큰 갱신 테스트
           </button>
         </div>

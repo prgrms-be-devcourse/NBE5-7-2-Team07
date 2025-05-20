@@ -8,29 +8,29 @@
   --color-primary: #3b82f6;
   --color-primary-rgb: 59, 130, 246;
   --color-primary-foreground: white;
-  
+
   --color-primary-hover: #2563eb;
-  
+
   --color-secondary: #f3f4f6;
   --color-secondary-rgb: 243, 244, 246;
   --color-secondary-foreground: #4b5563;
-  
+
   --color-destructive: #e74c3c;
   --color-destructive-rgb: 231, 76, 60;
   --color-destructive-foreground: white;
-  
+
   --color-accent: #f8f9fa;
   --color-accent-foreground: #1f2937;
-  
+
   --color-background: white;
   --color-card: white;
   --color-card-foreground: #1f2937;
-  
+
   --color-border: #eaeaea;
   --color-input-border: #d1d5db;
   --color-muted-foreground: #4b5563;
   --color-ring: #3b82f6;
-  
+
   --color-error-bg: #fde2e2;
 }
 
@@ -68,6 +68,8 @@ a {
   transition-property: color, background-color, border-color;
   transition-duration: 150ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  margin-left: 5px;
+  margin-right: 5px;
 }
 
 .btn:focus-visible {
@@ -175,7 +177,6 @@ a {
 
 .card-content {
   padding: 1.5rem;
-  padding-top: 0;
 }
 
 .card-footer {
@@ -278,12 +279,8 @@ a {
 
 .badge-outline {
   border-color: var(--color-border);
-  background-color: transparent;
-  color: var(--color-card-foreground);
-}
-
-.badge-outline:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(74, 173, 61, 0.77);
+  color: white;
 }
 
 /* 레이아웃 */
