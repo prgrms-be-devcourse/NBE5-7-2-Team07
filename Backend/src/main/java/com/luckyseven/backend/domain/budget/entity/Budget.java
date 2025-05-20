@@ -66,13 +66,7 @@ public class Budget extends BaseEntity {
 
   public void setTotalAmount(BigDecimal totalAmount) {
     this.totalAmount = totalAmount;
-  }
-
-  public void addBalance(BudgetUpdateRequest request) {
-    if (request.additionalBudget() == null) {
-      return;
-    }
-    this.balance = this.balance.add(request.additionalBudget());
+    this.balance = totalAmount;
   }
 
   public void setExchangeInfo(boolean isExchanged, BigDecimal amount, BigDecimal exchangeRate) {
@@ -115,6 +109,7 @@ public class Budget extends BaseEntity {
       foreignBalance = BigDecimal.ZERO;
     }
     this.foreignBalance = this.foreignBalance.add(additionalBudget);
+    this.avgExchangeRate = exchangeRate;
   }
 
   public void setForeignBalance() {

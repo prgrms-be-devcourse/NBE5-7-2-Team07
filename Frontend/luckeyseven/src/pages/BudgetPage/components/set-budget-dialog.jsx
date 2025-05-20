@@ -13,7 +13,7 @@ const SetBudgetDialog = ({ teamId, closeDialog, onBudgetUpdate }) => {
   const resetForm = () => {
     setTotalAmount(0);
     setIsExchanged(false);
-    setForeignCurrency('USD');
+    setForeignCurrency('KRW');
     setExchangeRate('');
     setError('');
   };
@@ -23,7 +23,7 @@ const SetBudgetDialog = ({ teamId, closeDialog, onBudgetUpdate }) => {
     closeDialog();
   };
 
-  // 예산 설정 함수 - 간소화된 버전
+  // 예산 설정 함수 - 수정된 버전
   const handleSubmit = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -43,23 +43,32 @@ const SetBudgetDialog = ({ teamId, closeDialog, onBudgetUpdate }) => {
     }
 
     try {
-      // 기존 예산이 있다면 먼저 삭제
+      // 기존 예산 확인을 위한 GET 요청
       try {
-        await axios.delete(`/api/teams/${teamId}/budget`);
-        console.log('기존 예산 삭제 완료');
-      } catch (deleteError) {
-        // 404는 예산이 없는 경우이므로 무시
-        if (deleteError.response && deleteError.response.status !== 404) {
-          console.warn('예산 삭제 시도 중 오류:', deleteError);
+        const checkResponse = await axios.get(`/api/teams/${teamId}/budget`);
+        
+        // 이미 예산이 있는 경우, 409 에러를 설정하고 종료
+        if (checkResponse.status === 200) {
+          setError('이미 설정된 예산이 있습니다. 예산 수정을 이용해 주세요.');
+          setIsSubmitting(false);
+          return;
+        }
+      } catch (checkError) {
+        // 404는 예산이 없는 경우이므로 계속 진행
+        if (checkError.response && checkError.response.status !== 404) {
+          console.warn('예산 확인 중 오류:', checkError);
+          setError('예산 확인 중 오류가 발생했습니다.');
+          setIsSubmitting(false);
+          return;
         }
       }
 
       // 새 예산 설정
       const response = await axios.post(`/api/teams/${teamId}/budget`, {
-        totalAmount,
+        totalAmount: Number(totalAmount),
         isExchanged,
         foreignCurrency,
-        exchangeRate: isExchanged ? exchangeRate : null,
+        exchangeRate: isExchanged ? Number(exchangeRate) : null,
       });
       
       console.log('Budget setup response:', response.data);
@@ -74,7 +83,12 @@ const SetBudgetDialog = ({ teamId, closeDialog, onBudgetUpdate }) => {
       console.error('Error setting budget:', error);
       
       if (error.response) {
-        setError('예산 설정 중 오류가 발생했습니다: ' + (error.response.data?.message || error.message));
+        // 409는 이미 예산이 있는 경우
+        if (error.response.status === 409) {
+          setError('이미 설정된 예산이 있습니다. 예산 삭제 후 다시 시도해주세요.');
+        } else {
+          setError('예산 설정 중 오류가 발생했습니다: ' + (error.response.data?.message || error.message));
+        }
       } else {
         setError('서버와 통신 중 오류가 발생했습니다.');
       }
@@ -99,6 +113,7 @@ const SetBudgetDialog = ({ teamId, closeDialog, onBudgetUpdate }) => {
           min="0"
           step="100"
         />
+        
         <label>통화 코드</label>
         <select value={foreignCurrency} onChange={(e) => setForeignCurrency(e.target.value)}>
           <option value="USD">USD - 미국 달러</option>

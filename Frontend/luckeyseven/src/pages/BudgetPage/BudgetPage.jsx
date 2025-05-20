@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useParams } from "react-router-dom";
 import SetBudgetDialog from "./components/set-budget-dialog";
 import AddBudgetDialog from "./components/add-budget-dialog";
+import EditBudgetDialog from "./components/edit-budget-dialog";
 import PageHeaderControls from "../../components/PageHeaderControls";
 import { setBudgetInitialized } from "../../service/ApiService";
 import { currentTeamIdState } from "../../recoil/atoms/teamAtoms";
@@ -129,7 +130,7 @@ export function BudgetPage() {
           <p>총 예산: <span className="font-medium">{SafeFormatterUtil.formatCurrency(budget?.totalAmount)} KRW</span></p>
           <p>원화 잔고: <span className="font-medium">{SafeFormatterUtil.formatCurrency(budget?.balance)} KRW</span></p>
           <p>외화 잔고: <span className="font-medium">{SafeFormatterUtil.formatCurrency(budget?.foreignBalance)} {budget?.foreignCurrency || 'KRW'}</span></p>
-          <p>평균 환율: <span className="font-medium">{budget?.avgExchangeRate || 0}</span></p>
+          <p>평균 환율: <span className="font-medium">{SafeFormatterUtil.formatCurrency(budget?.avgExchangeRate)}</span></p>
         </div>
       ) : (
         <div className="text-center p-4 bg-gray-100 rounded-lg">
@@ -146,6 +147,14 @@ export function BudgetPage() {
       {/* Dialogs */}
       {dialogType === "set" && (
         <SetBudgetDialog
+          teamId={teamId}
+          closeDialog={handleClose}
+          onBudgetUpdate={handleBudgetUpdate}
+        />
+      )}
+
+      {dialogType === "edit" && (
+        <EditBudgetDialog
           teamId={teamId}
           closeDialog={handleClose}
           onBudgetUpdate={handleBudgetUpdate}

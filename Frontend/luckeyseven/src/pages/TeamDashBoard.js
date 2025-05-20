@@ -47,13 +47,11 @@ function TeamDashBoard() {
     setDialogType(null);
   };
 
-  // Open dialog handler with new instance key
   const handleOpenDialog = (type) => {
     setDialogType(type);
     setDialogKey(Date.now()); // 새로운 키 생성하여 컴포넌트 재생성 보장
   };
 
-  // Function to handle budget updates from dialogs
   const handleBudgetUpdate = (updatedBudget) => {
     setBudgetData(updatedBudget);
     setBudgetInitialized(true);
@@ -123,7 +121,6 @@ function TeamDashBoard() {
           const overviewData = await getTeamDashboard(teamId);
           console.log("Overview Data:", overviewData);
 
-          // Make sure budget values are never null by using nullish coalescing
           setDashboardData({
             ...overviewData,
             budget: {
