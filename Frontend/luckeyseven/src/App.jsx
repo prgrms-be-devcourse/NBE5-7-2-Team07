@@ -19,8 +19,6 @@ import {getCurrentUser} from "./service/AuthService"
 import TeamDashBoard from "./pages/TeamDashBoard";
 import TeamSetup from "./pages/TeamSetup"
 import {ToastProvider} from "./context/ToastContext"
-import SettlementPage from "./pages/SettlementPage";
-import ExpensesPage from "./pages/ExpensesPage";
 
 // 보호된 라우트 컴포넌트
 const ProtectedRoute = ({children}) => {
@@ -51,7 +49,7 @@ function App() {
                 }
             />
             <Route path="/team-setup" element={<TeamSetup/>}/>
-            
+
             {/* Settlement 관련 라우트 */}
             <Route
                 path="/settlement"
@@ -70,7 +68,7 @@ function App() {
                 }
             />
             <Route
-                path="/settlements/new"
+                path="/teams/:teamId/settlements/new"
                 element={
                   <ProtectedRoute>
                     <SettlementNewPage/>
@@ -86,7 +84,7 @@ function App() {
                 }
             />
             <Route
-                path="/settlements/:settlementId/edit"
+                path="/teams/:teamId/settlements/:settlementId/edit"
                 element={
                   <ProtectedRoute>
                     <SettlementEditPage/>
