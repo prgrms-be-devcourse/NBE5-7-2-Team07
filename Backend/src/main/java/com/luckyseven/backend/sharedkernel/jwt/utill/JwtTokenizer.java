@@ -162,4 +162,16 @@ public class JwtTokenizer {
     return reissueTokenPair(response, user);
   }
 
+  public void LogoutRefreshToken(String refreshToken) {
+    blackListTokenRepository.save(
+        BlackListToken.builder()
+            .tokenValue(refreshToken)
+            .expirationTime(
+                parseRefreshToken(refreshToken).getExpiration().toInstant())
+            .build()
+    );
+    refreshTokenRepository.deleteByTokenValue(refreshToken);
+
+  }
+
 }
