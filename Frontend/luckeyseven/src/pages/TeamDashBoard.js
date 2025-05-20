@@ -27,7 +27,6 @@ function TeamDashBoard() {
   const [dialogType, setDialogType] = useState(null); // 'set', 'edit', 'add', or null
   const [pageHeaderData, setPageHeaderData] = useState({
     teamName: '',
-    teamId: null,
     openDialog: setDialogType // Pass the dialog opener function
   });
   const [membersData, setMembersData] = useState({
@@ -108,7 +107,6 @@ function TeamDashBoard() {
           console.log("teamName:", teamName);
           setPageHeaderData({
             teamName,
-            teamId,
             openDialog: setDialogType // Make sure this is included when updating state
           });
         } catch (error) { 
