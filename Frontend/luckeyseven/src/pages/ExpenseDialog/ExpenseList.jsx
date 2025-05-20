@@ -1,9 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import AddExpenseDialog from './AddExpenseDialog';
 import ExpenseDetailDialog from './ExpenseDetailDialog';
 import '../../components/styles/expenseList.css';
 import { getListExpense } from '../../service/ExpenseService';
-import { FaMoneyBillWave } from 'react-icons/fa';  
+import { FaMoneyBillWave } from 'react-icons/fa';
+import Header from '../../components/Header';
+
+import { FiHome } from 'react-icons/fi';
+import { FiPlus } from 'react-icons/fi';
 
 const CATEGORY_LABELS = {
   MEAL: '식사',
@@ -13,10 +18,11 @@ const CATEGORY_LABELS = {
   MISCELLANEOUS: '기타',
 };
 
-export default function ExpenseList({ teamId = 1 }) {
+export default function ExpenseList() {
+  const { teamId } = useParams();
+  const navigate = useNavigate();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [selectedExpenseId, setSelectedExpenseId] = useState(null);
-
 
   const [expenses, setExpenses] = useState([]);
   const [page, setPage] = useState(0);
@@ -26,11 +32,9 @@ export default function ExpenseList({ teamId = 1 }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 서버에서 받은 잔고 배너 및 알림 상태
   const [balances, setBalances] = useState(null);
   const [notification, setNotification] = useState({ message: '', type: '' });
 
-  // 지출 목록 재조회 함수
   const fetchExpenses = useCallback(async () => {
     setLoading(true);
     try {
@@ -45,12 +49,10 @@ export default function ExpenseList({ teamId = 1 }) {
     }
   }, [teamId, page, size, sortDirection]);
 
-  // 초기 및 페이지/정렬 변경 시 데이터 로드
   useEffect(() => {
     fetchExpenses();
   }, [fetchExpenses]);
 
-  // 배너 및 알림 자동 숨김 (10초)
   useEffect(() => {
     if (!balances && !notification.message) return;
     const timer = setTimeout(() => {
@@ -62,9 +64,7 @@ export default function ExpenseList({ teamId = 1 }) {
 
   if (loading) return (
     <div className="expense-tracker">
-      <div className="header">
-        <h1 className="title">여행 경비 매니저</h1>
-      </div>
+      <Header />
       <div className="content">
         <div className="loading">데이터를 불러오고 있습니다...</div>
       </div>
@@ -73,9 +73,7 @@ export default function ExpenseList({ teamId = 1 }) {
 
   if (error) return (
     <div className="expense-tracker">
-      <div className="header">
-        <h1 className="title">여행 경비 매니저</h1>
-      </div>
+      <Header />
       <div className="content">
         <div className="error">
           <p>데이터를 불러오는 중 오류가 발생했습니다</p>
@@ -89,7 +87,6 @@ export default function ExpenseList({ teamId = 1 }) {
   const closeDetail = () => setSelectedExpenseId(null);
   const goToPage = (pageNumber) => setPage(pageNumber - 1);
 
-  // 지출 추가 성공 콜백 (전체 리스트 재조회)
   const handleAddSuccess = async (newExpense, balancesObj) => {
     setBalances(balancesObj);
     setNotification({ message: '지출이 성공적으로 등록되었습니다.', type: 'register' });
@@ -101,7 +98,6 @@ export default function ExpenseList({ teamId = 1 }) {
     }
   };
 
-  // 지출 수정 성공 콜백
   const handleUpdateSuccess = (updatedExpense, balancesObj) => {
     setExpenses(prev =>
       prev.map(exp =>
@@ -115,7 +111,6 @@ export default function ExpenseList({ teamId = 1 }) {
     closeDetail();
   };
 
-  // 지출 삭제 성공 콜백
   const handleDeleteSuccess = (deletedId, balancesObj) => {
     setExpenses(prev => prev.filter(exp => exp.id !== deletedId));
     setBalances(balancesObj);
@@ -123,9 +118,7 @@ export default function ExpenseList({ teamId = 1 }) {
     closeDetail();
   };
 
-  // 숫자 또는 대체 문자열 반환 
   const fmt = (value) => (value != null ? value.toLocaleString() : '-');
-
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -139,18 +132,12 @@ export default function ExpenseList({ teamId = 1 }) {
 
   return (
     <div className="expense-tracker">
-      <div className="header">
-        <h1 className="title">여행 경비 매니저</h1>
-        <div className="header-actions">
-          {/* 예산 수정, CSV 내보내기 등 버튼 추가 가능 */}
-        </div>
-      </div>
-
+      <Header />
       <div className="content">
         <h2 className="section-title">
-  <FaMoneyBillWave className="section-icon" />
-  지출 내역
-</h2>
+          <FaMoneyBillWave className="section-icon" />
+          지출 내역
+        </h2>
 
         {(balances || notification.message) && (
           <div className="balance-banner">
@@ -172,22 +159,30 @@ export default function ExpenseList({ teamId = 1 }) {
         )}
 
         <div className="actions">
+          <div className="header-actions">
+              <button
+              className="btn btn-outlined"
+              onClick={() => navigate('/TeamDashBoard')}
+            >
+              <FiHome style={{ marginRight: '4px' }} /> 팀 대시보드
+            </button>
+            <button
+              className="btn btn-filled"
+              onClick={() => setShowAddDialog(true)}
+            >
+              <FiPlus style={{ marginRight: '4px' }} /> 지출 추가
+            </button>
+          </div>
 
-  <div className="header-actions">
-    {/* <button className="btn btn-outlined">예산 수정</button> */}
-    <button className="btn btn-filled" onClick={() => setShowAddDialog(true)}>지출 추가</button>
-  </div>
-
-
-  <div className="sort-control">
-    <button
-      className="sort-btn"
-      onClick={() => setSortDirection(prev => prev === 'DESC' ? 'ASC' : 'DESC')}
-    >
-      날짜순 <span className="icon">{sortDirection === 'DESC' ? '↓' : '↑'}</span>
-    </button>
-  </div>
-</div>
+          <div className="sort-control">
+            <button
+              className="sort-btn"
+              onClick={() => setSortDirection(prev => prev === 'DESC' ? 'ASC' : 'DESC')}
+            >
+              날짜순 <span className="icon">{sortDirection === 'DESC' ? '↓' : '↑'}</span>
+            </button>
+          </div>
+        </div>
 
         {expenses.length === 0 ? (
           <div className="empty-state">
