@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import AddExpenseDialog from './AddExpenseDialog';
 import ExpenseDetailDialog from './ExpenseDetailDialog';
 import '../../components/styles/expenseList.css';
-import { getListExpense } from '../../service/ExpenseService';
-import { FaMoneyBillWave } from 'react-icons/fa';  
+import {getListExpense} from '../../service/ExpenseService';
+import {FaMoneyBillWave} from 'react-icons/fa';
+import Header from "../../components/Header";
 
 const CATEGORY_LABELS = {
   MEAL: '식사',
@@ -13,10 +14,9 @@ const CATEGORY_LABELS = {
   MISCELLANEOUS: '기타',
 };
 
-export default function ExpenseList({ teamId = 1 }) {
+export default function ExpenseList({teamId = 1}) {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [selectedExpenseId, setSelectedExpenseId] = useState(null);
-
 
   const [expenses, setExpenses] = useState([]);
   const [page, setPage] = useState(0);
@@ -28,13 +28,14 @@ export default function ExpenseList({ teamId = 1 }) {
 
   // 서버에서 받은 잔고 배너 및 알림 상태
   const [balances, setBalances] = useState(null);
-  const [notification, setNotification] = useState({ message: '', type: '' });
+  const [notification, setNotification] = useState({message: '', type: ''});
 
   // 지출 목록 재조회 함수
   const fetchExpenses = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getListExpense(teamId, page, size, `createdAt,${sortDirection}`);
+      const data = await getListExpense(teamId, page, size,
+          `createdAt,${sortDirection}`);
       setExpenses(data.content);
       setTotalPages(data.totalPages);
       setError(null);
@@ -52,38 +53,44 @@ export default function ExpenseList({ teamId = 1 }) {
 
   // 배너 및 알림 자동 숨김 (10초)
   useEffect(() => {
-    if (!balances && !notification.message) return;
+    if (!balances && !notification.message) {
+      return;
+    }
     const timer = setTimeout(() => {
       setBalances(null);
-      setNotification({ message: '', type: '' });
+      setNotification({message: '', type: ''});
     }, 10000);
     return () => clearTimeout(timer);
   }, [balances, notification]);
 
-  if (loading) return (
-    <div className="expense-tracker">
-      <div className="header">
-        <h1 className="title">여행 경비 매니저</h1>
-      </div>
-      <div className="content">
-        <div className="loading">데이터를 불러오고 있습니다...</div>
-      </div>
-    </div>
-  );
-
-  if (error) return (
-    <div className="expense-tracker">
-      <div className="header">
-        <h1 className="title">여행 경비 매니저</h1>
-      </div>
-      <div className="content">
-        <div className="error">
-          <p>데이터를 불러오는 중 오류가 발생했습니다</p>
-          <p>{error.message}</p>
+  if (loading) {
+    return (
+        <div className="expense-tracker">
+          <div className="header">
+            <h1 className="title">여행 경비 매니저</h1>
+          </div>
+          <div className="content">
+            <div className="loading">데이터를 불러오고 있습니다...</div>
+          </div>
         </div>
-      </div>
-    </div>
-  );
+    );
+  }
+
+  if (error) {
+    return (
+        <div className="expense-tracker">
+          <div className="header">
+            <h1 className="title">여행 경비 매니저</h1>
+          </div>
+          <div className="content">
+            <div className="error">
+              <p>데이터를 불러오는 중 오류가 발생했습니다</p>
+              <p>{error.message}</p>
+            </div>
+          </div>
+        </div>
+    );
+  }
 
   const openDetail = (expenseId) => setSelectedExpenseId(expenseId);
   const closeDetail = () => setSelectedExpenseId(null);
@@ -92,7 +99,7 @@ export default function ExpenseList({ teamId = 1 }) {
   // 지출 추가 성공 콜백 (전체 리스트 재조회)
   const handleAddSuccess = async (newExpense, balancesObj) => {
     setBalances(balancesObj);
-    setNotification({ message: '지출이 성공적으로 등록되었습니다.', type: 'register' });
+    setNotification({message: '지출이 성공적으로 등록되었습니다.', type: 'register'});
     setShowAddDialog(false);
     try {
       await fetchExpenses();
@@ -104,14 +111,14 @@ export default function ExpenseList({ teamId = 1 }) {
   // 지출 수정 성공 콜백
   const handleUpdateSuccess = (updatedExpense, balancesObj) => {
     setExpenses(prev =>
-      prev.map(exp =>
-        exp.id === updatedExpense.id
-          ? { ...updatedExpense }
-          : exp
-      )
+        prev.map(exp =>
+            exp.id === updatedExpense.id
+                ? {...updatedExpense}
+                : exp
+        )
     );
     setBalances(balancesObj);
-    setNotification({ message: '지출이 성공적으로 수정되었습니다.', type: 'update' });
+    setNotification({message: '지출이 성공적으로 수정되었습니다.', type: 'update'});
     closeDetail();
   };
 
@@ -119,13 +126,12 @@ export default function ExpenseList({ teamId = 1 }) {
   const handleDeleteSuccess = (deletedId, balancesObj) => {
     setExpenses(prev => prev.filter(exp => exp.id !== deletedId));
     setBalances(balancesObj);
-    setNotification({ message: '지출이 성공적으로 삭제되었습니다.', type: 'delete' });
+    setNotification({message: '지출이 성공적으로 삭제되었습니다.', type: 'delete'});
     closeDetail();
   };
 
   // 숫자 또는 대체 문자열 반환 
   const fmt = (value) => (value != null ? value.toLocaleString() : '-');
-
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -138,109 +144,138 @@ export default function ExpenseList({ teamId = 1 }) {
   };
 
   return (
-    <div className="expense-tracker">
-      <div className="header">
-        <h1 className="title">여행 경비 매니저</h1>
-        <div className="header-actions">
-          {/* 예산 수정, CSV 내보내기 등 버튼 추가 가능 */}
+      <div>
+        <Header/>
+        <div className="expense-tracker">
+          {/*<div className="header">*/}
+          {/*  <h1 className="title">여행 경비 매니저</h1>*/}
+          {/*  <div className="header-actions">*/}
+          {/*    /!* 예산 수정, CSV 내보내기 등 버튼 추가 가능 *!/*/}
+          {/*  </div>*/}
+          {/*</div>*/}
+
+          <div className="content">
+            <h2 className="section-title">
+              <FaMoneyBillWave className="section-icon"/>
+              지출 내역
+            </h2>
+
+            {(balances || notification.message) && (
+                <div className="balance-banner">
+                  {balances && (
+                      <div>
+                        <span className="label">원화 잔고:</span>
+                        <strong>₩{fmt(balances.balance)}</strong>
+                        &nbsp;&nbsp;
+                        <span className="label">외화 잔고:</span>
+                        <strong>${fmt(balances.foreignBalance)}</strong>
+                      </div>
+                  )}
+                  {notification.message && (
+                      <div className={`notification ${notification.type}`}>
+                        {notification.message}
+                      </div>
+                  )}
+                </div>
+            )}
+
+            <div className="actions">
+
+              <div className="header-actions">
+                {/* <button className="btn btn-outlined">예산 수정</button> */}
+                <button className="btn btn-filled"
+                        onClick={() => setShowAddDialog(true)}>지출 추가
+                </button>
+              </div>
+
+
+              <div className="sort-control">
+                <button
+                    className="sort-btn"
+                    onClick={() => setSortDirection(
+                        prev => prev === 'DESC' ? 'ASC' : 'DESC')}
+                >
+                  날짜순 <span className="icon">{sortDirection === 'DESC' ? '↓'
+                    : '↑'}</span>
+                </button>
+              </div>
+            </div>
+
+            {expenses.length === 0 ? (
+                <div className="empty-state">
+                  <h3>지출 내역이 없습니다</h3>
+                  <p>'지출 추가' 버튼을 클릭하여 첫 지출을 등록해보세요.</p>
+                </div>
+            ) : (
+                <div className="expense-table">
+                  <table>
+                    <thead>
+                    <tr>
+                      <th>제목</th>
+                      <th>가격 (KRW)</th>
+                      <th>카테고리</th>
+                      <th>날짜</th>
+                      <th>결제자</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {expenses.map(exp => (
+                        <tr key={exp.id} onClick={() => openDetail(exp.id)}
+                            style={{cursor: 'pointer'}}>
+                          <td>{exp.description}</td>
+                          <td className="amount">₩{exp.amount.toLocaleString()}</td>
+                          <td><span className="category"
+                                    data-category={exp.category}>{CATEGORY_LABELS[exp.category]
+                              || exp.category}</span></td>
+                          <td>{formatDate(exp.createdAt)}</td>
+                          <td>{exp.payerNickname}</td>
+                        </tr>
+                    ))}
+                    </tbody>
+                  </table>
+                </div>
+            )}
+
+            {totalPages > 1 && (
+                <div className="pagination">
+                  <button onClick={() => goToPage(page)}
+                          disabled={page === 0}>←
+                  </button>
+                  {Array.from({length: totalPages}, (_, i) => {
+                    const pageNum = i + 1;
+                    const currentPage = page + 1;
+                    if (pageNum === 1 || pageNum === totalPages || (pageNum
+                        >= currentPage - 1 && pageNum <= currentPage + 1)) {
+                      return <button key={i} className={pageNum === currentPage
+                          ? 'active' : ''} onClick={() => goToPage(
+                          pageNum)}>{pageNum}</button>;
+                    }
+                    if (pageNum === currentPage - 2 && currentPage
+                        > 3) {
+                      return <span key="ellip-1"
+                                   className="pagination-ellipsis">...</span>;
+                    }
+                    if (pageNum === currentPage + 2 && currentPage < totalPages
+                        - 2) {
+                      return <span key="ellip-2"
+                                   className="pagination-ellipsis">...</span>;
+                    }
+                    return null;
+                  })}
+                  <button onClick={() => goToPage(page + 2)}
+                          disabled={page + 1 === totalPages}>→
+                  </button>
+                </div>
+            )}
+
+            {showAddDialog && <AddExpenseDialog
+                onClose={() => setShowAddDialog(false)}
+                onSuccess={handleAddSuccess}/>}
+            {selectedExpenseId && <ExpenseDetailDialog
+                expenseId={selectedExpenseId} onClose={closeDetail}
+                onUpdate={handleUpdateSuccess} onDelete={handleDeleteSuccess}/>}
+          </div>
         </div>
       </div>
-
-      <div className="content">
-        <h2 className="section-title">
-  <FaMoneyBillWave className="section-icon" />
-  지출 내역
-</h2>
-
-        {(balances || notification.message) && (
-          <div className="balance-banner">
-            {balances && (
-              <div>
-                <span className="label">원화 잔고:</span>
-                <strong>₩{fmt(balances.balance)}</strong>
-                &nbsp;&nbsp;
-                <span className="label">외화 잔고:</span>
-                <strong>${fmt(balances.foreignBalance)}</strong>
-              </div>
-            )}
-            {notification.message && (
-              <div className={`notification ${notification.type}`}>
-                {notification.message}
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="actions">
-
-  <div className="header-actions">
-    {/* <button className="btn btn-outlined">예산 수정</button> */}
-    <button className="btn btn-filled" onClick={() => setShowAddDialog(true)}>지출 추가</button>
-  </div>
-
-
-  <div className="sort-control">
-    <button
-      className="sort-btn"
-      onClick={() => setSortDirection(prev => prev === 'DESC' ? 'ASC' : 'DESC')}
-    >
-      날짜순 <span className="icon">{sortDirection === 'DESC' ? '↓' : '↑'}</span>
-    </button>
-  </div>
-</div>
-
-        {expenses.length === 0 ? (
-          <div className="empty-state">
-            <h3>지출 내역이 없습니다</h3>
-            <p>'지출 추가' 버튼을 클릭하여 첫 지출을 등록해보세요.</p>
-          </div>
-        ) : (
-          <div className="expense-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>제목</th>
-                  <th>가격 (KRW)</th>
-                  <th>카테고리</th>
-                  <th>날짜</th>
-                  <th>결제자</th>
-                </tr>
-              </thead>
-              <tbody>
-                {expenses.map(exp => (
-                  <tr key={exp.id} onClick={() => openDetail(exp.id)} style={{ cursor: 'pointer' }}>
-                    <td>{exp.description}</td>
-                    <td className="amount">₩{exp.amount.toLocaleString()}</td>
-                    <td><span className="category" data-category={exp.category}>{CATEGORY_LABELS[exp.category] || exp.category}</span></td>
-                    <td>{formatDate(exp.createdAt)}</td>
-                    <td>{exp.payerNickname}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {totalPages > 1 && (
-          <div className="pagination">
-            <button onClick={() => goToPage(page)} disabled={page === 0}>←</button>
-            {Array.from({ length: totalPages }, (_, i) => {
-              const pageNum = i + 1;
-              const currentPage = page + 1;
-              if (pageNum === 1 || pageNum === totalPages || (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)) {
-                return <button key={i} className={pageNum === currentPage ? 'active' : ''} onClick={() => goToPage(pageNum)}>{pageNum}</button>;
-              }
-              if (pageNum === currentPage - 2 && currentPage > 3) return <span key="ellip-1" className="pagination-ellipsis">...</span>;
-              if (pageNum === currentPage + 2 && currentPage < totalPages - 2) return <span key="ellip-2" className="pagination-ellipsis">...</span>;
-              return null;
-            })}
-            <button onClick={() => goToPage(page + 2)} disabled={page + 1 === totalPages}>→</button>
-          </div>
-        )}
-
-        {showAddDialog && <AddExpenseDialog onClose={() => setShowAddDialog(false)} onSuccess={handleAddSuccess} />}
-        {selectedExpenseId && <ExpenseDetailDialog expenseId={selectedExpenseId} onClose={closeDetail} onUpdate={handleUpdateSuccess} onDelete={handleDeleteSuccess} />}
-      </div>
-    </div>
   );
 }

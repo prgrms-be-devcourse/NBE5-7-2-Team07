@@ -15,12 +15,12 @@ const Tabs = ({ activeTab, setActiveTab }) => {
       case 'Expenses':
         return `/teams/${teamId}/expenses`;
       case 'Settlement':
-        return `/teams/${teamId}/settlement`;
+        return '/settlement'
+        // return `/teams/${teamId}/settlements`;
       default:
         return '#'; // Overview and Members will still use setActiveTab
     }
   };
-
   return (
       <div className={styles.tabs}>
         {tabs.map(tab => {
