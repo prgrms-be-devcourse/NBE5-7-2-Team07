@@ -1,7 +1,7 @@
 "use client"
 
 import {useEffect, useState} from "react"
-import {Link, useLocation, useNavigate, useParams} from "react-router-dom"
+import {useLocation, useNavigate, useParams} from "react-router-dom"
 import {SettlementList} from "../../components/settlement/settlement-list"
 import {SettlementFilter} from "../../components/settlement/settlement-filter"
 import {getListSettlements, getUsers} from "../../service/settlementService"
@@ -114,9 +114,6 @@ export function TeamSettlementsPage() {
       <div className="container py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">팀 정산 내역</h1>
-          <Link to="/settlements/new">
-            <button className="btn btn-primary">새 정산 생성</button>
-          </Link>
         </div>
 
         <div className="mb-6">
