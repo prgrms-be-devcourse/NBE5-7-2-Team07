@@ -31,14 +31,15 @@ export function SettlementDetail({settlement: initialSettlement}) {
         <div className="card-content space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <UserProfile user={settlement.payer} label="결제자 정보"/>
-              <UserProfile user={settlement.settler} label="정산자 정보"/>
+              <UserProfile nickname={settlement.payerNickname} label="결제자 정보"/>
+              <UserProfile nickname={settlement.settlerNickname}
+                           label="정산자 정보"/>
             </div>
 
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm text-muted">연관 지출</h3>
-                <p className="mt-1 font-medium">{settlement.expense
+                <p className="mt-1 font-medium">{settlement.expenseDescription
                     || "알 수 없음"}</p>
                 {settlement.expense && (
                     <p className="text-sm text-muted">
