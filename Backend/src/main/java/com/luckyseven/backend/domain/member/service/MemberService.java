@@ -10,6 +10,7 @@ import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import com.luckyseven.backend.sharedkernel.jwt.entity.BlackListToken;
 import com.luckyseven.backend.sharedkernel.jwt.repository.BlackListTokenRepository;
+import com.luckyseven.backend.sharedkernel.jwt.repository.RefreshTokenRepository;
 import com.luckyseven.backend.sharedkernel.jwt.utill.JwtTokenizer;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -69,13 +70,7 @@ public class MemberService {
       String refreshToken,
       HttpServletResponse resp
   ) {
-    blackListTokenRepository.save(
-        BlackListToken.builder()
-            .tokenValue(refreshToken)
-            .expirationTime(
-                jwtTokenizer.parseRefreshToken(refreshToken).getExpiration().toInstant())
-            .build()
-    );
+    jwtTokenizer.LogoutRefreshToken(refreshToken);
 
     //TODO: 올바른 삭제 방법인가?
     Cookie expired = new Cookie("refreshToken", null);
