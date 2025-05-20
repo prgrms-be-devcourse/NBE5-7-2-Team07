@@ -66,8 +66,8 @@ export function TeamSettlementsPage() {
         setExpenses(expensesResponse)
 
         // 페이징 메타데이터 설정
-        setTotalPages(settlements.totalPages)
-        setTotalElements(settlements.totalElements)
+        setTotalPages(settlementResponse.totalPages)
+        setTotalElements(settlementResponse.totalElements)
         console.info(settlements)
       } catch (error) {
         console.error("팀 정산 내역 조회 오류:", error)

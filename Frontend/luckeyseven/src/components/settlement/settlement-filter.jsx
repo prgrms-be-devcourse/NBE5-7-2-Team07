@@ -3,7 +3,7 @@
 import {useState} from "react"
 import {useLocation, useNavigate} from "react-router-dom"
 
-export function SettlementFilter({users, expenses, initialFilters, teamId}) {
+export function SettlementFilter({users, expenses, initialFilters}) {
   const navigate = useNavigate()
   const location = useLocation()
 
