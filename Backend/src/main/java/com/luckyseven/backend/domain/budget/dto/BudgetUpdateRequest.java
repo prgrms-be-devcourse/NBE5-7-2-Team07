@@ -1,7 +1,9 @@
 package com.luckyseven.backend.domain.budget.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.luckyseven.backend.domain.budget.entity.CurrencyCode;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;

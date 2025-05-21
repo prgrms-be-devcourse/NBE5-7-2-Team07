@@ -13,6 +13,7 @@ import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +35,7 @@ public class BudgetService {
     Budget budget = Budget.builder()
         .team(team)
         .totalAmount(request.totalAmount())
+        .avgExchangeRate(request.exchangeRate())
         .setBy(loginMemberId)
         .balance(request.totalAmount())
         .foreignCurrency(request.foreignCurrency())
@@ -92,8 +94,8 @@ public class BudgetService {
       budget.updateExchangeInfo(request.isExchanged(),
           request.additionalBudget(),
           request.exchangeRate());
-      budget.setTotalAmount(budget.getTotalAmount().add(request.additionalBudget()));
-      budget.addBalance(request);
+      BigDecimal sum = budget.getTotalAmount().add(request.additionalBudget());
+      budget.setTotalAmount(sum);
     }
   }
 
