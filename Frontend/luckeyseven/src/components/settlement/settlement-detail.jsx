@@ -24,7 +24,8 @@ export function SettlementDetail({settlement: initialSettlement}) {
       <div className="card">
         <div className="card-header">
           <div className="flex justify-between items-center">
-            <h3 className="card-title">정산 #{String(settlement.id).substring(0,
+            <h3 className="card-title">정산 #{String(settlement.id).substring(
+                0,
                 8)}</h3>
             <StatusBadge isSettled={settlement.isSettled}/>
           </div>

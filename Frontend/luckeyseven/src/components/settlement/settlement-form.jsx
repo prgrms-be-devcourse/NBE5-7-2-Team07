@@ -13,7 +13,9 @@ export function SettlementForm({
   settlement,
   users,
   expenses,
-  isEditing = false
+  isEditing = false,
+  onFormSubmit,
+  onCancel
 }) {
   const navigate = useNavigate()
   const {addToast} = useToast()
@@ -104,6 +106,12 @@ export function SettlementForm({
             : "새로운 정산 내역이 생성되었습니다.",
       })
 
+      // onFormSubmit이 있으면 호출 (모달에서 사용할 때)
+      if (onFormSubmit) {
+        onFormSubmit(result)
+        return
+      }
+
       // 수정 완료 후 상세 페이지로 이동
       navigate(`/settlements/${isEditing ? settlement.id : result.id}`)
     } catch (error) {
@@ -115,6 +123,14 @@ export function SettlementForm({
       })
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel()
+    } else {
+      navigate(-1)
     }
   }
 
@@ -238,7 +254,7 @@ export function SettlementForm({
 
           <div className="card-footer">
             <button type="button" className="btn btn-outline"
-                    onClick={() => navigate(-1)} disabled={isLoading}>
+                    onClick={handleCancel} disabled={isLoading}>
               취소
             </button>
             <button type="submit" className="btn btn-primary"

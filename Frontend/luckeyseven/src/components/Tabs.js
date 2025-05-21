@@ -1,21 +1,22 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
-import { currentTeamIdState } from '../recoil/atoms/teamAtoms';
+import {useRecoilValue} from 'recoil';
+import {currentTeamIdState} from '../recoil/atoms/teamAtoms';
 import styles from '../styles/Tabs.module.css';
 
-const Tabs = ({ activeTab, setActiveTab }) => {
+const Tabs = ({activeTab, setActiveTab}) => {
   const teamId = useRecoilValue(currentTeamIdState);
   const tabs = ['Overview', 'Members', 'Expenses', 'Settlement'];
 
   const getTabPath = (tab) => {
-    if (!teamId) return '#'; // Or handle the case where teamId is not available
+    if (!teamId) {
+      return '#';
+    } // Or handle the case where teamId is not available
 
     switch (tab) {
       case 'Expenses':
         return `/teams/${teamId}/expenses`;
-      // case 'Settlement':
-      //   return `/teams/${teamId}/settlements`;
+        // case 'Settlement':
+        //   return `/teams/${teamId}/settlements`;
       default:
         return '#'; // Overview and Members will still use setActiveTab
     }
@@ -27,14 +28,16 @@ const Tabs = ({ activeTab, setActiveTab }) => {
           const isLink = tab === 'Expenses';
           const path = getTabPath(tab);
           return (
-            <Link
-              key={tab}
-              to={path}
-              className={`${styles.tabButton} ${activeTab === tab ? styles.tabButtonActive : ''}`}
-              onClick={() => setActiveTab(tab)} // Keep active tab state for styling
-            >
-              {tab}
-            </Link>
+              <button
+                  key={tab}
+                  to={path}
+                  className={`${styles.tabButton} ${activeTab === tab
+                      ? styles.tabButtonActive : ''}`}
+                  onClick={() => setActiveTab(
+                      tab)} // Keep active tab state for styling
+              >
+                {tab}
+              </button>
           );
         })}
       </div>

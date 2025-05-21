@@ -1,12 +1,14 @@
 "use client"
 
 import {useState} from "react"
-import {Link} from "react-router-dom"
 import {formatCurrency, formatDate} from "../../lib/utils"
 import {StatusBadge} from "../common/StatusBadge"
 import {SettlementActions} from "../common/SettlementActions"
 
-export function SettlementList({settlements: initialSettlements}) {
+export function SettlementList({
+  settlements: initialSettlements,
+  onSettlementClick
+}) {
   const [settlements, setSettlements] = useState(initialSettlements)
 
   const handleUpdate = (updatedSettlement) => {
@@ -32,8 +34,11 @@ export function SettlementList({settlements: initialSettlements}) {
   return (
       <div className="space-y-4">
         {settlements.map((settlement) => (
-            <Link to={`/settlements/${settlement.id}`} key={settlement.id}
-                  className="block">
+            <div
+                key={settlement.id}
+                onClick={() => onSettlementClick(settlement.id)}
+                className="block"
+            >
               <div className="card hover:shadow-md transition cursor-pointer">
                 <div className="card-content p-6">
                   <div className="flex justify-between items-start">
@@ -75,14 +80,23 @@ export function SettlementList({settlements: initialSettlements}) {
                       <div className="flex space-x-2">
                         <SettlementActions settlement={settlement}
                                            onUpdate={handleUpdate}
-                                           inline={true}/>
-                        <button className="btn btn-sm">상세 보기</button>
+                                           inline={true}
+                                           onClick={(e) => e.stopPropagation()}/>
+                        <button
+                            className="btn btn-sm"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              onSettlementClick(settlement.id)
+                            }}
+                        >
+                          상세 보기
+                        </button>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </Link>
+            </div>
         ))}
       </div>
   )
