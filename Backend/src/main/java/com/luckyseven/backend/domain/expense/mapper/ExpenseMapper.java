@@ -61,8 +61,7 @@ public class ExpenseMapper {
         .build();
   }
 
-  public static PageResponse<ExpenseResponse> toPageResponse(Page<Expense> expensePage) {
-    Page<ExpenseResponse> responsePage = expensePage.map(ExpenseMapper::toExpenseResponse);
-    return PageResponse.fromPage(responsePage);
+  public static PageResponse<ExpenseResponse> toPageResponse(Page<ExpenseResponse> page) {
+    return PageResponse.fromPage(page);
   }
 }

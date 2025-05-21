@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.luckyseven.backend.domain.budget.entity.Budget;
+import com.luckyseven.backend.domain.budget.entity.CurrencyCode;
 import com.luckyseven.backend.domain.expense.dto.CreateExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseBalanceResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseRequest;
@@ -16,6 +17,7 @@ import com.luckyseven.backend.domain.expense.dto.ExpenseUpdateRequest;
 import com.luckyseven.backend.domain.expense.entity.Expense;
 import com.luckyseven.backend.domain.expense.enums.ExpenseCategory;
 import com.luckyseven.backend.domain.expense.enums.PaymentMethod;
+import com.luckyseven.backend.domain.expense.mapper.ExpenseMapper;
 import com.luckyseven.backend.domain.expense.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.member.service.MemberService;
@@ -23,6 +25,7 @@ import com.luckyseven.backend.domain.settlements.app.SettlementService;
 import com.luckyseven.backend.domain.settlements.dao.SettlementRepository;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.repository.TeamRepository;
+import com.luckyseven.backend.sharedkernel.cache.CacheEvictService;
 import com.luckyseven.backend.sharedkernel.dto.PageResponse;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
@@ -59,6 +62,9 @@ class ExpenseServiceTest {
   private SettlementService settlementService;
 
   @Mock
+  private CacheEvictService cacheEvictService;
+
+  @Mock
   private SettlementRepository settlementRepository;
 
   @InjectMocks
@@ -74,7 +80,9 @@ class ExpenseServiceTest {
   void setUp() {
     budget = Budget.builder()
         .balance(new BigDecimal("100000.00"))
-        .foreignBalance(new BigDecimal("50.00"))
+        .foreignBalance(new BigDecimal("100000.00"))
+        .foreignCurrency(CurrencyCode.USD)
+        .avgExchangeRate(new BigDecimal("1.00"))
         .build();
     payer = Member.builder()
         .email("dldldldl@naver.com")
@@ -119,7 +127,7 @@ class ExpenseServiceTest {
           .payerId(1L)
           .settlerId(List.of(10L, 20L))
           .description("럭키비키즈 점심 식사")
-          .amount(new BigDecimal("50000.00"))
+          .amount(new BigDecimal("10000.00"))
           .category(ExpenseCategory.MEAL)
           .paymentMethod(PaymentMethod.CASH)
           .build();
@@ -425,9 +433,11 @@ class ExpenseServiceTest {
     void success() {
       // given
       Pageable pageable = PageRequest.of(0, 10);
+
+      // 1) Expense 엔티티 생성
       List<Expense> expenses = List.of(
           Expense.builder()
-              .description("럭키비키즈 미국에서 점심 식사")
+              .description("점심 식사")
               .amount(new BigDecimal("10000.00"))
               .category(ExpenseCategory.MEAL)
               .paymentMethod(PaymentMethod.CASH)
@@ -435,7 +445,7 @@ class ExpenseServiceTest {
               .team(team)
               .build(),
           Expense.builder()
-              .description("럭키비키즈 미국에서 저녁 식사")
+              .description("저녁 식사")
               .amount(new BigDecimal("15000.00"))
               .category(ExpenseCategory.MEAL)
               .paymentMethod(PaymentMethod.CARD)
@@ -443,23 +453,26 @@ class ExpenseServiceTest {
               .team(team)
               .build()
       );
-      Page<Expense> page = new PageImpl<>(expenses, pageable, 2);
+
+      List<ExpenseResponse> responseDtos = expenses.stream()
+          .map(ExpenseMapper::toExpenseResponse)
+          .toList();
+      Page<ExpenseResponse> page = new PageImpl<>(responseDtos, pageable, responseDtos.size());
 
       when(teamRepository.existsById(1L)).thenReturn(true);
-      when(expenseRepository.findByTeamId(1L, pageable)).thenReturn(page);
+      when(expenseRepository.findResponsesByTeamId(1L, pageable)).thenReturn(page);
 
-      // when
-      PageResponse<ExpenseResponse> response = expenseService.getListExpense(1L, pageable);
+      PageResponse<ExpenseResponse> result = expenseService.getListExpense(1L, pageable);
 
       // then
-      assertThat(response.getContent()).hasSize(2);
-      assertThat(response.getPage()).isEqualTo(0);
-      assertThat(response.getSize()).isEqualTo(10);
-      assertThat(response.getTotalElements()).isEqualTo(2);
-      assertThat(response.getTotalPages()).isEqualTo(1);
+      assertThat(result.getContent()).hasSize(2);
+      assertThat(result.getPage()).isEqualTo(0);
+      assertThat(result.getSize()).isEqualTo(10);
+      assertThat(result.getTotalElements()).isEqualTo(2);
+      assertThat(result.getTotalPages()).isEqualTo(1);
 
-      ExpenseResponse first = response.getContent().getFirst();
-      assertThat(first.description()).isEqualTo("럭키비키즈 미국에서 점심 식사");
+      ExpenseResponse first = result.getContent().get(0);
+      assertThat(first.description()).isEqualTo("점심 식사");
       assertThat(first.amount()).isEqualByComparingTo(new BigDecimal("10000.00"));
     }
 
