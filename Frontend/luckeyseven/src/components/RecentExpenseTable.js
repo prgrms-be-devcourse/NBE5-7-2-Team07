@@ -36,7 +36,7 @@ const RecentExpensesTable = ({ expenses }) => {
           </tr>
           </thead>
           <tbody>
-          {expenses.map((exp, index) => (
+          {expenses.slice(0, 5).map((exp, index) => (
               <tr key={index}>
                 <td data-label="Title">{exp.title}</td>
                 <td data-label="Amount">

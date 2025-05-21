@@ -1,8 +1,10 @@
 package com.luckyseven.backend.domain.team.util;
 
+import com.luckyseven.backend.domain.expense.repository.CategoryExpenseSum;
 import com.luckyseven.backend.domain.team.dto.TeamCreateRequest;
 import com.luckyseven.backend.domain.team.dto.TeamCreateResponse;
 import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse;
+import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse.CategoryExpenseSumDto;
 import com.luckyseven.backend.domain.team.dto.TeamDashboardResponse.ExpenseDto;
 import com.luckyseven.backend.domain.team.dto.TeamJoinResponse;
 import com.luckyseven.backend.domain.budget.entity.Budget;
@@ -102,7 +104,7 @@ public class TeamMapper {
    * @return 변환된 팀 대시보드 응답 DTO
    */
   public static TeamDashboardResponse toTeamDashboardResponse(Team team, Budget budget,
-      List<Expense> expenses) {
+      List<Expense> expenses, List<CategoryExpenseSum> categoryExpenseSums) {
     if (team == null) {
       return null;
     }
@@ -121,6 +123,18 @@ public class TeamMapper {
             .build());
       }
     }
+    // **카테고리별 합계 매핑**
+    List<CategoryExpenseSumDto> categorySumDtos = new ArrayList<>();
+    if (categoryExpenseSums != null) {
+      for (CategoryExpenseSum sum : categoryExpenseSums) {
+        categorySumDtos.add(
+            CategoryExpenseSumDto.builder()
+                .category(sum.getCategory())
+                .totalAmount(sum.getTotalAmount())
+                .build()
+        );
+      }
+    }
 
     return TeamDashboardResponse.builder()
         .team_id(team.getId())
@@ -133,6 +147,7 @@ public class TeamMapper {
         .totalAmount(budget != null ? budget.getTotalAmount() : BigDecimal.ZERO)
         .avgExchangeRate(budget != null ? budget.getAvgExchangeRate() : BigDecimal.ZERO)
         .expenseList(expenseDtos)
+        .categoryExpenseSumList(categorySumDtos)
         .build();
   }
 }

@@ -2,6 +2,7 @@ package com.luckyseven.backend.domain.expense.repository;
 
 import com.luckyseven.backend.domain.expense.dto.ExpenseResponse;
 import com.luckyseven.backend.domain.expense.entity.Expense;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,4 +54,11 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
           where e.id = :expenseId
       """)
   Optional<Expense> findWithTeamAndBudgetById(Long expenseId);
+
+  @Query("""
+      select e.category as category, sum(e.amount) as totalAmount from Expense e
+            where e.team.id = :teamId
+                  GROUP BY e.category
+      """)
+  Optional<List<CategoryExpenseSum>> findCategoryExpenseSumsByTeamId(Long teamId);
 }

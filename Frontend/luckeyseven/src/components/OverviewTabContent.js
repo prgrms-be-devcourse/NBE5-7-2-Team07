@@ -43,7 +43,7 @@ const OverviewTabContent = ({ dashboardData }) => {
     date: expense.date,
     paidBy: expense.payerNickname,
     paymentMethod: expense.paymentMethod,
-    currency: expense.paymentMethod === "CASH" ? '₩' : foreignCurrency,
+    currency: expense.paymentMethod === "CASH" ? foreignCurrency : '₩',
   })) : [];
 
   return (
