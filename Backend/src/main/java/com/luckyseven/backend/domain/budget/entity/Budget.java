@@ -65,8 +65,8 @@ public class Budget extends BaseEntity {
   }
 
   public void setTotalAmount(BigDecimal totalAmount) {
+    this.balance = this.balance.add(totalAmount.subtract(this.totalAmount));
     this.totalAmount = totalAmount;
-    this.balance = totalAmount;
   }
 
   public void setExchangeInfo(boolean isExchanged, BigDecimal amount, BigDecimal exchangeRate) {
