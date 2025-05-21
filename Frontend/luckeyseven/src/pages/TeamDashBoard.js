@@ -13,12 +13,6 @@ import SetBudgetDialog from '../pages/BudgetPage/components/set-budget-dialog';
 import EditBudgetDialog from '../pages/BudgetPage/components/edit-budget-dialog';
 import AddBudgetDialog from '../pages/BudgetPage/components/add-budget-dialog';
 
-const DoughnutChartPlaceholder = () => (
-  <div className={styles.doughnutChart}>
-    Chart
-  </div>
-);
-
 function TeamDashBoard() {
   const [activeTab, setActiveTab] = useState('Overview');
   const teamId = useRecoilValue(currentTeamIdState);
@@ -160,6 +154,7 @@ function TeamDashBoard() {
               foreignBalance: 0,
               foreignCurrency: 'KRW',
               expenseList: [],
+              categoryExpenseList: [],
               avgExchangeRate: 0
             };
             setDashboardData(basicDashboardData);
