@@ -1,22 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { useRecoilValue } from 'recoil';
-import { currentTeamIdState } from '../recoil/atoms/teamAtoms';
-import { getTeamDashboard, getTeamMembers } from '../service/TeamService';
+import React, {useEffect, useState} from 'react';
+import {useRecoilValue} from 'recoil';
+import {currentTeamIdState} from '../recoil/atoms/teamAtoms';
+import {getTeamDashboard, getTeamMembers} from '../service/TeamService';
 import styles from '../styles/App.module.css';
 import Header from '../components/Header';
 import PageHeaderControls from '../components/PageHeaderControls';
 import Tabs from '../components/Tabs';
 import OverviewTabContent from '../components/OverviewTabContent';
 import MembersTabContent from '../components/MembersTabContent';
-import { TeamSettlementsPage } from './Settlement/TeamSettlementsPage';
+import {TeamSettlementsPage} from './Settlement/TeamSettlementsPage';
 import SetBudgetDialog from '../pages/BudgetPage/components/set-budget-dialog';
-import EditBudgetDialog from '../pages/BudgetPage/components/edit-budget-dialog';
+import EditBudgetDialog
+  from '../pages/BudgetPage/components/edit-budget-dialog';
 import AddBudgetDialog from '../pages/BudgetPage/components/add-budget-dialog';
+import ExpenseList from "./ExpenseDialog/ExpenseList";
 
 const DoughnutChartPlaceholder = () => (
-  <div className={styles.doughnutChart}>
-    Chart
-  </div>
+    <div className={styles.doughnutChart}>
+      Chart
+    </div>
 );
 
 function TeamDashBoard() {
@@ -124,15 +126,19 @@ function TeamDashBoard() {
           setDashboardData({
             ...overviewData,
             budget: {
-              totalAmount: budgetData?.totalAmount ?? overviewData?.totalAmount ?? 0,
+              totalAmount: budgetData?.totalAmount ?? overviewData?.totalAmount
+                  ?? 0,
               balance: budgetData?.balance ?? overviewData?.balance ?? 0,
-              foreignBalance: budgetData?.foreignBalance ?? overviewData?.foreignBalance ?? 0,
-              foreignCurrency: budgetData?.foreignCurrency ?? overviewData?.foreignCurrency ?? 'KRW',
-              avgExchangeRate: budgetData?.avgExchangeRate ?? overviewData?.avgExchangeRate ?? 0,
+              foreignBalance: budgetData?.foreignBalance
+                  ?? overviewData?.foreignBalance ?? 0,
+              foreignCurrency: budgetData?.foreignCurrency
+                  ?? overviewData?.foreignCurrency ?? 'KRW',
+              avgExchangeRate: budgetData?.avgExchangeRate
+                  ?? overviewData?.avgExchangeRate ?? 0,
             }
           });
 
-          const { teamName, teamCode, teamPassword } = overviewData || {};
+          const {teamName, teamCode, teamPassword} = overviewData || {};
 
           const teamMembers = await getTeamMembers(teamId);
 
@@ -172,55 +178,58 @@ function TeamDashBoard() {
   }, [teamId, budgetData, budgetInitialized]);
 
   return (
-    <div className={styles.app}>
-      <Header />
-      <main className={styles.main}>
-        <PageHeaderControls
-          pageHeaderData={pageHeaderData}
-          onBudgetDelete={handleBudgetDelete}
-        />
-        <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
-        {activeTab === 'Overview' &&
-          <OverviewTabContent dashboardData={dashboardData} />
-        }
-        {activeTab === 'Members' && (
-          <MembersTabContent
-            teamCode={membersData.teamCode}
-            teamPassword={membersData.teamPassword}
-            members={membersData.members}
+      <div className={styles.app}>
+        <Header/>
+        <main className={styles.main}>
+          <PageHeaderControls
+              pageHeaderData={pageHeaderData}
+              onBudgetDelete={handleBudgetDelete}
           />
-        )}
-        {activeTab === 'Settlement' && (
-          <TeamSettlementsPage/>
-        )}
+          <Tabs activeTab={activeTab} setActiveTab={setActiveTab}/>
+          {activeTab === 'Overview' &&
+              <OverviewTabContent dashboardData={dashboardData}/>
+          }
+          {activeTab === 'Members' && (
+              <MembersTabContent
+                  teamCode={membersData.teamCode}
+                  teamPassword={membersData.teamPassword}
+                  members={membersData.members}
+              />
+          )}
+          {activeTab === 'Expenses' && (
+              <ExpenseList/>
+          )}
+          {activeTab === 'Settlement' && (
+              <TeamSettlementsPage/>
+          )}
 
-        {dialogType === 'set' && (
-          <SetBudgetDialog
-            key={`set-budget-${dialogKey}`}
-            teamId={teamId}
-            closeDialog={handleCloseDialog}
-            onBudgetUpdate={handleBudgetUpdate}
-          />
-        )}
-        {dialogType === 'edit' && (
-          <EditBudgetDialog
-            key={`edit-budget-${dialogKey}`}
-            teamId={teamId}
-            budgetId={dashboardData?.budget?.id}
-            closeDialog={handleCloseDialog}
-            onBudgetUpdate={handleBudgetUpdate}
-          />
-        )}
-        {dialogType === 'add' && (
-          <AddBudgetDialog
-            key={`add-budget-${dialogKey}`}
-            teamId={teamId}
-            closeDialog={handleCloseDialog}
-            onBudgetUpdate={handleBudgetUpdate}
-          />
-        )}
-      </main>
-    </div>
+          {dialogType === 'set' && (
+              <SetBudgetDialog
+                  key={`set-budget-${dialogKey}`}
+                  teamId={teamId}
+                  closeDialog={handleCloseDialog}
+                  onBudgetUpdate={handleBudgetUpdate}
+              />
+          )}
+          {dialogType === 'edit' && (
+              <EditBudgetDialog
+                  key={`edit-budget-${dialogKey}`}
+                  teamId={teamId}
+                  budgetId={dashboardData?.budget?.id}
+                  closeDialog={handleCloseDialog}
+                  onBudgetUpdate={handleBudgetUpdate}
+              />
+          )}
+          {dialogType === 'add' && (
+              <AddBudgetDialog
+                  key={`add-budget-${dialogKey}`}
+                  teamId={teamId}
+                  closeDialog={handleCloseDialog}
+                  onBudgetUpdate={handleBudgetUpdate}
+              />
+          )}
+        </main>
+      </div>
   );
 }
 
