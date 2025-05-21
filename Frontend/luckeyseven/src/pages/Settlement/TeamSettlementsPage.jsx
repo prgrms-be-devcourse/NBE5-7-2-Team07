@@ -15,6 +15,7 @@ import {getAllExpense} from "../../service/ExpenseService";
 import {useRecoilValue} from "recoil";
 import {currentTeamIdState} from "../../recoil/atoms/teamAtoms";
 import {SettlementForm} from "../../components/settlement/settlement-form"
+import {StatusBadge} from "../../components/common/StatusBadge";
 
 export function TeamSettlementsPage() {
   const recoilTeamId = useRecoilValue(currentTeamIdState)
@@ -353,12 +354,9 @@ export function TeamSettlementsPage() {
                                   <h3 className="card-title">정산 #{String(
                                       selectedSettlement.id).substring(0,
                                       8)}</h3>
-                                  <div
-                                      className={`badge ${selectedSettlement.isSettled
-                                          ? 'bg-green-100 text-green-800'
-                                          : 'bg-yellow-100 text-yellow-800'}`}>
-                                    {selectedSettlement.isSettled ? '정산 완료'
-                                        : '정산 대기'}
+                                  <div>
+                                    <StatusBadge
+                                        isSettled={selectedSettlement.isSettled}/>
                                   </div>
                                 </div>
                               </div>
