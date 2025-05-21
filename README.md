@@ -1,16 +1,48 @@
 # 🍀 럭키비키즈 팀 프로젝트 - 여행 경비 매니저
 
 
-## 📝 소개
+## ✈️ 프로젝트 소개
 
+팀 단위로 여행 경비를 쉽고 정확하게 관리할 수 있는 정산 플랫폼입니다.
 
-팀 단위로 여행 경비를 손쉽게 기록하고 정산할 수 있는 플랫폼입니다.
-
-공동 예산을 설정하고 지출을 입력하면,누가 얼마를 부담해야 하는지 자동으로 계산해주어 팀원 간 경비 정산을 더욱 편리하게 도와줍니다.
+공동 예산을 설정하고 지출 내역을 입력하면,
+누가 얼마를 부담해야 하는지 자동으로 계산해주어
+팀원 간 경비 정산을 더욱 간편하고 투명하게 만들어줍니다.
 
 ---
 
-### 📌 주요 기능
+## 📌 주요 기능
+
+### 👥 팀 관리
+
+* 팀 생성 및 참여
+* 팀 멤버 조회 및 삭제
+* 팀 대시보드 조회
+  
+### 💸 예산 관리
+
+* 팀 단위 예산 등록
+* 예산 정보 조회, 수정, 삭제
+* 원화/외화 예산 분리 지원
+
+### 💵 지출 내역 관리
+
+* 팀별 지출 등록
+* 지출 항목 수정, 삭제
+* 지출 상세 및 리스트 조회
+
+### 💰 정산 기능
+
+* 정산 단건 조회
+* 정산 목록 및 멤버별 정산 현황 조회
+* 정산 완료 처리 
+
+### 🔐 사용자 인증
+
+* 회원가입 / 로그인 / 로그아웃 / 회원 탈퇴
+* 사용자 기반 팀 참여
+
+---
 
 ## ⚙ 기술 스택
 ### 언어 
@@ -73,6 +105,7 @@
   </tr>
 </table>
 
+
 ### 문서
 
 <table>
@@ -83,7 +116,7 @@
 </table>
 
 
-<br />
+----
 
 ## 💁‍♂️ 프로젝트 팀원
 
@@ -133,6 +166,8 @@
   </tbody>
 </table>
 
+----
+
 ## 🛠️ 역할 분담
 
 | 이름   | 담당 기능               |
@@ -143,20 +178,21 @@
 | **필온** | 정산 도메인 담당<br/>React 프론트 페이지 개발 |
 | **선빈** | 회원 도메인 담당<br/>React 프론트 페이지 개발 |
 
+---
 
 ## 🛠️ 프로젝트 아키텍쳐
 
-## 시스템 아키텍처
+###  시스템 아키텍처
 
 ![시스템 아키텍쳐](https://github.com/user-attachments/assets/90daa01f-4e3b-4927-8b0e-45f2cdbc5eee)
 
 
-## ERD
+### ERD
 
 ![ERD](https://github.com/user-attachments/assets/b1d7c51d-cbd9-479c-bf8e-4da8c1728f5d)
 
 
-## 플로우차트
+### 플로우차트
 
 
 
@@ -167,12 +203,49 @@
 <img width="1053" alt="스크린샷 2025-05-07 15 10 04" src="https://github.com/user-attachments/assets/62ff0a5f-5c32-4843-9611-ba1bba78f96f" />
 
 
+----
 
 
 ## 화면 구성
 
+### 회원가입 및 로그인
+
+
+
+https://github.com/user-attachments/assets/cb83d174-a0a5-44e9-8c3f-2df4d17d5d83
+
+### 팀 생성
+
+![image](https://github.com/user-attachments/assets/24a1d694-b63d-47aa-a677-62540a18df08)
+
+#### 팀 대시보드
+
+![image](https://github.com/user-attachments/assets/707d6c9d-31d7-4ceb-a0d6-9d14a34f2675)
+
+#### 예산 설정, 수정 , 삭제
+
+
+https://github.com/user-attachments/assets/7f384c95-ebae-4c7b-a7a8-02325d286a1f
+
+#### 지출 등록, 수정, 삭제
+
+
+https://github.com/user-attachments/assets/0306a909-2c8c-4158-a9fa-a15efdccaef0
+
+
+#### 정산 수정 및, 정산하기
+
+
+
+https://github.com/user-attachments/assets/84a81b25-53c2-4627-8cfa-ff15c6cbca2e
+
+
+
+
+
 
 ## 협업 방식
+
 ### 🛠️ 브랜치 전략
 ![Image20250428163351](https://github.com/user-attachments/assets/71405653-385a-4bd0-95dd-bb0f58aed569)
 1. **이슈 생성**
@@ -210,12 +283,57 @@
 작성한 API는 아래에서 확인할 수 있습니다.
 
 <details>
-<summary> 👉🏻 API 바로보기 </summary>
-<div markdown="1">
-  
-</div>
+<summary>👉🏻 API 바로보기</summary>
+
+<br>
+
+### 💸 예산 API
+
+| 메서드 | URL | 설명 |
+|--------|-----|------|
+| POST | /api/teams/{teamId}/budget | 팀 예산 추가 |
+| GET | /api/teams/{teamId}/budget | 팀 예산 조회 |
+| PATCH | /api/teams/{teamId}/budget | 팀 예산 수정 |
+| DELETE | /api/teams/{teamId}/budget | 팀 예산 삭제 |
+
+### 💰 정산 API
+
+| 메서드 | URL | 설명 |
+|--------|-----|------|
+| GET | /api/settlements/{settlementId} | 정산 단건 조회 |
+| GET | /api/teams/{teamId}/settlements | 정산 목록 조회 |
+| PATCH | /api/settlements/{settlementId} | 정산 수정/완료 |
+
+### 💵 지출 API
+
+| 메서드 | URL | 설명 |
+|--------|-----|------|
+| POST | /api/{teamId}/expense | 지출 등록 |
+| PATCH | /api/expense/{expenseId} | 지출 수정 |
+| DELETE | /api/expense/{expenseId} | 지출 삭제 |
+| GET | /api/expense/{expenseId} | 지출 상세 조회 |
+| GET | /api/teams/{teamId}/expenses | 지출 목록 조회 |
+
+### 👥 팀 API
+
+| 메서드 | URL | 설명 |
+|--------|-----|------|
+| POST | /api/teams | 팀 생성 |
+| POST | /api/teams/members | 팀 참여 |
+| GET | /api/teams/{teamId}/members | 팀 멤버 조회 |
+| DELETE | /api/teams/{teamId}/members/{memberId} | 멤버 삭제 |
+| GET | /api/teams/{teamId}/dashboard | 대시보드 조회 |
+
+### 🙋‍♂️ 회원 API
+
+| 메서드 | URL | 설명 |
+|--------|-----|------|
+| POST | /api/users | 회원가입 |
+| POST | /api/users/login | 로그인 |
+| POST | /api/users/logout | 로그아웃 |
+| POST | /api/users/{userId} | 회원 탈퇴 |
+
 </details>
 
-
-
 ## 🤔 기술적 이슈와 해결 과정
+
