@@ -5,6 +5,8 @@ import {
   updateExpense
 } from '../../service/ExpenseService';
 import '../../components/styles/expenseDetailDialog.css';
+import {useRecoilValue} from "recoil";
+import {teamForeignCurrencyState} from "../../recoil/atoms/teamAtoms";
 
 const CATEGORY_LABELS = {
   MEAL: '식사',
@@ -26,6 +28,7 @@ export default function ExpenseDetailDialog({
   onUpdate,
   onDelete
 }) {
+  const foreignCurrency = useRecoilValue(teamForeignCurrencyState) || 'USD'; // 외화 통화 단위 가져오기
   const [detail, setDetail] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -33,6 +36,13 @@ export default function ExpenseDetailDialog({
     amount: 0,
     category: ''
   });
+
+  // 결제 수단에 따른 통화 단위
+  const CURRENCY_LABELS = {
+    CARD: 'KRW',
+    CASH: foreignCurrency,
+    OTHER: '',
+  };
 
   // ESC 키로 닫기
   useEffect(() => {
@@ -133,6 +143,9 @@ export default function ExpenseDetailDialog({
     setIsEditing(false);
   };
 
+  // 현재 선택된 결제 수단에 따른 통화 단위
+  const currencyUnit = CURRENCY_LABELS[detail.paymentMethod] || '';
+
   return (
       <div className="modal-overlay">
         <div className="modal">
@@ -154,14 +167,36 @@ export default function ExpenseDetailDialog({
                     />
                   </div>
                   <div className="field">
-                    <label>금액 (KRW, USD 등)</label>
-                    <input
-                        type="number"
-                        name="amount"
-                        step="100"
-                        value={formData.amount}
-                        onChange={handleChange}
-                    />
+                    <label>금액</label>
+                    <div style={{
+                      position: 'relative',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}>
+                      <input
+                          type="number"
+                          name="amount"
+                          step="100"
+                          value={formData.amount}
+                          onChange={handleChange}
+                          style={{
+                            width: '100%',
+                            paddingRight: currencyUnit ? '45px' : '10px'
+                          }}
+                      />
+                      {currencyUnit && (
+                          <span
+                              style={{
+                                position: 'absolute',
+                                right: '10px',
+                                pointerEvents: 'none',
+                                color: '#666'
+                              }}
+                          >
+                          {currencyUnit}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="field">
                     <label>카테고리</label>
@@ -179,14 +214,19 @@ export default function ExpenseDetailDialog({
             ) : (
                 <>
                   <p><strong>설명</strong> {detail.description}</p>
-                  <p><strong>지출 금액</strong> <span
-                      className="amount">{detail.amount.toLocaleString()}</span>
+                  <p>
+                    <strong>지출 금액</strong>
+                    <span className="amount">
+                      {detail.amount.toLocaleString()}
+                      {currencyUnit && ` ${currencyUnit}`}
+                    </span>
                   </p>
                   <p><strong>카테고리</strong>{' '}<span className="category"
                                                      data-category={detail.category}>{CATEGORY_LABELS[detail.category]}</span>
                   </p>
                   <p><strong>결제 수단</strong>{' '}<span className="payment"
-                                                      data-payment={detail.paymentMethod}>{PAYMENT_LABELS[detail.paymentMethod]}</span>
+                                                      data-payment={detail.paymentMethod}>{PAYMENT_LABELS[detail.paymentMethod]} {currencyUnit
+                      && `(${currencyUnit})`}</span>
                   </p>
                   <p><strong>결제자</strong> {detail.payerNickname}</p>
                   <p><strong>결제일</strong> {fmtDate(detail.createdAt)}</p>
