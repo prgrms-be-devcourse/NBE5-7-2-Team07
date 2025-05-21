@@ -14,9 +14,8 @@ const Tabs = ({ activeTab, setActiveTab }) => {
     switch (tab) {
       case 'Expenses':
         return `/teams/${teamId}/expenses`;
-      case 'Settlement':
-        return '/settlement'
-        // return `/teams/${teamId}/settlements`;
+      // case 'Settlement':
+      //   return `/teams/${teamId}/settlements`;
       default:
         return '#'; // Overview and Members will still use setActiveTab
     }
@@ -24,10 +23,10 @@ const Tabs = ({ activeTab, setActiveTab }) => {
   return (
       <div className={styles.tabs}>
         {tabs.map(tab => {
-          const isLink = tab === 'Expenses' || tab === 'Settlement';
+          // const isLink = tab === 'Expenses' || tab === 'Settlement';
+          const isLink = tab === 'Expenses';
           const path = getTabPath(tab);
-
-          return isLink ? (
+          return (
             <Link
               key={tab}
               to={path}
@@ -36,14 +35,6 @@ const Tabs = ({ activeTab, setActiveTab }) => {
             >
               {tab}
             </Link>
-          ) : (
-            <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`${styles.tabButton} ${activeTab === tab ? styles.tabButtonActive : ''}`}
-            >
-              {tab}
-            </button>
           );
         })}
       </div>

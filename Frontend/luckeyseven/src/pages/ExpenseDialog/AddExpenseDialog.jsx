@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getTeamMembers, createExpense } from '../../service/ExpenseService';
 import '../../components/styles/addExpenseDialog.css';
-
 const CATEGORY_LABELS = {
   MEAL: '식사',
   SNACK: '간식',
@@ -10,16 +9,13 @@ const CATEGORY_LABELS = {
   ACCOMMODATION: '숙박',
   MISCELLANEOUS: '기타',
 };
-
 const PAYMENT_LABELS = {
   CARD: '카드',
   CASH: '현금',
   OTHER: '기타',
 };
-
 const categories = Object.keys(CATEGORY_LABELS);
 const paymentMethods = Object.keys(PAYMENT_LABELS);
-
 export default function AddExpenseDialog({ onClose, onSuccess }) {
   const { teamId } = useParams();
   const [users, setUsers] = useState([]);
@@ -31,7 +27,6 @@ export default function AddExpenseDialog({ onClose, onSuccess }) {
     paymentMethod: paymentMethods[0],
     settlerIds: []
   });
-
   // ESC 키로 닫기
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -42,7 +37,6 @@ export default function AddExpenseDialog({ onClose, onSuccess }) {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
-
   useEffect(() => {
     async function fetchMembers() {
       try {
@@ -63,7 +57,6 @@ export default function AddExpenseDialog({ onClose, onSuccess }) {
     }
     fetchMembers();
   }, [teamId]);
-
   const handleChange = (e) => {
     const { name, value, options } = e.target;
     if (name === 'settlerIds') {
@@ -79,7 +72,6 @@ export default function AddExpenseDialog({ onClose, onSuccess }) {
       setForm(f => ({ ...f, [name]: value }));
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -92,7 +84,6 @@ export default function AddExpenseDialog({ onClose, onSuccess }) {
         settlerId: form.settlerIds.map(id => Number(id))
       };
       const result = await createExpense(teamId, payload);
-
       if (onSuccess) {
         const newExpense = {
           id: result.id,
@@ -117,7 +108,6 @@ export default function AddExpenseDialog({ onClose, onSuccess }) {
       alert(msg);
     }
   };
-
   return (
     <div className="modal-overlay">
       <div className="modal">
@@ -136,11 +126,11 @@ export default function AddExpenseDialog({ onClose, onSuccess }) {
             />
           </label>
           <label>
-            금액 (₩)
+            금액 (KRW, USD 등)
             <input
               name="amount"
               type="number"
-              step="100"
+              step="0.01"
               value={form.amount}
               onChange={handleChange}
               min="0"

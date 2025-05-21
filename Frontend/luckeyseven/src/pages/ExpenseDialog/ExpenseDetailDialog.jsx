@@ -154,7 +154,7 @@ export default function ExpenseDetailDialog({
                     />
                   </div>
                   <div className="field">
-                    <label>금액 (₩)</label>
+                    <label>금액 (KRW, USD 등)</label>
                     <input
                         type="number"
                         name="amount"
@@ -180,7 +180,7 @@ export default function ExpenseDetailDialog({
                 <>
                   <p><strong>설명</strong> {detail.description}</p>
                   <p><strong>지출 금액</strong> <span
-                      className="amount">{detail.amount.toLocaleString()}원</span>
+                      className="amount">{detail.amount.toLocaleString()}</span>
                   </p>
                   <p><strong>카테고리</strong>{' '}<span className="category"
                                                      data-category={detail.category}>{CATEGORY_LABELS[detail.category]}</span>

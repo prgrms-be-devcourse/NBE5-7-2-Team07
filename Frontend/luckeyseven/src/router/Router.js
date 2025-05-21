@@ -31,7 +31,7 @@ export default function Router() {
         <Route path="/TeamDashBoard" element={<TeamDashBoard/>}/>
         <Route path="/" element={<Home/>}></Route>
         <Route path="/teams/:teamId/expenses" element={<ExpensesPage/>}/>
-        {/*<Route path="/teams/:teamId/settlements" element={<SettlementPage/>}/>*/}
+        {/* <Route path="/teams/:teamId/settlements" element={<SettlementPage/>}/> */}
         <Route path="*" element={<Navigate to="/" replace/>}/>
       </Routes>
   )
