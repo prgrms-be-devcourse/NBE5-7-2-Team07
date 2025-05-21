@@ -8,6 +8,7 @@ import PageHeaderControls from '../components/PageHeaderControls';
 import Tabs from '../components/Tabs';
 import OverviewTabContent from '../components/OverviewTabContent';
 import MembersTabContent from '../components/MembersTabContent';
+import { TeamSettlementsPage } from './Settlement/TeamSettlementsPage';
 import SetBudgetDialog from '../pages/BudgetPage/components/set-budget-dialog';
 import EditBudgetDialog from '../pages/BudgetPage/components/edit-budget-dialog';
 import AddBudgetDialog from '../pages/BudgetPage/components/add-budget-dialog';
@@ -22,7 +23,6 @@ function TeamDashBoard() {
   const [activeTab, setActiveTab] = useState('Overview');
   const teamId = useRecoilValue(currentTeamIdState);
   const [dashboardData, setDashboardData] = useState(null);
-  // Added state for dialog control
   const [dialogType, setDialogType] = useState(null); // 'set', 'edit', 'add', or null
   // 다이얼로그 인스턴스를 구분하기 위한 키 생성 상태 추가
   const [dialogKey, setDialogKey] = useState(Date.now());
@@ -190,8 +190,10 @@ function TeamDashBoard() {
             members={membersData.members}
           />
         )}
+        {activeTab === 'Settlement' && (
+          <TeamSettlementsPage/>
+        )}
 
-        {/* Render dialogs based on dialog type with consistent key */}
         {dialogType === 'set' && (
           <SetBudgetDialog
             key={`set-budget-${dialogKey}`}

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
-
 import AddExpenseDialog from './AddExpenseDialog';
 import ExpenseDetailDialog from './ExpenseDetailDialog';
 import Header from '../../components/Header';
@@ -9,9 +8,7 @@ import { getListExpense } from '../../service/ExpenseService';
 import { currentTeamIdState } from '../../recoil/atoms/teamAtoms';
 import { FaMoneyBillWave } from 'react-icons/fa';
 import { FiHome, FiPlus } from 'react-icons/fi';
-
 import '../../components/styles/expenseList.css';
-
 const CATEGORY_LABELS = {
   MEAL: '식사',
   SNACK: '간식',
@@ -19,11 +16,9 @@ const CATEGORY_LABELS = {
   ACCOMMODATION: '숙박',
   MISCELLANEOUS: '기타',
 };
-
 export default function ExpenseList() {
   const teamId = useRecoilValue(currentTeamIdState);
   const navigate = useNavigate();
-
   const [expenses, setExpenses] = useState([]);
   const [page, setPage] = useState(0);
   const [size] = useState(10);
@@ -31,12 +26,10 @@ export default function ExpenseList() {
   const [sortDirection, setSortDirection] = useState('DESC');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [balances, setBalances] = useState(null);
   const [notification, setNotification] = useState({ message: '', type: '' });
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [selectedExpenseId, setSelectedExpenseId] = useState(null);
-
   const fetchExpenses = useCallback(async () => {
     setLoading(true);
     try {
@@ -50,11 +43,9 @@ export default function ExpenseList() {
       setLoading(false);
     }
   }, [teamId, page, size, sortDirection]);
-
   useEffect(() => {
     fetchExpenses();
   }, [fetchExpenses]);
-
   useEffect(() => {
     if (!balances && !notification.message) return;
     const timer = setTimeout(() => {
@@ -63,7 +54,6 @@ export default function ExpenseList() {
     }, 10000);
     return () => clearTimeout(timer);
   }, [balances, notification]);
-
   const fmt = v => (v != null ? v.toLocaleString() : '-');
   const formatDate = d =>
     new Date(d).toLocaleDateString('ko-KR', {
@@ -72,32 +62,27 @@ export default function ExpenseList() {
       day: 'numeric',
       weekday: 'short',
     });
-
   const openDetail = id => setSelectedExpenseId(id);
   const closeDetail = () => setSelectedExpenseId(null);
   const goToPage = n => setPage(n - 1);
-
   const handleAddSuccess = async (_, bal) => {
     setBalances(bal);
     setNotification({ message: '지출이 성공적으로 등록되었습니다.', type: 'register' });
     setShowAddDialog(false);
     await fetchExpenses();
   };
-
   const handleUpdateSuccess = (updatedExpense, bal) => {
     setExpenses(prev => prev.map(e => (e.id === updatedExpense.id ? updatedExpense : e)));
     setBalances(bal);
     setNotification({ message: '지출이 성공적으로 수정되었습니다.', type: 'update' });
     closeDetail();
   };
-
   const handleDeleteSuccess = (deletedId, bal) => {
     setExpenses(prev => prev.filter(e => e.id !== deletedId));
     setBalances(bal);
     setNotification({ message: '지출이 성공적으로 삭제되었습니다.', type: 'delete' });
     closeDetail();
   };
-
   if (loading) {
     return (
       <div className="expense-tracker">
@@ -108,7 +93,6 @@ export default function ExpenseList() {
       </div>
     );
   }
-
   if (error) {
     return (
       <div className="expense-tracker">
@@ -122,7 +106,6 @@ export default function ExpenseList() {
       </div>
     );
   }
-
   return (
     <div className="expense-tracker">
       <Header />
@@ -130,7 +113,6 @@ export default function ExpenseList() {
         <h2 className="section-title">
           <FaMoneyBillWave className="section-icon" /> 지출 내역
         </h2>
-
         {/* 잔고/알림 배너 */}
         {(balances || notification.message) && (
           <div className="balance-banner">
@@ -149,13 +131,12 @@ export default function ExpenseList() {
             )}
           </div>
         )}
-
         {/* 액션 바 */}
         <div className="actions">
           <div className="header-actions">
-            <button className="btn btn-outlined" onClick={() => navigate('/TeamDashBoard')}>
+            {/* <button className="btn btn-outlined" onClick={() => navigate('/TeamDashBoard')}>
               <FiHome /> 팀 대시보드
-            </button>
+            </button> */}
             <button className="btn btn-filled" onClick={() => setShowAddDialog(true)}>
               <FiPlus /> 지출 추가
             </button>
@@ -169,7 +150,6 @@ export default function ExpenseList() {
             </button>
           </div>
         </div>
-
         {/* 테이블 / 빈 상태 */}
         {expenses.length === 0 ? (
           <div className="empty-state">
@@ -182,7 +162,7 @@ export default function ExpenseList() {
               <thead>
                 <tr>
                   <th>제목</th>
-                  <th>가격 (KRW)</th>
+                  <th>가격 (KRW, USD 등)</th>
                   <th>카테고리</th>
                   <th>날짜</th>
                   <th>결제자</th>
@@ -192,7 +172,7 @@ export default function ExpenseList() {
                 {expenses.map(exp => (
                   <tr key={exp.id} onClick={() => openDetail(exp.id)} style={{ cursor: 'pointer' }}>
                     <td>{exp.description}</td>
-                    <td className="amount">₩{exp.amount.toLocaleString()}</td>
+                    <td className="amount">{exp.amount.toLocaleString()}</td>
                     <td>
                       <span className="category" data-category={exp.category}>
                         {CATEGORY_LABELS[exp.category] || exp.category}
@@ -206,7 +186,6 @@ export default function ExpenseList() {
             </table>
           </div>
         )}
-
         {/* 페이지네이션 */}
         {totalPages > 1 && (
           <div className="pagination">
@@ -232,7 +211,6 @@ export default function ExpenseList() {
             </button>
           </div>
         )}
-
         {/* 다이얼로그 */}
         {showAddDialog && <AddExpenseDialog onClose={() => setShowAddDialog(false)} onSuccess={handleAddSuccess} />}
         {selectedExpenseId && (
