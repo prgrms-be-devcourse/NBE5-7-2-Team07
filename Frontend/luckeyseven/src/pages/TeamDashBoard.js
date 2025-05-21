@@ -1,6 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {useRecoilValue} from 'recoil';
-import {currentTeamIdState} from '../recoil/atoms/teamAtoms';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {
+  currentTeamIdState,
+  teamForeignCurrencyState
+} from '../recoil/atoms/teamAtoms';
 import {getTeamDashboard, getTeamMembers} from '../service/TeamService';
 import styles from '../styles/App.module.css';
 import Header from '../components/Header';
@@ -24,6 +27,7 @@ const DoughnutChartPlaceholder = () => (
 function TeamDashBoard() {
   const [activeTab, setActiveTab] = useState('Overview');
   const teamId = useRecoilValue(currentTeamIdState);
+  const setTeamForeignCurrency = useSetRecoilState(teamForeignCurrencyState); // 외화 통화 단위 설정 함수
   const [dashboardData, setDashboardData] = useState(null);
   const [dialogType, setDialogType] = useState(null); // 'set', 'edit', 'add', or null
   // 다이얼로그 인스턴스를 구분하기 위한 키 생성 상태 추가
@@ -66,10 +70,15 @@ function TeamDashBoard() {
           totalAmount: updatedBudget?.totalAmount || 0,
           balance: updatedBudget?.balance || 0,
           foreignBalance: updatedBudget?.foreignBalance || 0,
-          foreignCurrency: updatedBudget?.foreignCurrency || 'KRW',
+          foreignCurrency: updatedBudget?.foreignCurrency || 'USD',
           avgExchangeRate: updatedBudget?.avgExchangeRate || 0
         }
       });
+
+      // 외화 통화 단위를 Recoil 상태로 저장
+      if (updatedBudget?.foreignCurrency) {
+        setTeamForeignCurrency(updatedBudget.foreignCurrency);
+      }
     }
 
     setDialogType(null);
@@ -89,10 +98,13 @@ function TeamDashBoard() {
           totalAmount: 0,
           balance: 0,
           foreignBalance: 0,
-          foreignCurrency: 'KRW',
+          foreignCurrency: 'USD',
           avgExchangeRate: 0
         }
       });
+
+      // 외화 통화 단위 기본값 설정
+      setTeamForeignCurrency('USD');
     }
 
     // 모든 관련 대화상자 닫기
@@ -107,7 +119,7 @@ function TeamDashBoard() {
           totalAmount: 0,
           balance: 0,
           foreignBalance: 0,
-          foreignCurrency: 'KRW',
+          foreignCurrency: 'USD',
           avgExchangeRate: 0
         }
       });
@@ -123,6 +135,11 @@ function TeamDashBoard() {
           const overviewData = await getTeamDashboard(teamId);
           console.log("Overview Data:", overviewData);
 
+          // 외화 통화 단위를 Recoil 상태로 저장
+          if (overviewData?.foreignCurrency) {
+            setTeamForeignCurrency(overviewData.foreignCurrency);
+          }
+
           setDashboardData({
             ...overviewData,
             budget: {
@@ -132,7 +149,7 @@ function TeamDashBoard() {
               foreignBalance: budgetData?.foreignBalance
                   ?? overviewData?.foreignBalance ?? 0,
               foreignCurrency: budgetData?.foreignCurrency
-                  ?? overviewData?.foreignCurrency ?? 'KRW',
+                  ?? overviewData?.foreignCurrency ?? 'USD',
               avgExchangeRate: budgetData?.avgExchangeRate
                   ?? overviewData?.avgExchangeRate ?? 0,
             }
@@ -164,7 +181,7 @@ function TeamDashBoard() {
               totalAmount: 0,
               balance: 0,
               foreignBalance: 0,
-              foreignCurrency: 'KRW',
+              foreignCurrency: 'USD',
               expenseList: [],
               avgExchangeRate: 0
             };
@@ -175,7 +192,7 @@ function TeamDashBoard() {
     };
 
     fetchData();
-  }, [teamId, budgetData, budgetInitialized]);
+  }, [teamId, budgetData, budgetInitialized, setTeamForeignCurrency]);
 
   return (
       <div className={styles.app}>

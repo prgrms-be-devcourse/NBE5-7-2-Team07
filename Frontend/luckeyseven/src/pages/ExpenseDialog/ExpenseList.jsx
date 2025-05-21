@@ -5,7 +5,10 @@ import AddExpenseDialog from './AddExpenseDialog';
 import ExpenseDetailDialog from './ExpenseDetailDialog';
 import Header from '../../components/Header';
 import {getListExpense} from '../../service/ExpenseService';
-import {currentTeamIdState} from '../../recoil/atoms/teamAtoms';
+import {
+  currentTeamIdState,
+  teamForeignCurrencyState
+} from '../../recoil/atoms/teamAtoms';
 import {FaMoneyBillWave} from 'react-icons/fa';
 import {FiPlus} from 'react-icons/fi';
 import '../../components/styles/expenseList.css';
@@ -17,8 +20,17 @@ const CATEGORY_LABELS = {
   ACCOMMODATION: '숙박',
   MISCELLANEOUS: '기타',
 };
+
+// 결제 수단에 따른 통화 단위 매핑
+const PAYMENT_METHOD_TO_CURRENCY = {
+  CARD: 'KRW',
+  CASH: '', // 실제 외화 통화 단위는 동적으로 결정됨
+  OTHER: '',
+};
+
 export default function ExpenseList() {
   const teamId = useRecoilValue(currentTeamIdState);
+  const foreignCurrency = useRecoilValue(teamForeignCurrencyState) || 'USD'; // 외화 통화 단위 가져오기
   const navigate = useNavigate();
   const [expenses, setExpenses] = useState([]);
   const [page, setPage] = useState(0);
@@ -31,6 +43,7 @@ export default function ExpenseList() {
   const [notification, setNotification] = useState({message: '', type: ''});
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [selectedExpenseId, setSelectedExpenseId] = useState(null);
+
   const fetchExpenses = useCallback(async () => {
     setLoading(true);
     try {
@@ -45,9 +58,11 @@ export default function ExpenseList() {
       setLoading(false);
     }
   }, [teamId, page, size, sortDirection]);
+
   useEffect(() => {
     fetchExpenses();
   }, [fetchExpenses]);
+
   useEffect(() => {
     if (!balances && !notification.message) {
       return;
@@ -58,7 +73,9 @@ export default function ExpenseList() {
     }, 10000);
     return () => clearTimeout(timer);
   }, [balances, notification]);
+
   const fmt = v => (v != null ? v.toLocaleString() : '-');
+
   const formatDate = d =>
       new Date(d).toLocaleDateString('ko-KR', {
         year: 'numeric',
@@ -66,15 +83,29 @@ export default function ExpenseList() {
         day: 'numeric',
         weekday: 'short',
       });
+
+  // 결제 수단에 따라 통화 단위 반환
+  const getCurrencyUnit = (paymentMethod) => {
+    if (paymentMethod === 'CARD') {
+      return 'KRW';
+    }
+    if (paymentMethod === 'CASH') {
+      return foreignCurrency;
+    }
+    return '';
+  };
+
   const openDetail = id => setSelectedExpenseId(id);
   const closeDetail = () => setSelectedExpenseId(null);
   const goToPage = n => setPage(n - 1);
+
   const handleAddSuccess = async (_, bal) => {
     setBalances(bal);
     setNotification({message: '지출이 성공적으로 등록되었습니다.', type: 'register'});
     setShowAddDialog(false);
     await fetchExpenses();
   };
+
   const handleUpdateSuccess = (updatedExpense, bal) => {
     setExpenses(prev => prev.map(
         e => (e.id === updatedExpense.id ? updatedExpense : e)));
@@ -82,12 +113,14 @@ export default function ExpenseList() {
     setNotification({message: '지출이 성공적으로 수정되었습니다.', type: 'update'});
     closeDetail();
   };
+
   const handleDeleteSuccess = (deletedId, bal) => {
     setExpenses(prev => prev.filter(e => e.id !== deletedId));
     setBalances(bal);
     setNotification({message: '지출이 성공적으로 삭제되었습니다.', type: 'delete'});
     closeDetail();
   };
+
   if (loading) {
     return (
         <div className="expense-tracker">
@@ -98,6 +131,7 @@ export default function ExpenseList() {
         </div>
     );
   }
+
   if (error) {
     return (
         <div className="expense-tracker">
@@ -110,6 +144,7 @@ export default function ExpenseList() {
         </div>
     );
   }
+
   return (
       <div className="expense-tracker">
         <div className="content">
@@ -124,7 +159,8 @@ export default function ExpenseList() {
                       <span className="label">원화 잔고:</span>
                       <strong>₩{fmt(balances.balance)}</strong>&nbsp;&nbsp;
                       <span className="label">외화 잔고:</span>
-                      <strong>${fmt(balances.foreignBalance)}</strong>
+                      <strong>{fmt(
+                          balances.foreignBalance)} {foreignCurrency}</strong>
                     </div>
                 )}
                 {notification.message && (
@@ -137,9 +173,6 @@ export default function ExpenseList() {
           {/* 액션 바 */}
           <div className="actions">
             <div className="header-actions">
-              {/* <button className="btn btn-outlined" onClick={() => navigate('/TeamDashBoard')}>
-              <FiHome /> 팀 대시보드
-            </button> */}
               <button className="btn btn-filled"
                       onClick={() => setShowAddDialog(true)}>
                 <FiPlus/> 지출 추가
@@ -168,27 +201,34 @@ export default function ExpenseList() {
                   <thead>
                   <tr>
                     <th>제목</th>
-                    <th>가격 (KRW, USD 등)</th>
+                    <th>가격</th>
                     <th>카테고리</th>
                     <th>날짜</th>
                     <th>결제자</th>
                   </tr>
                   </thead>
                   <tbody>
-                  {expenses.map(exp => (
-                      <tr key={exp.id} onClick={() => openDetail(exp.id)}
-                          style={{cursor: 'pointer'}}>
-                        <td>{exp.description}</td>
-                        <td className="amount">{exp.amount.toLocaleString()}</td>
-                        <td>
-                      <span className="category" data-category={exp.category}>
-                        {CATEGORY_LABELS[exp.category] || exp.category}
-                      </span>
-                        </td>
-                        <td>{formatDate(exp.createdAt)}</td>
-                        <td>{exp.payerNickname}</td>
-                      </tr>
-                  ))}
+                  {expenses.map(exp => {
+                    const currencyUnit = getCurrencyUnit(exp.paymentMethod);
+                    return (
+                        <tr key={exp.id} onClick={() => openDetail(exp.id)}
+                            style={{cursor: 'pointer'}}>
+                          <td>{exp.description}</td>
+                          <td className="amount">
+                            {exp.amount.toLocaleString()} {currencyUnit
+                              && `${currencyUnit}`}
+                          </td>
+                          <td>
+                          <span className="category"
+                                data-category={exp.category}>
+                            {CATEGORY_LABELS[exp.category] || exp.category}
+                          </span>
+                          </td>
+                          <td>{formatDate(exp.createdAt)}</td>
+                          <td>{exp.payerNickname}</td>
+                        </tr>
+                    );
+                  })}
                   </tbody>
                 </table>
               </div>
