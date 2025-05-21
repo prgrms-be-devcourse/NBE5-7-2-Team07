@@ -1,3 +1,5 @@
+
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/prgrms-be-devcourse/NBE5-7-2-Team07)
 # 🍀 럭키비키즈 팀 프로젝트 - 여행 경비 매니저
 
 
@@ -334,4 +336,6 @@ https://github.com/user-attachments/assets/84a81b25-53c2-4627-8cfa-ff15c6cbca2e
 </details>
 
 ## 🤔 기술적 이슈와 해결 과정
+
+# 럭키비키즈 팀 프로젝트 여행 경비 매니저
 
