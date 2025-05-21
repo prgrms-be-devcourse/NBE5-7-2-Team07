@@ -45,15 +45,9 @@ public class ExpenseService {
   public CreateExpenseResponse saveExpense(Long teamId, ExpenseRequest request) {
     Team team = findTeamOrThrow(teamId);
     Member payer = memberService.findMemberOrThrow(request.payerId());
-    Budget budget = team.getBudget();
+    Budget budget = getBudgetFromTeam(team);
 
-    if (request.paymentMethod() == PaymentMethod.CASH) {
-      // 외화 결제: 외화 및 원화 잔액 차감
-      budget.debitForeign(request.amount());
-    } else {
-      // 카드 결제: 원화 잔액 차감
-      budget.debitKrw(request.amount());
-    }
+    calculateAndBudgetUpdate(request.paymentMethod(), budget, request.amount());
 
     Expense expense = ExpenseMapper.fromExpenseRequest(request, team, payer);
     Expense saved = expenseRepository.save(expense);
@@ -84,14 +78,10 @@ public class ExpenseService {
     BigDecimal newAmount = request.amount();
     BigDecimal delta = newAmount.subtract(originalAmount);
 
-    Budget budget = expense.getTeam().getBudget();
-    if (delta.compareTo(BigDecimal.ZERO) > 0) {
-      // 금액 증가 시 원화 잔액 차감
-      budget.debitKrw(delta);
-    } else if (delta.compareTo(BigDecimal.ZERO) < 0) {
-      // 금액 감소 시 줄어든 만큼 원화 환불
-      budget.creditKrw(delta.abs());
-    }
+    Budget budget = getBudgetFromTeam(expense.getTeam());
+    PaymentMethod method = expense.getPaymentMethod();
+
+    updateBudget(delta, method, budget);
 
     expense.update(request.description(), newAmount, request.category());
     evictRecentExpensesForTeam(expense.getTeam().getId());
@@ -102,14 +92,45 @@ public class ExpenseService {
   public ExpenseBalanceResponse deleteExpense(Long expenseId) {
     Expense expense = findExpenseOrThrow(expenseId);
     Long teamId = expense.getTeam().getId();
-    Budget budget = expense.getTeam().getBudget();
+    Budget budget = getBudgetFromTeam(expense.getTeam());
 
-    // 지출 삭제 시 원화 환불
-    budget.creditKrw(expense.getAmount());
+    PaymentMethod method = expense.getPaymentMethod();
+
+    budgetcredit(method, budget, expense.getAmount());
+
     expenseRepository.delete(expense);
 
     evictRecentExpensesForTeam(teamId);
     return ExpenseMapper.toExpenseBalanceResponse(budget);
+  }
+
+  private static void budgetcredit(PaymentMethod method, Budget budget, BigDecimal amount) {
+    if (method == PaymentMethod.CASH) {
+      budget.creditForeign(amount);
+    } else {
+      budget.creditKrw(amount);
+    }
+  }
+
+  private static void calculateAndBudgetUpdate(PaymentMethod request, Budget budget,
+      BigDecimal amount) {
+    if (request == PaymentMethod.CASH) {
+      budget.debitForeign(amount);
+    } else {
+      budget.debitKrw(amount);
+    }
+  }
+
+  private static void updateBudget(BigDecimal delta, PaymentMethod method, Budget budget) {
+    if (delta.compareTo(BigDecimal.ZERO) > 0) {
+      calculateAndBudgetUpdate(method, budget, delta);
+    } else if (delta.compareTo(BigDecimal.ZERO) < 0) {
+      budgetcredit(method, budget, delta.abs());
+    }
+  }
+
+  private Budget getBudgetFromTeam(Team team) {
+    return team.getBudget();
   }
 
   private void evictRecentExpensesForTeam(Long teamId) {
@@ -136,5 +157,4 @@ public class ExpenseService {
     return teamRepository.findTeamWithBudget(teamId)
         .orElseThrow(() -> new CustomLogicException(TEAM_NOT_FOUND));
   }
-
 }

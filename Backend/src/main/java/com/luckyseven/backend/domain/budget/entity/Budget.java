@@ -2,7 +2,6 @@ package com.luckyseven.backend.domain.budget.entity;
 
 import static com.luckyseven.backend.sharedkernel.exception.ExceptionCode.INSUFFICIENT_BALANCE;
 
-import com.luckyseven.backend.domain.budget.dto.BudgetUpdateRequest;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
@@ -157,6 +156,18 @@ public class Budget extends BaseEntity {
   public void creditKrw(BigDecimal krwAmount) {
     balance = balance.add(krwAmount);
   }
+
+  public void creditForeign(BigDecimal foreignAmount) {
+    BigDecimal krwAmount = foreignAmount.multiply(avgExchangeRate);
+    this.balance = this.balance.add(krwAmount);
+
+    if (this.foreignBalance == null) {
+      this.foreignBalance = BigDecimal.ZERO;
+    }
+
+    this.foreignBalance = this.foreignBalance.add(foreignAmount);
+  }
+
 
   private void validateSufficientBalance(BigDecimal amount, BigDecimal current) {
     if (current.compareTo(amount) < 0) {
