@@ -218,7 +218,8 @@ https://github.com/user-attachments/assets/cb83d174-a0a5-44e9-8c3f-2df4d17d5d83
 
 #### 팀 대시보드
 
-![image](https://github.com/user-attachments/assets/707d6c9d-31d7-4ceb-a0d6-9d14a34f2675)
+![image](https://github.com/user-attachments/assets/59e25d3f-8d22-41dd-9970-31f18a92e07e)
+
 
 #### 예산 설정, 수정 , 삭제
 
