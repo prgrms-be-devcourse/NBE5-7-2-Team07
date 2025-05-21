@@ -3,6 +3,7 @@ package com.luckyseven.backend.domain.team.service;
 import com.luckyseven.backend.domain.budget.dao.BudgetRepository;
 import com.luckyseven.backend.domain.budget.entity.Budget;
 import com.luckyseven.backend.domain.expense.entity.Expense;
+import com.luckyseven.backend.domain.expense.repository.CategoryExpenseSum;
 import com.luckyseven.backend.domain.expense.repository.ExpenseRepository;
 import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.member.repository.MemberRepository;
@@ -163,18 +164,16 @@ public class TeamService {
         .orElseThrow(() -> new CustomLogicException(ExceptionCode.TEAM_NOT_FOUND,
             "ID가 [%d]인 팀을 찾을 수 없습니다", teamId));
 
-//    Budget budget = budgetRepository.findByTeamId(teamId)
-//        .orElseThrow(() -> new CustomLogicException(ExceptionCode.BUDGET_NOT_FOUND,
-//            "팀 ID [%d]의 예산 정보가 없습니다", teamId));
-
     // 예산이 없는 경우 null로 처리 (Optional 사용)
     Budget budget = budgetRepository.findByTeamId(teamId).orElse(null);
 
     Pageable pageable = PageRequest.of(0, 5, Sort.by("createdAt").descending());
     Page<Expense> expensePage = expenseRepository.findByTeamId(teamId, pageable);
     List<Expense> recentExpenses = expensePage.getContent();
+    List<CategoryExpenseSum> categoryExpenseSums = expenseRepository.findCategoryExpenseSumsByTeamId(
+        teamId).orElse(null);
 
-    return TeamMapper.toTeamDashboardResponse(team, budget, recentExpenses);
+    return TeamMapper.toTeamDashboardResponse(team, budget, recentExpenses, categoryExpenseSums);
   }
 
 }

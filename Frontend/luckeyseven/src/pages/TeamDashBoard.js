@@ -18,12 +18,6 @@ import EditBudgetDialog
 import AddBudgetDialog from '../pages/BudgetPage/components/add-budget-dialog';
 import ExpenseList from "./ExpenseDialog/ExpenseList";
 
-const DoughnutChartPlaceholder = () => (
-    <div className={styles.doughnutChart}>
-      Chart
-    </div>
-);
-
 function TeamDashBoard() {
   const [activeTab, setActiveTab] = useState('Overview');
   const teamId = useRecoilValue(currentTeamIdState);
@@ -183,6 +177,7 @@ function TeamDashBoard() {
               foreignBalance: 0,
               foreignCurrency: 'USD',
               expenseList: [],
+              categoryExpenseList: [],
               avgExchangeRate: 0
             };
             setDashboardData(basicDashboardData);
