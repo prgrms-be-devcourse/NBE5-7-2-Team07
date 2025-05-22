@@ -76,7 +76,8 @@ const OverviewTabContent = ({dashboardData}) => {
               totalExpense={totalExpense}
               balance={balance}
           />
-          <RecentExpensesTable expenses={transformedExpenses}/>
+          <RecentExpensesTable expenses={transformedExpenses}
+                               foreginCurrency={foreignCurrency}/>
         </div>
       </div>
   );

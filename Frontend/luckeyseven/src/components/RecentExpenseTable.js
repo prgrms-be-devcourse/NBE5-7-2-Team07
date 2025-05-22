@@ -1,20 +1,20 @@
 import React from 'react';
 import styles from '../styles/RecentExpensesTable.module.css';
 
-const RecentExpensesTable = ({ expenses }) => {
+const RecentExpensesTable = ({ expenses, foreignCurrency }) => {
   const CATEGORY_LABELS ={
     MEAL : '식사',
     SNACK: '간식',
     TRANSPORT: '교통',
     MISCELLANEOUS: '숙박',
-    ACCOMMODATION: '기타', 
+    ACCOMMODATION: '기타',
   }
   const categoryColors = {
     MEAL : '#4CAF50',
     SNACK: '#2196F3',
     TRANSPORT: '#9C27B0',
     MISCELLANEOUS: '#E91E63',
-    ACCOMMODATION: '#FFC107', 
+    ACCOMMODATION: '#FFC107',
   };
 
   function getCategoryLabel(code) {
@@ -38,10 +38,10 @@ const RecentExpensesTable = ({ expenses }) => {
           <tbody>
           {expenses.map((exp, index) => (
               <tr key={index}>
-                <td data-label="Title">{exp.title}</td>
+                <td data-label="Title">{exp.description}</td>
                 <td data-label="Amount">
-                  <div className={styles.expenseAmount}>₩{exp.amount.toLocaleString()}</div>
-                  <div className={styles.expenseAmountSecondary}>{exp.currrency}{exp.amount}</div>
+                  <div className={styles.expenseAmount}>{exp.paymentMethod == "CASH" ? foreignCurrency : '₩'}{exp.amount.toLocaleString()}</div>
+                  <div className={styles.expenseAmountSecondary}>{foreignCurrency}{exp.amount}</div>
                 </td>
                 <td data-label="Category">
                 <span

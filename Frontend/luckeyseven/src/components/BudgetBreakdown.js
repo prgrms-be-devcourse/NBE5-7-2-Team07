@@ -16,8 +16,8 @@ const CATEGORY_COLORS = {
   MEAL: '#4CAF50',
   SNACK: '#2196F3',
   TRANSPORT: '#9C27B0',
-  MISCELLANEOUS: '#E91E63',
-  ACCOMMODATION: '#FFC107',
+  MISCELLANEOUS: '#FFC107',
+  ACCOMMODATION: '#E91E63',
 };
 
 const CATEGORY_LABELS = {
@@ -25,8 +25,7 @@ const CATEGORY_LABELS = {
   SNACK: '간식',
   TRANSPORT: '교통',
   ACCOMMODATION: '숙박',
-  ENTERTAINMENT: '엔터테인먼트',
-  SHOPPING: '쇼핑',
+  MISCELLANEOUS: '기타',
 };
 
 const BudgetBreakdown = ({
@@ -75,7 +74,7 @@ const BudgetBreakdown = ({
                     // totalExpense가 전체 합계
                     const percent = totalExpense > 0 ? ((value / totalExpense)
                         * 100).toFixed(1) : 0;
-                    return [`₩${value.toLocaleString()} (${percent}%)`, name];
+                    return [`₩ ${value.toLocaleString()} `, name];
                   }}
               />
               <Legend/>
