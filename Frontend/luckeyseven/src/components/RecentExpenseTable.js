@@ -6,15 +6,15 @@ const RecentExpensesTable = ({ expenses, foreignCurrency }) => {
     MEAL : '식사',
     SNACK: '간식',
     TRANSPORT: '교통',
-    MISCELLANEOUS: '숙박',
-    ACCOMMODATION: '기타',
+    MISCELLANEOUS: '기타',
+    ACCOMMODATION: '숙박',
   }
   const categoryColors = {
     MEAL : '#4CAF50',
     SNACK: '#2196F3',
     TRANSPORT: '#9C27B0',
-    MISCELLANEOUS: '#E91E63',
-    ACCOMMODATION: '#FFC107',
+    MISCELLANEOUS: '#FFC107',
+    ACCOMMODATION: '#E91E63',
   };
 
   function getCategoryLabel(code) {
