@@ -1,13 +1,16 @@
 package com.luckyseven.backend.domain.settlements.entity;
 
-import com.luckyseven.backend.domain.settlements.TempExpense;
-import com.luckyseven.backend.domain.settlements.TempMember;
+import com.luckyseven.backend.domain.expense.entity.Expense;
+import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.sharedkernel.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -30,33 +33,36 @@ import lombok.NoArgsConstructor;
 )
 public class Settlement extends BaseEntity {
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
   @Column(nullable = false, precision = 15, scale = 2)
   private BigDecimal amount;
   @Column(nullable = false)
   private Boolean isSettled = false;
 
-  // TODO: TEMP 엔티티 제거
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), nullable = false)
-  private TempMember settler;
+  @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), name = "settler_id", nullable = false)
+  private Member settler;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), nullable = false)
-  private TempMember payer;
+  @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), name = "payer_id", nullable = false)
+  private Member payer;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), nullable = false)
-  private TempExpense expense;
+  @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), name = "expense_id", nullable = false)
+  private Expense expense;
 
   @Builder
-  public Settlement(BigDecimal amount, TempMember settler, TempMember payer, TempExpense expense) {
+  public Settlement(BigDecimal amount, Member settler, Member payer, Expense expense) {
     this.amount = amount;
     this.settler = settler;
     this.payer = payer;
     this.expense = expense;
   }
 
-  public void update(BigDecimal amount, TempMember settler, TempMember payer, TempExpense expense,
+  public void update(BigDecimal amount, Member settler, Member payer, Expense expense,
       Boolean isSettled) {
     if (amount != null) {
       this.amount = amount;
@@ -75,7 +81,7 @@ public class Settlement extends BaseEntity {
     }
   }
 
-  public void setSettled() {
-    this.isSettled = true;
+  public void convertSettled() {
+    this.isSettled = !this.isSettled;
   }
 }

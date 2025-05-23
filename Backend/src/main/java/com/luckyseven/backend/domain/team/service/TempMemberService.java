@@ -1,7 +1,7 @@
 package com.luckyseven.backend.domain.team.service;
 
-import com.luckyseven.backend.domain.team.entity.Member;
-import com.luckyseven.backend.domain.team.repository.TempMemberRepository;
+import com.luckyseven.backend.domain.member.entity.Member;
+import com.luckyseven.backend.domain.member.repository.MemberRepository;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TempMemberService {
 
-  private final TempMemberRepository tempMemberRepository;
+  private final MemberRepository memberRepository;
 
   public Member getCurrentMember() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -26,7 +26,7 @@ public class TempMemberService {
       memberId = Long.parseLong(authentication.getName());
     }
 
-    return tempMemberRepository.findById(memberId)
+    return memberRepository.findById(memberId)
         .orElseThrow(() -> new CustomLogicException(ExceptionCode.USER_NOT_FOUND,
             "ID가 [%d]인 회원을 찾을 수 없습니다", memberId));
 

@@ -7,20 +7,15 @@ import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 
-@Getter
-@Builder
-@NotNull
-public class BudgetReadResponse {
+public record BudgetReadResponse (
+    @NotNull Long id,
+    @NotNull LocalDateTime updatedAt,
 
-  private Long id;
-  private LocalDateTime updatedAt;
+    @NotNull Long setBy,
+    @NotNull BigDecimal totalAmount,
+    @NotNull BigDecimal balance,
+    @NotNull CurrencyCode foreignCurrency,
 
-  private Long setBy;
-  private BigDecimal totalAmount;
-  private BigDecimal balance;
-  private CurrencyCode foreignCurrency;
-
-  private BigDecimal avgExchangeRate;
-  private BigDecimal foreignBalance;
-
-}
+    BigDecimal avgExchangeRate,
+    BigDecimal foreignBalance
+) { }

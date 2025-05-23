@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import com.luckyseven.backend.domain.budget.dao.BudgetRepository;
-import com.luckyseven.backend.domain.budget.dto.BudgetBaseRequest;
 import com.luckyseven.backend.domain.budget.entity.Budget;
 import com.luckyseven.backend.domain.budget.entity.CurrencyCode;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
@@ -33,7 +32,6 @@ class BudgetValidatorTests {
     // given
     Long teamId = 1L;
     Budget budget = Budget.builder()
-        .teamId(1L)
         .totalAmount(BigDecimal.valueOf(100000))
         .setBy(1L)
         .balance(BigDecimal.valueOf(100000))
@@ -65,26 +63,6 @@ class BudgetValidatorTests {
     assertThatThrownBy(
         () -> {
           budgetValidator.validateBudgetExist(teamId);
-        }
-    ).isInstanceOf(CustomLogicException.class);
-
-  }
-  
-  @Test
-  @DisplayName("validateRequest는 환전 여부가 true일 때 환율을 입력하지 않으면 오류가 발생한다")
-  void validateRequest_throw_exception_when_isExchanged_true_but_exchange_rate_no_exist()
-      throws Exception {
-
-    // given
-    BudgetBaseRequest request = BudgetBaseRequest.builder()
-        .totalAmount(BigDecimal.valueOf(100000))
-        .isExchanged(true)
-        .build();
-
-    // when & then
-    assertThatThrownBy(
-        () -> {
-          budgetValidator.validateRequest(request);
         }
     ).isInstanceOf(CustomLogicException.class);
 

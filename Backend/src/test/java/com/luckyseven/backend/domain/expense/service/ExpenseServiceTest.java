@@ -3,9 +3,12 @@ package com.luckyseven.backend.domain.expense.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.luckyseven.backend.domain.budget.entity.Budget;
+import com.luckyseven.backend.domain.budget.entity.CurrencyCode;
 import com.luckyseven.backend.domain.expense.dto.CreateExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseBalanceResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseRequest;
@@ -14,12 +17,15 @@ import com.luckyseven.backend.domain.expense.dto.ExpenseUpdateRequest;
 import com.luckyseven.backend.domain.expense.entity.Expense;
 import com.luckyseven.backend.domain.expense.enums.ExpenseCategory;
 import com.luckyseven.backend.domain.expense.enums.PaymentMethod;
+import com.luckyseven.backend.domain.expense.mapper.ExpenseMapper;
 import com.luckyseven.backend.domain.expense.repository.ExpenseRepository;
-import com.luckyseven.backend.domain.expense.util.TempBudget;
-import com.luckyseven.backend.domain.expense.util.TempMember;
-import com.luckyseven.backend.domain.expense.util.TempMemberRepository;
-import com.luckyseven.backend.domain.expense.util.TempTeam;
-import com.luckyseven.backend.domain.expense.util.TempTeamRepository;
+import com.luckyseven.backend.domain.member.entity.Member;
+import com.luckyseven.backend.domain.member.service.MemberService;
+import com.luckyseven.backend.domain.settlements.app.SettlementService;
+import com.luckyseven.backend.domain.settlements.dao.SettlementRepository;
+import com.luckyseven.backend.domain.team.entity.Team;
+import com.luckyseven.backend.domain.team.repository.TeamRepository;
+import com.luckyseven.backend.sharedkernel.cache.CacheEvictService;
 import com.luckyseven.backend.sharedkernel.dto.PageResponse;
 import com.luckyseven.backend.sharedkernel.exception.CustomLogicException;
 import com.luckyseven.backend.sharedkernel.exception.ExceptionCode;
@@ -43,36 +49,70 @@ import org.springframework.data.domain.Pageable;
 @ExtendWith(MockitoExtension.class)
 class ExpenseServiceTest {
 
-  // TODO: Temp 수정
-  // TODO: 너무 코드양이 많아서 리팩토링 예정
   @Mock
-  private TempTeamRepository teamRepository;
+  private TeamRepository teamRepository;
 
   @Mock
-  private TempMemberRepository memberRepository;
+  private MemberService memberService;
 
   @Mock
   private ExpenseRepository expenseRepository;
 
+  @Mock
+  private SettlementService settlementService;
+
+  @Mock
+  private CacheEvictService cacheEvictService;
+
+  @Mock
+  private SettlementRepository settlementRepository;
+
   @InjectMocks
   private ExpenseService expenseService;
 
-  private TempTeam team;
-  private TempBudget budget;
-  private TempMember payer;
+  private Team team;
+  private Budget budget;
+  private Member payer;
+  private Member settler1;
+  private Member settler2;
 
   @BeforeEach
   void setUp() {
-    budget = TempBudget.builder()
-        .id(1L)
+    budget = Budget.builder()
         .balance(new BigDecimal("100000.00"))
-        .foreignBalance(new BigDecimal("50.00"))
+        .foreignBalance(new BigDecimal("100000.00"))
+        .foreignCurrency(CurrencyCode.USD)
+        .avgExchangeRate(new BigDecimal("1.00"))
         .build();
-    team = TempTeam.builder()
+    payer = Member.builder()
+        .email("dldldldl@naver.com")
+        .nickname("하하하하하")
+        .password("1234")
+        .build();
+
+    settler1 = Member.builder()
+        .id(10L)
+        .email("settler1@example.com")
+        .nickname("정산자1")
+        .password("abcd1234")
+        .build();
+
+    settler2 = Member.builder()
+        .id(20L)
+        .email("settler2@example.com")
+        .nickname("정산자2")
+        .password("qwer5678")
+        .build();
+
+    team = Team.builder()
         .id(1L)
+        .name("테스트팀")
+        .teamCode("ABC123")
+        .teamPassword("password")
+        .leader(payer)
         .budget(budget)
         .build();
-    payer = new TempMember(1L, "박유한");
+
   }
 
   @Nested
@@ -87,7 +127,7 @@ class ExpenseServiceTest {
           .payerId(1L)
           .settlerId(List.of(10L, 20L))
           .description("럭키비키즈 점심 식사")
-          .amount(new BigDecimal("50000.00"))
+          .amount(new BigDecimal("10000.00"))
           .category(ExpenseCategory.MEAL)
           .paymentMethod(PaymentMethod.CASH)
           .build();
@@ -96,7 +136,7 @@ class ExpenseServiceTest {
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(teamRepository.findTeamWithBudget(1L))
           .thenReturn(Optional.of(team));
-      when(memberRepository.findById(1L)).thenReturn(Optional.of(payer));
+      when(memberService.findMemberOrThrow(1L)).thenReturn(payer);
 
       // when
       CreateExpenseResponse response = expenseService.saveExpense(1L, request);
@@ -105,11 +145,11 @@ class ExpenseServiceTest {
       ArgumentCaptor<Expense> captor = ArgumentCaptor.forClass(Expense.class);
       verify(expenseRepository).save(captor.capture());
       Expense saved = captor.getValue();
-      assertThat(saved.getDescription()).isEqualTo(request.getDescription());
+      assertThat(saved.getDescription()).isEqualTo(request.description());
 
-      BigDecimal expectedBalance = new BigDecimal("100000.00").subtract(request.getAmount());
+      BigDecimal expectedBalance = new BigDecimal("100000.00").subtract(request.amount());
       assertThat(budget.getBalance()).isEqualByComparingTo(expectedBalance);
-      assertThat(response.getBalance()).isEqualByComparingTo(expectedBalance);
+      assertThat(response.balance()).isEqualByComparingTo(expectedBalance);
     }
 
     @Nested
@@ -138,7 +178,6 @@ class ExpenseServiceTest {
       @DisplayName("예산보다 큰 지출 금액")
       void insufficientBalance_throwsException() {
         when(teamRepository.findTeamWithBudget(1L)).thenReturn(Optional.of(team));
-        when(memberRepository.findById(1L)).thenReturn(Optional.of(payer));
         ExpenseRequest request = ExpenseRequest.builder()
             .payerId(1L)
             .description("럭키비키즈 팀 배부르게 식사")
@@ -153,6 +192,44 @@ class ExpenseServiceTest {
             .isEqualTo(ExceptionCode.INSUFFICIENT_BALANCE);
       }
     }
+
+    @Test
+    @DisplayName("지출 등록 성공 및 정산 생성 호출")
+    void success_and_createSettlements() {
+      // given
+      ExpenseRequest request = ExpenseRequest.builder()
+          .payerId(1L)
+          .settlerId(List.of(10L, 20L))
+          .description("럭키비키즈 점심 식사")
+          .amount(new BigDecimal("50000.00"))
+          .category(ExpenseCategory.MEAL)
+          .paymentMethod(PaymentMethod.CASH)
+          .build();
+
+      when(expenseRepository.save(any(Expense.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
+      when(teamRepository.findTeamWithBudget(1L))
+          .thenReturn(Optional.of(team));
+      when(memberService.findMemberOrThrow(1L))
+          .thenReturn(payer);
+
+      // when
+      CreateExpenseResponse response = expenseService.saveExpense(1L, request);
+
+      // then – expense 저장 검증
+      ArgumentCaptor<Expense> expenseCaptor = ArgumentCaptor.forClass(Expense.class);
+      verify(expenseRepository).save(expenseCaptor.capture());
+      Expense savedExpense = expenseCaptor.getValue();
+      assertThat(savedExpense.getDescription()).isEqualTo(request.description());
+
+      // then – 예산 차감 검증
+      BigDecimal expectedBalance = new BigDecimal("100000.00").subtract(request.amount());
+      assertThat(budget.getBalance()).isEqualByComparingTo(expectedBalance);
+      assertThat(response.balance()).isEqualByComparingTo(expectedBalance);
+
+      verify(settlementService).createAllSettlements(eq(request), eq(payer), eq(savedExpense));
+    }
+
   }
 
   @Nested
@@ -162,7 +239,6 @@ class ExpenseServiceTest {
     @Test
     @DisplayName("지출 조회 성공")
     void success() {
-
       Expense expense = Expense.builder()
           .description("럭키비키즈 점심 식사")
           .amount(new BigDecimal("50000.00"))
@@ -172,27 +248,25 @@ class ExpenseServiceTest {
           .team(team)
           .build();
 
-      when(expenseRepository.findById(expense.getId())).thenReturn(Optional.of(expense));
+      when(expenseRepository.findByIdWithPayer(expense.getId())).thenReturn(
+          Optional.of(expense));
 
-      // when
       ExpenseResponse response = expenseService.getExpense(expense.getId());
 
-      // then
-      assertThat(response.getDescription()).isEqualTo("럭키비키즈 점심 식사");
-      assertThat(response.getAmount()).isEqualByComparingTo(new BigDecimal("50000"));
-      assertThat(response.getPayerId()).isEqualTo(1L);
-      assertThat(response.getCategory()).isEqualTo(ExpenseCategory.MEAL);
-      assertThat(response.getPaymentMethod()).isEqualTo(PaymentMethod.CARD);
-
-      verify(expenseRepository).findById(expense.getId());
+      assertThat(response.description()).isEqualTo("럭키비키즈 점심 식사");
+      assertThat(response.amount()).isEqualByComparingTo(new BigDecimal("50000"));
+      assertThat(response.category()).isEqualTo(ExpenseCategory.MEAL);
+      assertThat(response.paymentMethod()).isEqualTo(PaymentMethod.CARD);
+      verify(expenseRepository).findByIdWithPayer(expense.getId());
     }
+
 
     @Test
     @DisplayName("존재하지 않는 지출 조회 시 예외 발생")
     void notFound_throwsException() {
       // given
       Long expenseId = 999L;
-      when(expenseRepository.findById(expenseId)).thenReturn(Optional.empty());
+      when(expenseRepository.findByIdWithPayer(expenseId)).thenReturn(Optional.empty());
 
       // when & then
       assertThatThrownBy(() -> expenseService.getExpense(expenseId))
@@ -226,18 +300,18 @@ class ExpenseServiceTest {
           .team(team)
           .build();
 
-      when(expenseRepository.findById(1L)).thenReturn(Optional.of(original));
+      when(expenseRepository.findWithTeamAndBudgetById(1L)).thenReturn(Optional.of(original));
 
       // when
       CreateExpenseResponse response = expenseService.updateExpense(1L, request);
 
       // then
-      assertThat(original.getDescription()).isEqualTo(request.getDescription());
-      assertThat(original.getAmount()).isEqualByComparingTo(request.getAmount());
-      BigDecimal expectedDelta = request.getAmount().subtract(new BigDecimal("50000.00"));
+      assertThat(original.getDescription()).isEqualTo(request.description());
+      assertThat(original.getAmount()).isEqualByComparingTo(request.amount());
+      BigDecimal expectedDelta = request.amount().subtract(new BigDecimal("50000.00"));
       BigDecimal expectedBalance = new BigDecimal("100000.00").subtract(expectedDelta);
       assertThat(budget.getBalance()).isEqualByComparingTo(expectedBalance);
-      assertThat(response.getBalance()).isEqualByComparingTo(expectedBalance);
+      assertThat(response.balance()).isEqualByComparingTo(expectedBalance);
     }
 
     @Test
@@ -257,22 +331,22 @@ class ExpenseServiceTest {
           .payer(payer)
           .team(team)
           .build();
-      when(expenseRepository.findById(1L)).thenReturn(Optional.of(original));
+      when(expenseRepository.findWithTeamAndBudgetById(1L)).thenReturn(Optional.of(original));
 
       // when
       CreateExpenseResponse response = expenseService.updateExpense(1L, request);
 
       // then
-      BigDecimal expectedDelta = request.getAmount().subtract(new BigDecimal("50000.00"));
+      BigDecimal expectedDelta = request.amount().subtract(new BigDecimal("50000.00"));
       BigDecimal expectedBalance = new BigDecimal("100000.00").subtract(expectedDelta);
       assertThat(budget.getBalance()).isEqualByComparingTo(expectedBalance);
-      assertThat(response.getBalance()).isEqualByComparingTo(expectedBalance);
+      assertThat(response.balance()).isEqualByComparingTo(expectedBalance);
     }
 
     @Test
     @DisplayName("존재하지 않는 지출")
     void expenseNotFound_throwsException() {
-      when(expenseRepository.findById(999L)).thenReturn(Optional.empty());
+      when(expenseRepository.findWithTeamAndBudgetById(999L)).thenReturn(Optional.empty());
       ExpenseUpdateRequest request = ExpenseUpdateRequest.builder()
           .description("없는 지출 수정")
           .amount(new BigDecimal("1000.00"))
@@ -295,8 +369,6 @@ class ExpenseServiceTest {
           .category(ExpenseCategory.MEAL)
           .build();
 
-      TempMember payer = new TempMember();
-
       Expense original = Expense.builder()
           .description("럭키비키즈 원래 점심 식사")
           .amount(new BigDecimal("50000.00"))
@@ -304,7 +376,7 @@ class ExpenseServiceTest {
           .payer(payer)
           .team(team)
           .build();
-      when(expenseRepository.findById(1L)).thenReturn(Optional.of(original));
+      when(expenseRepository.findWithTeamAndBudgetById(1L)).thenReturn(Optional.of(original));
 
       // when & then
       assertThatThrownBy(() -> expenseService.updateExpense(1L, request))
@@ -326,7 +398,7 @@ class ExpenseServiceTest {
           .amount(new BigDecimal("30000.00"))
           .team(team)
           .build();
-      when(expenseRepository.findById(1L)).thenReturn(Optional.of(expense));
+      when(expenseRepository.findWithTeamAndBudgetById(1L)).thenReturn(Optional.of(expense));
 
       // when
       ExpenseBalanceResponse response = expenseService.deleteExpense(1L);
@@ -335,7 +407,7 @@ class ExpenseServiceTest {
       // 예산 13만원으로 증가
       BigDecimal expectedBalance = new BigDecimal("130000.00");
       assertThat(team.getBudget().getBalance()).isEqualByComparingTo(expectedBalance);
-      assertThat(response.getBalance()).isEqualByComparingTo(expectedBalance);
+      assertThat(response.balance()).isEqualByComparingTo(expectedBalance);
 
       verify(expenseRepository).delete(expense);
     }
@@ -343,7 +415,7 @@ class ExpenseServiceTest {
     @Test
     @DisplayName("존재하지 않는 지출 삭제 시 예외 발생")
     void expenseNotFound_throwsException() {
-      when(expenseRepository.findById(999L)).thenReturn(Optional.empty());
+      when(expenseRepository.findWithTeamAndBudgetById(999L)).thenReturn(Optional.empty());
 
       assertThatThrownBy(() -> expenseService.deleteExpense(999L))
           .isInstanceOf(CustomLogicException.class)
@@ -361,9 +433,11 @@ class ExpenseServiceTest {
     void success() {
       // given
       Pageable pageable = PageRequest.of(0, 10);
+
+      // 1) Expense 엔티티 생성
       List<Expense> expenses = List.of(
           Expense.builder()
-              .description("럭키비키즈 미국에서 점심 식사")
+              .description("점심 식사")
               .amount(new BigDecimal("10000.00"))
               .category(ExpenseCategory.MEAL)
               .paymentMethod(PaymentMethod.CASH)
@@ -371,7 +445,7 @@ class ExpenseServiceTest {
               .team(team)
               .build(),
           Expense.builder()
-              .description("럭키비키즈 미국에서 저녁 식사")
+              .description("저녁 식사")
               .amount(new BigDecimal("15000.00"))
               .category(ExpenseCategory.MEAL)
               .paymentMethod(PaymentMethod.CARD)
@@ -379,24 +453,27 @@ class ExpenseServiceTest {
               .team(team)
               .build()
       );
-      Page<Expense> page = new PageImpl<>(expenses, pageable, 2);
 
-      when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
-      when(expenseRepository.findByTeamId(1L, pageable)).thenReturn(page);
+      List<ExpenseResponse> responseDtos = expenses.stream()
+          .map(ExpenseMapper::toExpenseResponse)
+          .toList();
+      Page<ExpenseResponse> page = new PageImpl<>(responseDtos, pageable, responseDtos.size());
 
-      // when
-      PageResponse<ExpenseResponse> response = expenseService.getListExpense(1L, pageable);
+      when(teamRepository.existsById(1L)).thenReturn(true);
+      when(expenseRepository.findResponsesByTeamId(1L, pageable)).thenReturn(page);
+
+      PageResponse<ExpenseResponse> result = expenseService.getListExpense(1L, pageable);
 
       // then
-      assertThat(response.getContent()).hasSize(2);
-      assertThat(response.getPage()).isEqualTo(0);
-      assertThat(response.getSize()).isEqualTo(10);
-      assertThat(response.getTotalElements()).isEqualTo(2);
-      assertThat(response.getTotalPages()).isEqualTo(1);
+      assertThat(result.getContent()).hasSize(2);
+      assertThat(result.getPage()).isEqualTo(0);
+      assertThat(result.getSize()).isEqualTo(10);
+      assertThat(result.getTotalElements()).isEqualTo(2);
+      assertThat(result.getTotalPages()).isEqualTo(1);
 
-      ExpenseResponse first = response.getContent().getFirst();
-      assertThat(first.getDescription()).isEqualTo("럭키비키즈 미국에서 점심 식사");
-      assertThat(first.getAmount()).isEqualByComparingTo(new BigDecimal("10000.00"));
+      ExpenseResponse first = result.getContent().get(0);
+      assertThat(first.description()).isEqualTo("점심 식사");
+      assertThat(first.amount()).isEqualByComparingTo(new BigDecimal("10000.00"));
     }
 
 
@@ -404,12 +481,13 @@ class ExpenseServiceTest {
     @DisplayName("존재하지 않는 팀으로 조회 시 예외 발생")
     void teamNotFound() {
       Pageable pageable = PageRequest.of(0, 5);
-      when(teamRepository.findById(999L)).thenReturn(Optional.empty());
+      when(teamRepository.existsById(999L)).thenReturn(false);
 
       assertThatThrownBy(() -> expenseService.getListExpense(999L, pageable))
           .isInstanceOf(CustomLogicException.class)
           .extracting("exceptionCode")
           .isEqualTo(ExceptionCode.TEAM_NOT_FOUND);
     }
+
   }
 }

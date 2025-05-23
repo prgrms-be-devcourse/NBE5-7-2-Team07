@@ -6,18 +6,13 @@ import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 
-@Getter
-@Builder
-@NotNull
-public class BudgetCreateResponse {
+public record BudgetCreateResponse (
+    @NotNull Long id,
+    @NotNull LocalDateTime createdAt,
 
-  private Long id;
-  private LocalDateTime createdAt;
+    @NotNull Long setBy,
+    @NotNull BigDecimal balance,
 
-  private Long setBy;
-  private BigDecimal balance;
-
-  private BigDecimal avgExchangeRate;
-  private BigDecimal foreignBalance;
-
-}
+    @NotNull BigDecimal avgExchangeRate,
+    @NotNull BigDecimal foreignBalance
+) { }

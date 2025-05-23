@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.luckyseven.backend.core.JwtAuthenticationFilter;
 import com.luckyseven.backend.domain.settlements.app.SettlementService;
 import com.luckyseven.backend.domain.settlements.dto.SettlementResponse;
 import com.luckyseven.backend.domain.settlements.dto.SettlementSearchCondition;
@@ -24,6 +25,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -34,7 +37,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-@WebMvcTest(SettlementController.class)
+@WebMvcTest(controllers = SettlementController.class, excludeFilters = {
+    @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthenticationFilter.class)
+})
 @AutoConfigureMockMvc(addFilters = false)
 class SettlementControllerTest {
 
@@ -110,8 +115,8 @@ class SettlementControllerTest {
     MvcResult result = mockMvc.perform(get("/api/teams/{teamId}/settlements", teamId)
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content[0].id").value(settlement1.getId()))
-        .andExpect(jsonPath("$.content[1].id").value(settlement2.getId()))
+        .andExpect(jsonPath("$.content[0].id").value(settlement1.id()))
+        .andExpect(jsonPath("$.content[1].id").value(settlement2.id()))
         .andReturn();
 
     // then
@@ -167,12 +172,12 @@ class SettlementControllerTest {
   void updateSettlement_ShouldUpdateAndReturnSettlement() throws Exception {
     // given
     Long settlementId = 1L;
-    SettlementUpdateRequest request = new SettlementUpdateRequest();
-    request.setAmount(BigDecimal.valueOf(2000));
-    request.setPayerId(20L);
-    request.setSettlerId(10L);
-    request.setExpenseId(30L);
-    request.setIsSettled(false);
+    SettlementUpdateRequest request = SettlementUpdateRequest.builder()
+        .amount(BigDecimal.valueOf(2000))
+        .payerId(20L)
+        .settlerId(10L)
+        .expenseId(30L)
+        .build();
 
     SettlementResponse mockResponse = SettlementResponse.builder()
         .id(settlementId)
@@ -197,12 +202,12 @@ class SettlementControllerTest {
     String content = result.getResponse().getContentAsString();
     SettlementResponse response = objectMapper.readValue(content, SettlementResponse.class);
 
-    assertThat(response.getId()).isEqualTo(settlementId);
-    assertThat(response.getAmount()).isEqualTo(BigDecimal.valueOf(2000));
-    assertThat(response.getSettlerId()).isEqualTo(10L);
-    assertThat(response.getPayerId()).isEqualTo(20L);
-    assertThat(response.getExpenseId()).isEqualTo(30L);
-    assertThat(response.getIsSettled()).isFalse();
+    assertThat(response.id()).isEqualTo(settlementId);
+    assertThat(response.amount()).isEqualTo(BigDecimal.valueOf(2000));
+    assertThat(response.settlerId()).isEqualTo(10L);
+    assertThat(response.payerId()).isEqualTo(20L);
+    assertThat(response.expenseId()).isEqualTo(30L);
+    assertThat(response.isSettled()).isFalse();
 
     verify(settlementService, times(1)).updateSettlement(eq(settlementId),
         any(SettlementUpdateRequest.class));
@@ -213,7 +218,12 @@ class SettlementControllerTest {
   void settleSettlement_ShouldMarkAsSettled() throws Exception {
     // given
     Long settlementId = 1L;
-    SettlementUpdateRequest request = new SettlementUpdateRequest();
+    SettlementUpdateRequest request = SettlementUpdateRequest.builder()
+        .amount(BigDecimal.valueOf(1000))
+        .payerId(20L)
+        .settlerId(10L)
+        .expenseId(30L)
+        .build();
 
     SettlementResponse mockResponse = SettlementResponse.builder()
         .id(settlementId)
@@ -238,8 +248,8 @@ class SettlementControllerTest {
     String content = result.getResponse().getContentAsString();
     SettlementResponse response = objectMapper.readValue(content, SettlementResponse.class);
 
-    assertThat(response.getId()).isEqualTo(settlementId);
-    assertThat(response.getIsSettled()).isTrue(); // 정산 완료됨 확인
+    assertThat(response.id()).isEqualTo(settlementId);
+    assertThat(response.isSettled()).isTrue(); // 정산 완료됨 확인
 
     verify(settlementService, times(1)).settleSettlement(settlementId);
     verify(settlementService, times(0)).updateSettlement(anyLong(),

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +46,7 @@ public class ExpenseController {
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping("/{teamId}/expense")
   public CreateExpenseResponse createExpense(
-      @PathVariable Long teamId,
+      @PathVariable @Positive Long teamId,
       @RequestBody @Valid ExpenseRequest request
   ) {
     return expenseService.saveExpense(teamId, request);
@@ -96,7 +97,7 @@ public class ExpenseController {
   @ResponseStatus(HttpStatus.OK)
   @GetMapping("/{teamId}/expenses")
   public PageResponse<ExpenseResponse> getListExpense(
-      @PathVariable Long teamId,
+      @PathVariable @Positive Long teamId,
       @ParameterObject
       @PageableDefault(
           sort = "createdAt",

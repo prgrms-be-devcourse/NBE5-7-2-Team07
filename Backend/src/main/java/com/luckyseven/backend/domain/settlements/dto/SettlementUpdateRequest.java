@@ -4,23 +4,23 @@ import com.luckyseven.backend.domain.settlements.entity.Settlement;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import java.math.BigDecimal;
-import lombok.Data;
+import lombok.Builder;
 
 /**
  * DTO for {@link Settlement}
  */
-@Data
-public class SettlementUpdateRequest {
+@Builder
+public record SettlementUpdateRequest(
+    @DecimalMin(value = "0.0", inclusive = false)
+    @Digits(integer = 15, fraction = 2)
+    BigDecimal amount,
 
-  @DecimalMin(value = "0.0", inclusive = false)
-  @Digits(integer = 15, fraction = 2)
-  private BigDecimal amount;
+    Boolean isSettled,
 
-  private Boolean isSettled;
+    Long settlerId,
 
-  private Long settlerId;
+    Long payerId,
 
-  private Long payerId;
+    Long expenseId) {
 
-  private Long expenseId;
 }

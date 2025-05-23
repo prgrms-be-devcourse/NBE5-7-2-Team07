@@ -1,13 +1,13 @@
 package com.luckyseven.backend.domain.expense.mapper;
 
+import com.luckyseven.backend.domain.budget.entity.Budget;
 import com.luckyseven.backend.domain.expense.dto.CreateExpenseResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseBalanceResponse;
 import com.luckyseven.backend.domain.expense.dto.ExpenseRequest;
 import com.luckyseven.backend.domain.expense.dto.ExpenseResponse;
 import com.luckyseven.backend.domain.expense.entity.Expense;
-import com.luckyseven.backend.domain.expense.util.TempBudget;
-import com.luckyseven.backend.domain.expense.util.TempMember;
-import com.luckyseven.backend.domain.expense.util.TempTeam;
+import com.luckyseven.backend.domain.member.entity.Member;
+import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.sharedkernel.dto.PageResponse;
 import org.springframework.data.domain.Page;
 
@@ -16,22 +16,22 @@ public class ExpenseMapper {
   private ExpenseMapper() {
   }
 
-  public static Expense fromExpenseRequest(ExpenseRequest request, TempTeam team,
-      TempMember payer) {
+  public static Expense fromExpenseRequest(ExpenseRequest request, Team team,
+      Member payer) {
     return Expense.builder()
-        .description(request.getDescription())
-        .amount(request.getAmount())
-        .paymentMethod(request.getPaymentMethod())
-        .category(request.getCategory())
+        .description(request.description())
+        .amount(request.amount())
+        .paymentMethod(request.paymentMethod())
+        .category(request.category())
         .payer(payer)
         .team(team)
         .build();
   }
 
-  public static CreateExpenseResponse toCreateExpenseResponse(Expense expense, TempBudget budget) {
+  public static CreateExpenseResponse toCreateExpenseResponse(Expense expense, Budget budget) {
     return CreateExpenseResponse.builder()
         .amount(expense.getAmount())
-        .expenseId(expense.getId())
+        .id(expense.getId())
         .foreignBalance(budget.getForeignBalance())
         .balance(budget.getBalance())
         .createdAt(expense.getCreatedAt())
@@ -39,7 +39,7 @@ public class ExpenseMapper {
         .build();
   }
 
-  public static ExpenseBalanceResponse toExpenseBalanceResponse(TempBudget budget) {
+  public static ExpenseBalanceResponse toExpenseBalanceResponse(Budget budget) {
     return ExpenseBalanceResponse
         .builder()
         .balance(budget.getBalance())
@@ -61,8 +61,7 @@ public class ExpenseMapper {
         .build();
   }
 
-  public static PageResponse<ExpenseResponse> toPageResponse(Page<Expense> expensePage) {
-    Page<ExpenseResponse> responsePage = expensePage.map(ExpenseMapper::toExpenseResponse);
-    return PageResponse.fromPage(responsePage);
+  public static PageResponse<ExpenseResponse> toPageResponse(Page<ExpenseResponse> page) {
+    return PageResponse.fromPage(page);
   }
 }

@@ -14,40 +14,39 @@ import org.springframework.stereotype.Component;
 public class BudgetMapper {
 
   public BudgetCreateResponse toCreateResponse(Budget budget) {
-    return BudgetCreateResponse.builder()
-        .id(budget.getId())
-        .setBy(budget.getSetBy())
-        .balance(budget.getBalance())
-        .foreignBalance(budget.getForeignBalance())
-        .avgExchangeRate(budget.getAvgExchangeRate())
-        .createdAt(budget.getCreatedAt())
-        .build();
+    return new BudgetCreateResponse(
+        budget.getId(),
+        budget.getCreatedAt(),
+        budget.getSetBy(),
+        budget.getBalance(),
+        budget.getAvgExchangeRate(),
+        budget.getForeignBalance()
+    );
   }
 
   public BudgetReadResponse toReadResponse(Budget budget) {
-    return BudgetReadResponse.builder()
-        .id(budget.getId())
-        .setBy(budget.getSetBy())
-        .totalAmount(budget.getTotalAmount())
-        .setBy(budget.getSetBy())
-        .balance(budget.getBalance())
-        .foreignCurrency(budget.getForeignCurrency())
-        .foreignBalance(budget.getForeignBalance())
-        .avgExchangeRate(budget.getAvgExchangeRate())
-        .updatedAt(budget.getUpdatedAt())
-        .build();
+    return new BudgetReadResponse(
+        budget.getId(),
+        budget.getUpdatedAt(),
+        budget.getSetBy(),
+        budget.getTotalAmount(),
+        budget.getBalance(),
+        budget.getForeignCurrency(),
+        budget.getAvgExchangeRate(),
+        budget.getForeignBalance()
+    );
   }
 
   public BudgetUpdateResponse toUpdateResponse(Budget budget) {
-    return BudgetUpdateResponse.builder()
-        .id(budget.getId())
-        .setBy(budget.getSetBy())
-        .balance(budget.getBalance())
-        .foreignCurrency(budget.getForeignCurrency())
-        .foreignBalance(budget.getForeignBalance())
-        .avgExchangeRate(budget.getAvgExchangeRate())
-        .updatedAt(budget.getUpdatedAt())
-        .build();
+    return new BudgetUpdateResponse(
+        budget.getId(),
+        budget.getUpdatedAt(),
+        budget.getSetBy(),
+        budget.getBalance(),
+        budget.getForeignCurrency(),
+        budget.getAvgExchangeRate(),
+        budget.getForeignBalance()
+    );
   }
 
 }

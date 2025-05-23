@@ -1,6 +1,6 @@
 package com.luckyseven.backend.domain.team.util;
 
-import com.luckyseven.backend.domain.team.entity.Member;
+import com.luckyseven.backend.domain.member.entity.Member;
 import com.luckyseven.backend.domain.team.entity.Team;
 import com.luckyseven.backend.domain.team.entity.TeamMember;
 
@@ -39,10 +39,11 @@ public class TestEntityBuilder {
   /**
    * ID가 설정된 Member 객체 생성
    */
-  public static Member createMemberWithId(Long id, String email, String name) {
-    Member member = new Member();
-    member.setEmail(email);
-    member.setName(name);
+  public static Member createMemberWithId(Long id, String email, String nickName) {
+    Member member = Member.builder()
+        .email(email)
+        .nickname(nickName)
+        .build();
 
     setEntityId(member, id);
     return member;
