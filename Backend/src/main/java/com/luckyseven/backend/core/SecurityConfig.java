@@ -15,6 +15,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.util.AntPathMatcher;
 
 
 @Slf4j
@@ -22,12 +23,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
   private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
   private final JwtTokenizer jwtTokenizer;
 
 
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+      throws Exception {
     return config.getAuthenticationManager();
   }
 
@@ -36,7 +39,8 @@ public class SecurityConfig {
     http
         .cors(Customizer.withDefaults())
         .csrf(csrf -> csrf.disable())
-        .sessionManagement(session ->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .exceptionHandling(ex -> ex.authenticationEntryPoint(customAuthenticationEntryPoint))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/users/**",
@@ -44,9 +48,13 @@ public class SecurityConfig {
                 "/swagger-ui.html",
                 "/swagger-ui/**",
                 "/swagger-resources/**",
-                "/webjars/**","/refresh").permitAll()
+                "/webjars/**",
+                "api/refresh",
+                "/**").permitAll()
+
             .anyRequest().authenticated())
-        .addFilterBefore(new JwtAuthenticationFilter(jwtTokenizer,customAuthenticationEntryPoint),
+        .addFilterBefore(new JwtAuthenticationFilter(jwtTokenizer, customAuthenticationEntryPoint,
+                new AntPathMatcher()),
             UsernamePasswordAuthenticationFilter.class);
 
     return http.build();

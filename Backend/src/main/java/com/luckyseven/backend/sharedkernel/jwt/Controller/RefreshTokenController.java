@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RefreshTokenController {
   private final JwtTokenizer jwtTokenizer;
-  @PostMapping("/refresh")
+  @PostMapping("api/refresh")
   public ResponseEntity<Void> refreshToken(@CookieValue(name = "refreshToken") String token,HttpServletResponse response) {
     String accessToken = jwtTokenizer.validateRefreshToken(token,response);
     return ResponseEntity.ok().header("Authorization", "Bearer " + accessToken).build();
